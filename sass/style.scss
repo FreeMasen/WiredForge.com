@@ -1,0 +1,253 @@
+$gray: #E1E2E1;
+$gradient: linear-gradient(#fff, $gray);
+$inverted-gradient: linear-gradient($gray, #fff);
+
+@font-face {
+    font-family: 'Bungee Hairline';
+    src: url("/fonts/BungeeHairline-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Raleway';
+    src: url("/fonts/Raleway-Thin.ttf")
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    font-family: 'Bungee Hairline', sans-serif;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+img {
+    max-width: 250px;
+}
+
+textarea {
+    resize: none;
+}
+
+textarea,
+input[type="text"] {
+    border: 1px solid $gray;
+}
+
+#message-container {
+    z-index: 999;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    background: $gray;
+    padding-top: 2px;
+    padding-bottom: 5px;
+}
+
+.message-text {
+    display: block;
+    margin: auto;
+    text-align: center;
+    font-size: 19pt;
+    font-weight: bold;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+
+#wrapper {
+    width: 100%;
+    margin: 0;
+}
+
+.content {
+    font-family: 'Raleway';
+    width: 95%;
+    margin: auto;
+    font-weight: 200;
+}
+
+#header {
+    margin: 0;
+    width: 100%;
+    background-image: $inverted-gradient;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+#header > h1 {
+    margin: 0;
+    padding-right: 25px;
+    padding-top: 10px;
+    font-size: 40pt;
+}
+
+#login {
+    padding-right: 25px;
+    padding-top: 10px;
+}
+
+#main-content {
+    width: 75%;
+    margin: 0 2% auto;
+    padding: 10px 5px;
+}
+
+#ad-content {
+    width: 25%;
+    height: 100%;
+    background-color: $gray;
+    display: inline-block;
+}
+
+#main-nav {
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: 1px solid $gray;
+}
+
+.nav-item-box:hover,
+.button:hover,
+button:hover {
+    background-image: $gradient;
+}
+
+.button,
+button,
+.button:visited {
+    text-decoration: none;
+    border: 1px solid $gray;
+    background: #fff;
+    box-shadow: 1px 2px 2px 2px $gray;
+    text-decoration: none;
+    padding: 5px;
+}
+
+.button:active,
+button:active {
+    transform: translate(1px, 1px);
+}
+
+.nav-item-box {
+    height: 25px;
+    width: 100px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+.nav-item-box.selected {
+    background-image: $gradient;
+}
+
+#nav-list {
+    margin: 0;
+    display: flex;
+    flex-flow: row;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #323232;
+    font-size: 18pt;
+}
+
+#nav-list > li + li {
+    margin-left: 5px;
+}
+
+nav > ul > li {
+    list-style: none;
+}
+
+.blog-post,
+#form-container,
+.about-content {
+    width: 90%;
+    padding: 0 2%;
+    margin: auto;
+}
+
+#main-content > .blog-post + .blog-post {
+    margin-top: 10px;
+    border-top: 1px solid $gray;
+    padding-top: 25px;
+}
+
+.title-container {
+    padding: 10px 10px 0 10px;
+    height: 50px;
+}
+
+.title-text {
+    font-size: 24pt;
+    font-weight: bold;
+    line-height: 13px;
+}
+
+.header {
+    margin-bottom: 15px;
+}
+
+.sub-header {
+    font-size: 9pt;
+    font-style: oblique;
+    padding-left: 20px;
+}
+
+.edit-button {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.content > .paragraph + .paragraph {
+    margin-top: 10px;
+}
+
+.paragraph {
+    display: block;
+    min-height: 16px;
+}
+
+.control-group {
+    vertical-align: top;
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-start;
+    margin: 0 auto 5px;;
+}
+
+.control-group > label {
+    width: 125px;
+    margin: 0 5px auto;
+}
+
+.control-group > input,
+.control-group > textarea {
+    width: 525px;
+    font-size: 14pt;
+    padding: 0;
+    margin: 0;
+    font-family: 'Raleway';
+}
+
+#post-input {
+    height: 500px;
+}
+
+#post-form {
+    width: 700px;
+    display: flex;
+    flex-flow: column;
+    align-content: flex-start;
+}
+
+#post-submit {
+    align-self: flex-end;
+    margin-top: 15px;
+    margin-right: 19px;
+}

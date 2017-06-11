@@ -1,0 +1,18 @@
+{
+  "name": "wired.forge.firebase",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/firebase": "^2.4.31",
+    "awesome-typescript-loader": "^3.1.3",
+    "typescript": "^2.3.4",
+    "uglify-loader": "^2.0.0",
+    "webpack": "^2.6.1"
+  }
+}
