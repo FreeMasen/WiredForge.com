@@ -4,3 +4,4 @@ export { Login } from './components/Login';
 export { Message } from './components/Message';
 export { Nav } from './components/Nav';
 export { PostForm } from './components/PostForm';
+export { PostController } from './components/PostController';

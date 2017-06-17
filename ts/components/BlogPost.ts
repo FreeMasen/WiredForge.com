@@ -7,7 +7,7 @@ export class BlogPost implements Component {
     html = new HTML();
     md = new MDParser();
     constructor(post:Post, editable: boolean = false) {
-        let header = this.header(post.title, post.author, post.id, editable);
+        let header = this.header(post.title, post.author, post.fbKey, editable);
         this.node = this.html.div(header,
             new Attribute('class', 'blog-post'));
         let c = this.content(post.content);
@@ -17,23 +17,24 @@ export class BlogPost implements Component {
     header(title: string, author: string, id: string, editable: boolean): HTMLElement {
         let subHeader = this.html.span(author, 
             new Attribute('class', 'sub-header'));
-        let t = this.title(title);
+        let t = this.title(title, id, editable);
         let container = this.html.div(t, 
             new Attribute('class', 'header'));
         this.html.addContent(container, [subHeader]);
+        return container;
+    }
+
+    title(title: string,id: string, editable: boolean): HTMLElement {
+        let text = this.html.span(title, 
+            new Attribute('class', 'title-text'))
+        var container = this.html.div(text,
+            new Attribute('class', 'title-container'));
         if (editable && id !==null) {
             this.edit = this.html.button('edit', new Attribute('id', id),
                                                 new Attribute('class', 'edit-button'));
             this.html.addContent(container, [this.edit]);
         }
-        return container;
-    }
-
-    title(title: string): HTMLElement {
-        let text = this.html.span(title, 
-            new Attribute('class', 'title-text'))
-        return this.html.div(text,
-            new Attribute('class', 'title-container'));
+    return container;
     }
 
     content(content: string): HTMLElement {

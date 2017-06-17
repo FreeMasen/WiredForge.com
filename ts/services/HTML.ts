@@ -26,9 +26,13 @@ export class HTML {
      * @param {string} text - The text to appear on the button
      * @param {Array<Attribute>} attributeList - The list of attributes
      */
-    button(text: string, ...attributeList: Attribute[]): HTMLButtonElement {
+    button(text: string | HTMLElement, ...attributeList: Attribute[]): HTMLButtonElement {
         var element = this.createElement('button', ...attributeList);
-        element.innerText = text;
+        if (typeof text == 'string') {
+            element.innerText = text;
+        } else {
+            element.appendChild(text);
+        }
         return <HTMLButtonElement>element;
     }
     
@@ -37,9 +41,12 @@ export class HTML {
      * @param {HTMLElement} innerContent - Inner content
      * @param {Array<Attribute>} attributeList - List of HTML attributes
      */
-    div(innerContent: HTMLElement = null, ...attributeList: Attribute[]): HTMLDivElement {
+    div(innerContent: HTMLElement | HTMLElement[], ...attributeList: Attribute[]): HTMLDivElement {
         var element = <HTMLDivElement>(this.createElement('div', ...attributeList));
         if (!innerContent) return element;
+        if (Array.isArray(innerContent)) {
+            return <HTMLDivElement>(this.addContent(element, <HTMLElement[]>innerContent));
+        }
         element.appendChild(innerContent);
         return element;
     }

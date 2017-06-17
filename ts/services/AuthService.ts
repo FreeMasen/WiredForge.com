@@ -11,11 +11,10 @@ export class AuthService {
         this.auth = Fire.auth(app);
         this.auth.onAuthStateChanged((user) => {
             Logger.log('AuthService', 'onAuthStateChanged', 'with user: ', user !== null);
+            AuthService.user = user;
             if (user) {
-                AuthService.user = this.auth.currentUser;
                 this.events.fire('user-logged-in');
             } else {
-                AuthService.user = null;
                 this.events.fire('user-logged-out');
             }
         },(err) => {
@@ -26,7 +25,8 @@ export class AuthService {
     }
 
     get isLoggedIn(): boolean {
-        return AuthService.user !== null;
+        Logger.log('AuthService', 'isLoggedIn', this.auth.currentUser);
+        return AuthService.user != null;
     }
 
     login(email, password) {
@@ -40,8 +40,10 @@ export class AuthService {
 
     logout() {
         Logger.log('AuthService', 'logout')
-        if (!this.isLoggedIn) return;
         this.auth.signOut()
+            .then(x => {
+                Logger.log('AuthService', 'signOut', x);
+            })
             .catch(err => {
                 Logger.error('AuthService', 'signOut', err);
             });

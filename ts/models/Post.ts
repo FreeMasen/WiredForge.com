@@ -1,9 +1,10 @@
 export class Post {
     constructor(
-        public id: string,
+        public timeStamp: number,
         public title: string,
         public content: string,
-        public author: string
+        public author: string,
+        public fbKey: string
     ) 
     {}
 }

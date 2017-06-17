@@ -10,6 +10,7 @@ export class DataService {
     private static _gatheredAbout = false;
     private static _posts: Post[] = null;
     private static _about: Description[] = null;
+    private static _dbPosts = {};
     private events = new EventHandler();
 
     constructor(app: Fire.app.App) {
@@ -27,7 +28,8 @@ export class DataService {
                 counter++;
                 Logger.log('DataService', 'posts.value', counter);
                 var unparsed = element.val();
-                var post = new Post(unparsed.id, unparsed.title, unparsed.content, unparsed.author);
+                var post = new Post(unparsed.timeStamp, unparsed.title, unparsed.content, unparsed.author, element.key);
+                DataService._dbPosts[element.key] = post;
                 list.push(post);
                 return false;
             });
@@ -49,21 +51,31 @@ export class DataService {
     }
 
     get postElements(): Post[] {
-        return DataService._posts;
+        var list = [];
+        var lastTimestamp: number;
+        for (var k in DataService._dbPosts) {
+            var post: Post = DataService._dbPosts[k];
+            list.push(post);
+            lastTimestamp = post.timeStamp;
+        }
+        return list.sort((lhs, rhs) => {
+                return rhs.timeStamp - lhs.timeStamp;
+            });
     }
 
     get aboutElements(): Description[] {
         return DataService._about;
     }
 
-    findPosts(id: string): Post {
-        var posts = this.db.ref('/posts');
-        for (var i = 0; i < this.postElements.length; i++) {
-            var post = this.postElements[i];
-            if (post.id === id) return post;
-        }
+    findPost(fbKey: string): Post {
+        var post = DataService._dbPosts[fbKey];
+        if (!post) throw new Error('Key does not have a post');
+        return new Post(post.id,
+                        post.title,
+                        post.content,
+                        post.author,
+                        post.fbKey);
     }
-
 
     checkForReady(): void {
         Logger.log('DataService', 'checkForReady', DataService._about, DataService._posts);
@@ -73,12 +85,28 @@ export class DataService {
     }
 
     addNewPost(post: Post, callback: (Error) => void) {
+        Logger.log('DataService', 'addNewPost', post);
         var posts = this.db.ref('/posts');
+        post.fbKey = null;
         posts.push(post, callback);
     }
 
     addNewAbout(desc: Description, callback: (Error) => void): void {
+        Logger.log('DataService', 'addNewAbout', desc);
         var about = this.db.ref('/about');
         about.push(desc, callback);
+    }
+
+    updatePost(post: Post, callback: (Error) => void): void {
+        Logger.log('Dataservice', 'updatePost', post);
+        var posts = this.db.ref('/posts');
+        posts.child(post.fbKey).update(post, callback);
+    }
+
+    private transform(post: Post) {
+        return {
+            title: post.title,
+            author: post.author,
+        }
     }
 }

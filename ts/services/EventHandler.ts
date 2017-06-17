@@ -9,7 +9,12 @@ export class EventHandler {
     registerHTMLEvent(selector: string, eventName: string, listener: Function, context: any): void {
         Logger.log('EventHandler', 'registerHTMLEvent', selector, eventName);
         var elements = document.querySelectorAll(selector);
-        if (elements === undefined || elements.length < 1) return Logger.error('EventHandler:','no elements');
+        if (elements === undefined || elements.length < 1) return Logger.error('EventHandler','no elements', new Error(`document.querySelectorAll(${selector}) found nothing`));
+        this.registerNodeEvent(elements, selector, eventName, listener, context);
+    }
+
+    registerNodeEvent(nodes: HTMLElement | HTMLElement[] | NodeListOf<Element>, selector: string, 
+                        eventName: string, listener: Function, context: any): void {
         if (EventHandler.elementEvents[selector] === undefined) {
             EventHandler.elementEvents[selector] = {};
         }
@@ -17,35 +22,40 @@ export class EventHandler {
         if (!eventTarget[eventName]) {
             eventTarget[eventName] = [];
         }
-        eventTarget[eventName].push(listener.bind(context));
-        for (var i = 0; i < elements.length; i++) {
-            var element = elements[i];
-            element.addEventListener(eventName, this, false);
+        var bound = listener.bind(context);
+        eventTarget[eventName].push(bound);
+        if (nodes instanceof HTMLElement) nodes = [nodes];
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            node.addEventListener(eventName, this, false);
         }
     }
 
     registerEvent(eventName: string, listener: Function, context: any): void {
-        Logger.log('EventHandler:','registerEvent', eventName);
+        Logger.log('EventHandler','registerEvent', eventName);
         if (!EventHandler.nonHTMLEvent[eventName])
             EventHandler.nonHTMLEvent[eventName] = [];
         EventHandler.nonHTMLEvent[eventName].push(listener.bind(context));
     }
 
     fire(eventName: string, ...args: any[]) {
-        Logger.log('EventHandler:', 'fire', eventName, args);
+        Logger.log('EventHandler', 'fire', eventName, args);
         var listeners = EventHandler.nonHTMLEvent[eventName]
         if (!listeners) return;
+        Logger.log('EventHandler', 'fire', listeners);
         for (var i = 0; i < listeners.length; i++) {
             listeners[i](...args);
         }
     }
 
     handleEvent(event): void {
+        Logger.log('EventHandler', 'handleEvent', event);
         var target = <HTMLElement>event.target;
         var eventTarget = this.findTarget(target);
         if (eventTarget === undefined) return;
         var listeners = eventTarget[event.type];
         if (!listeners) return;
+        Logger.log('EventHandler', 'hadleEvent', listeners);
         for (var i = 0; i < listeners.length; i++) {
             var fn = listeners[i];
             fn(event);
