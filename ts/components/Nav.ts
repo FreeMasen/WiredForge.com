@@ -24,16 +24,18 @@ export class Nav implements Component {
     }
 
     addItem(content: string): void {
+        Logger.log('Nav', 'addItem', content);
         if (!this.node.hasChildNodes()) return;
         var list = <HTMLUListElement>(this.node.firstChild);
         this.html.addContent(list, [this.listItem(content)]);
     }
 
     removeItem(content: string): void {
-        var id = content.trim().replace(' ', '-');
-        id += '-nav-list';
+        Logger.log('Nav', 'removeItem', content);
+        var id = content.trim().replace(' ', '-').toLowerCase();
+        id += '-nav-link';
         var link = this.node.querySelector('#' + id);
-        if (!link) return;
-        this.node.removeChild(link.parentElement);
+        if (!link) return Logger.error('Nav', new Error('No nav element'), id);
+        link.parentElement.parentElement.removeChild(link.parentElement);
     }
 }
