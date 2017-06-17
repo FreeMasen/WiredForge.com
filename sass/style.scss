@@ -12,6 +12,18 @@ $inverted-gradient: linear-gradient($gray, #fff);
     src: url("/fonts/Raleway-Thin.ttf")
 }
 
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(/fonts/MaterialIcons-Regular.eot); /* For IE6-8 */
+    src: local('/fonts/Material Icons'),
+    local('/fonts/MaterialIcons-Regular'),
+    url(/fonts/MaterialIcons-Regular.woff2) format('woff2'),
+    url(/fonts/MaterialIcons-Regular.woff) format('woff'),
+    url(/fonts/MaterialIcons-Regular.ttf) format('truetype');
+}
+
 html,
 body {
     width: 100%;
@@ -35,6 +47,11 @@ input[type="text"] {
     border: 1px solid $gray;
 }
 
+i {
+    font-family: 'Material Icons';
+    font-style: normal;
+}
+
 #message-container {
     z-index: 999;
     position: absolute;
@@ -43,6 +60,11 @@ input[type="text"] {
     background: $gray;
     padding-top: 2px;
     padding-bottom: 5px;
+}
+
+.error {
+    background-color: #D4CACE;
+    color: #FF0000;
 }
 
 .message-text {
@@ -61,6 +83,12 @@ input[type="text"] {
 #wrapper {
     width: 100%;
     margin: 0;
+}
+
+#inner-wrapper {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
 }
 
 .content {
@@ -122,7 +150,7 @@ button,
     text-decoration: none;
     border: 1px solid $gray;
     background: #fff;
-    box-shadow: 1px 2px 2px 2px $gray;
+    box-shadow: 1px 1px 1px 1px $gray;
     text-decoration: none;
     padding: 5px;
 }
@@ -180,17 +208,20 @@ nav > ul > li {
 
 .title-container {
     padding: 10px 10px 0 10px;
-    height: 50px;
+    height: 30px;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
 }
 
 .title-text {
     font-size: 24pt;
     font-weight: bold;
-    line-height: 13px;
+    display: block;
 }
 
 .header {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .sub-header {
@@ -202,6 +233,9 @@ nav > ul > li {
 .edit-button {
     margin-left: auto;
     margin-right: 0;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
 }
 
 .content > .paragraph + .paragraph {
@@ -250,4 +284,15 @@ nav > ul > li {
     align-self: flex-end;
     margin-top: 15px;
     margin-right: 19px;
+}
+
+#ad-content {
+    border: 1px solid $gray;
+}
+
+#post-footer-toolbar {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    margin: 2px 300px;
 }

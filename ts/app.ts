@@ -1,6 +1,6 @@
 import { HTML, EventHandler, DataService, AuthService, Logger } from './services';
-import { Nav, BlogPost, About, Login, Message, PostForm } from './components';
-import { Post, Description, Attribute } from './models';
+import { Nav, BlogPost, About, Login, Message, PostForm, PostController } from './components';
+import { Post, Description, Attribute, Component } from './models';
 
 import * as Fire from 'firebase';
 
@@ -17,6 +17,7 @@ class App {
     private auth: AuthService;
     private nav: Nav;
     private currentPage = 1;
+    private currentComponent: Component | Component[];
 
     constructor() {
         var app = Fire.initializeApp({
@@ -28,53 +29,30 @@ class App {
         this.registerAllEvents();
         this.data = new DataService(app);
         this.auth = new AuthService(app);
-        // this.seed()
     }
 
-    seed() {
-        var newPost = new Post(new Date().getTime().toString(),
-                                'Test Post Seed 2',
-                                `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
-                                'Seeder McSeed');
-        var newDesc = new Description('About Wired Forge',
-                                        `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`)
-        this.data.addNewPost(newPost, (err: Error) => {
-            if (err) return this.displayMessage(err.message, true);
-        });
-        this.data.addNewPost(newPost, (err: Error) => {
-            if (err) return this.displayMessage(err.message, true);
-        });
-        // this.data.addNewAbout(newDesc, err => {
-        //     if (err) return this.displayMessage(err.message, true);
-        // })
-    }
-
+    /**
+     * Register all initial events
+     */
     registerAllEvents(): void {
         Logger.log('App', 'registerAllEvents');
         this.events.registerEvent('db-ready', this.displayPosts, this);
-        this.events.registerHTMLEvent('#login', 'click', this.displayLogin, this);
+        this.events.registerHTMLEvent('#login', 'click', this.loginButtonClicked, this);
         this.events.registerHTMLEvent('#home-nav-link','click', this.displayPosts, this);
         this.events.registerHTMLEvent('#about-nav-link', 'click', this.displayAbout, this);
         this.events.registerEvent('user-logged-in', this.userChange, this);
         this.events.registerEvent('user-logged-out', this.userChange, this);
         this.events.registerEvent('error', this.displayMessage, this);
+        this.events.registerEvent('event-saved', this.editComplete, this);
+        this.events.registerEvent('event-created', this.newPost, this);
     }
 
+    /**
+     * Display the nav menu
+     */
     displayNav() {
         Logger.log('App', 'displayNav');
-        var main = document.getElementById('main-content');
+        var main = document.getElementById('inner-wrapper');
         var wrapper = document.getElementById('wrapper');
         if (!main || !wrapper) return;
         wrapper.insertBefore(this.nav.node, main);
@@ -84,19 +62,26 @@ class App {
     /**
      * Display the login form
      */
-    displayLogin(event): void {
+    loginButtonClicked(event): void {
         Logger.log('App','displayLogin');
+        if (event.target.innerHTML === 'Logout') {
+            return this.auth.logout();
+        }
         this.updateNav(event.target);
         if (this.auth.isLoggedIn) {
             this.addUser();
             return;
         }
-        this.fillMain(new Login().node)
+        this.currentComponent = new Login();
+        this.fillMain(this.currentComponent.node);
         this.events.registerHTMLEvent('#login-submit','click', this.sendLoginRequest, this);
     }
 
+    /**
+     * Event handler for a change in the user
+     */
     userChange(): void {
-        Logger.log('App','userChange');
+        Logger.log('App','userChange', this.auth.isLoggedIn);
         if (this.auth.isLoggedIn) return this.addUser();
         this.clearUser();
     }
@@ -108,9 +93,8 @@ class App {
         Logger.log('App','addUser')
         var a = this.html.a('Logout', null, new Attribute('id', 'login'));
         this.html.swapNode('#login', a);
+        this.events.reRegister(a);
         var text = this.auth.isLoggedIn ? 'Logout' : 'Login';
-        this.events.removeListener('click', '#login', this.displayLogin)
-        this.events.registerHTMLEvent('#login', 'click', this.clearUser, this);
         this.displayPosts();
         this.displayMessage('Successfully logged in', false);
         this.nav.addItem('New');
@@ -121,12 +105,18 @@ class App {
      * Event handler for logout
      */
     clearUser(): void {
+        this.displayMessage('Successfuly logged out', false);
         Logger.log('App','clearUser')
-        var a = this.html.a('Login', null, new Attribute('id', 'login'));
+        var text = this.auth.isLoggedIn ? 'Logout' : 'Login';
+        var a = this.html.a(text, null, new Attribute('id', 'login'));
         this.html.swapNode('#login', a);
         this.events.reRegister(a);
-        this.auth.logout();
         this.nav.removeItem('New');
+        var editButtons = document.querySelectorAll('.edit-button');
+        for (var i = 0; i < editButtons.length; i++) {
+            var button = editButtons[i];
+            button.parentElement.removeChild(button);
+        }
     }
 
     /**
@@ -155,20 +145,8 @@ class App {
             target = document.getElementById('home-nav-link')
         }
         this.updateNav(target);
-        var currentStart = (this.currentPage - 1) * 10;
-        if (this.data.postElements === null) return;
-        var posts = this.data.postElements.slice(currentStart, currentStart + 10);
-        if (posts === null) return;
-        let mainContent = document.getElementById('main-content');
-        if (mainContent == null) return;
-
-        var elements = [];
-        for (var i = 0; i < posts.length; i++) {
-            let post = posts[i];
-            var bp = new BlogPost(post, this.auth.isLoggedIn);
-            elements.push(bp.node);
-        }
-        this.fillMain(...elements);
+        this.currentComponent = new PostController(this.data.postElements, this.auth.isLoggedIn);
+        this.fillMain(this.currentComponent.node);
         if (this.auth.isLoggedIn) {
             this.events.registerHTMLEvent('.edit-button', 'click', this.displayPostForm, this);
         } else {
@@ -190,6 +168,7 @@ class App {
             var about = new About(section.title, section.content)
             elements.push(about.node);
         }
+        this.currentComponent = elements;
         this.fillMain(...elements);
     }
 
@@ -214,27 +193,51 @@ class App {
      * @param event The HTML event object
      */
     displayPostForm(event: Event) {
-        Logger.log('App', 'displayNew', event);
+        Logger.log('App', 'displayPostForm', event);
         var target = <HTMLElement>event.target;
-        if (!target) return;
+        if (!target) return Logger.error('App', 'displayPostForm', new Error('No event.target'), event);
         this.updateNav(target);
         
         if (!this.auth.isLoggedIn) 
             return this.displayMessage('You are not authorized to add new content here, have you tried loggin in?', true);
         var post: PostForm;
+        Logger.log('App', 'displayPostForm', target.innerHTML);
         if (target.innerHTML == 'edit') {
-            return this.editPost(target.id);
+            var postToEdit = this.data.findPost(target.id);
+            Logger.log('App', 'displayPostForm', 'found post', postToEdit);
+            this.currentComponent = new PostForm(postToEdit);
         } else {
-            post = new PostForm();
-            this.fillMain(post.node);
+            this.currentComponent = new PostForm();
+        }
+        this.fillMain(this.currentComponent.node);
+    }
+
+    editComplete(event): void {
+        Logger.log('App', 'postEdited');
+        if (this.currentComponent instanceof PostForm) {
+            var form = <PostForm>(this.currentComponent);
+            var result = this.currentComponent.result();
+            Logger.log('App', 'postEdited', result);
+            this.data.updatePost(result, (err: Error) => {
+                Logger.log('App', 'data.editComplete');
+                if (err) return this.displayMessage(err.message, true);
+                this.displayMessage('Updated post', false);
+                this.displayPosts();
+            });
         }
     }
 
-    editPost(id: string): void {
-        Logger.log('App', 'editPost', id);
-        var post = this.data.findPosts(id);
-        var p = new PostForm(post);
-        this.fillMain(p.node);
+    newPost(event): void {
+        Logger.log('App', 'newPost', event);
+        if (this.currentComponent instanceof PostForm) {
+            var form = <PostForm>(this.currentComponent);
+            var result = this.currentComponent.result();
+            this.data.addNewPost(result, (err: Error) => {
+                if (err) return this.displayMessage(err.message, true);
+                this.displayMessage('New post aded', false);
+                this.displayPosts();
+            });
+        }
     }
 
     //Helpers
