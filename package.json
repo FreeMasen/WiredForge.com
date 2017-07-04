@@ -14,5 +14,8 @@
     "typescript": "^2.3.4",
     "uglify-loader": "^2.0.0",
     "webpack": "^2.6.1"
+  },
+  "dependencies": {
+    "uglifyjs-webpack-plugin": "^0.4.6"
   }
 }
