@@ -1,5 +1,6 @@
 import { Component, Attribute } from '../models';
 import { HTML, Logger } from '../services';
+
 export class Message implements Component {
     html = new HTML();
     node: HTMLElement;
