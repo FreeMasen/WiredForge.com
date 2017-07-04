@@ -139,9 +139,15 @@ i {
 }
 
 .nav-item-box:hover,
-.button:hover,
-button:hover {
+.button:hover:not(:disabled),
+button:hover:not(:disabled) {
     background-image: $gradient;
+}
+
+button[disabled],
+.button:disabled {
+    background-color: #F8F8FF; 
+    border-color: #F8F8FF;
 }
 
 .button,
@@ -155,8 +161,8 @@ button,
     padding: 5px;
 }
 
-.button:active,
-button:active {
+.button:active:not(:disabled),
+button:active:not(:disabled) {
     transform: translate(1px, 1px);
 }
 
