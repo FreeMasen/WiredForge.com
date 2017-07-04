@@ -37,9 +37,9 @@ class App {
     registerAllEvents(): void {
         Logger.log('App', 'registerAllEvents');
         this.events.registerEvent('db-ready', this.displayPosts, this);
-        this.events.registerHTMLEvent('#login', 'click', this.loginButtonClicked, this);
-        this.events.registerHTMLEvent('#home-nav-link','click', this.displayPosts, this);
-        this.events.registerHTMLEvent('#about-nav-link', 'click', this.displayAbout, this);
+        this.events.registerSelectorEvent('#login', 'click', this.loginButtonClicked, this);
+        this.events.registerSelectorEvent('#home-nav-link','click', this.displayPosts, this);
+        this.events.registerSelectorEvent('#about-nav-link', 'click', this.displayAbout, this);
         this.events.registerEvent('user-logged-in', this.userChange, this);
         this.events.registerEvent('user-logged-out', this.userChange, this);
         this.events.registerEvent('error', this.displayMessage, this);
@@ -74,7 +74,7 @@ class App {
         }
         this.currentComponent = new Login();
         this.fillMain(this.currentComponent.node);
-        this.events.registerHTMLEvent('#login-submit','click', this.sendLoginRequest, this);
+        this.events.registerSelectorEvent('#login-submit','click', this.sendLoginRequest, this);
     }
 
     /**
@@ -95,10 +95,13 @@ class App {
         this.html.swapNode('#login', a);
         this.events.reRegister(a);
         var text = this.auth.isLoggedIn ? 'Logout' : 'Login';
-        this.displayPosts();
+        if (this.currentComponent instanceof PostController === false)
+            this.displayPosts();
+
         this.displayMessage('Successfully logged in', false);
         this.nav.addItem('New');
-        this.events.registerHTMLEvent('#new-nav-link', 'click', this.displayPostForm, this);
+        this.events.registerSelectorEvent('#new-nav-link', 'click', this.displayPostForm, this);
+        this.events.registerSelectorEvent('.edit-button', 'click', this.displayPostForm, this);
     }
 
     /**
@@ -112,6 +115,7 @@ class App {
         this.html.swapNode('#login', a);
         this.events.reRegister(a);
         this.nav.removeItem('New');
+        this.events.clearEvent('click', '.edit-button');
         var editButtons = document.querySelectorAll('.edit-button');
         for (var i = 0; i < editButtons.length; i++) {
             var button = editButtons[i];
@@ -147,10 +151,9 @@ class App {
         this.updateNav(target);
         this.currentComponent = new PostController(this.data.postElements, this.auth.isLoggedIn);
         this.fillMain(this.currentComponent.node);
+
         if (this.auth.isLoggedIn) {
-            this.events.registerHTMLEvent('.edit-button', 'click', this.displayPostForm, this);
         } else {
-            this.events.clearEvent('click', '.edit-button');
         }
     }
 
