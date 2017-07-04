@@ -6,8 +6,8 @@ export class EventHandler {
     private static elementEvents = {};
     private static nonHTMLEvent = {};
 
-    registerHTMLEvent(selector: string, eventName: string, listener: Function, context: any): void {
-        Logger.log('EventHandler', 'registerHTMLEvent', selector, eventName);
+    registerSelectorEvent(selector: string, eventName: string, listener: Function, context: any): void {
+        Logger.log('EventHandler', 'registerSelectorEvent', selector, eventName);
         var elements = document.querySelectorAll(selector);
         if (elements === undefined || elements.length < 1) return Logger.error('EventHandler','no elements', new Error(`document.querySelectorAll(${selector}) found nothing`));
         this.registerNodeEvent(elements, selector, eventName, listener, context);
@@ -15,11 +15,14 @@ export class EventHandler {
 
     registerNodeEvent(nodes: HTMLElement | HTMLElement[] | NodeListOf<Element>, selector: string, 
                         eventName: string, listener: Function, context: any): void {
+        Logger.log('EventHandler', 'registerNodeEvent', nodes, selector, eventName);
         if (EventHandler.elementEvents[selector] === undefined) {
+            Logger.log('EventHandler', 'registerNodeEvent', 'selector not found adding to map');
             EventHandler.elementEvents[selector] = {};
         }
         var eventTarget = EventHandler.elementEvents[selector];
         if (!eventTarget[eventName]) {
+            Logger.log('EventHandler', 'registerNodeEvent', 'event not found adding to map');
             eventTarget[eventName] = [];
         }
         var bound = listener.bind(context);
@@ -50,12 +53,15 @@ export class EventHandler {
 
     handleEvent(event): void {
         Logger.log('EventHandler', 'handleEvent', event);
-        var target = <HTMLElement>event.target;
+        var target = <HTMLElement>event.currentTarget;
         var eventTarget = this.findTarget(target);
-        if (eventTarget === undefined) return;
+        if (eventTarget === undefined) {
+            return Logger.log('EventHandler', 'handleEvent', 'Unable to find event target');
+        }
         var listeners = eventTarget[event.type];
-        if (!listeners) return;
-        Logger.log('EventHandler', 'hadleEvent', listeners);
+        if (!listeners) {
+            return Logger.log('EventHandler', 'handleEvent', 'Unable to find listeners');
+        }
         for (var i = 0; i < listeners.length; i++) {
             var fn = listeners[i];
             fn(event);
@@ -113,11 +119,13 @@ export class EventHandler {
     }
 
     private findTarget(target: HTMLElement): any {
+        Logger.log('EventHandler', 'findTarget', target);
         //first try the id attribute
         var selector = '#'  + target.id;
         var element = EventHandler.elementEvents[selector];
         //if that fails
         if (element === undefined) {
+            Logger.log('EventHandler', 'findTarget', 'target not found via id selector');
             //try each of the classes
             var classList = target.className.split(' ');
             for (var i = 0; i < classList.length; i ++) {
@@ -125,8 +133,9 @@ export class EventHandler {
                 selector = '.' + c;
                 var element = EventHandler.elementEvents[selector];
                 //if a class was registered, return here
-                if (selector) return element;
+                if (element !== undefined) return element;
             }
+            Logger.log('EventHandler', 'findTarget', 'target not found via class list');
             //if no class was found try the tagName
             element = EventHandler.elementEvents[target.tagName];
         }
