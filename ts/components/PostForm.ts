@@ -3,6 +3,7 @@ import { Component, Post, Attribute } from '../models';
 
 export class PostForm {
     node: HTMLElement;
+    path = 'post/edit/';
     submitButton: HTMLElement;
     html = new HTML();
     timeStamp: number;
@@ -14,6 +15,7 @@ export class PostForm {
         var contents = [];
         var titleText = 'New Post';
         if (post) {
+            this.path += post.fbKey;
             titleText = 'Edit Post';
             this.timeStamp = post.timeStamp;
             this.postKey = post.fbKey;

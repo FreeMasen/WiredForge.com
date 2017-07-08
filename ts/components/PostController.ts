@@ -7,19 +7,22 @@ export class PostController implements Component {
     private events = new EventHandler;
 
     private currentPage: number = 0;
-    private paginatedPosts: Array<HTMLElement[]> = [];
+    private paginatedPosts: Array<BlogPost[]> = [];
+    private editable = false;
 
     private backButton: HTMLButtonElement;
     private forwardButton: HTMLButtonElement;
 
     node: HTMLElement;
+    path: 'posts';
 
     private posts: HTMLElement;
     constructor(posts: Post[], editable: boolean) {
         Logger.log('PostController', 'constructor', posts, editable);
-        var blogPosts = this.constructPosts(posts, editable);
+        this.editable = editable
+        var blogPosts = this.constructPosts(posts);
         this.paginatedPosts = this.paginatePosts(blogPosts);
-        this.posts = this.html.div(this.paginatedPosts[this.currentPage], new Attribute('id', 'posts-wrapper'));
+        this.posts = this.html.div(this.currentNodes(), new Attribute('id', 'posts-wrapper'));
         this.node = this.html.div([this.posts, this.footerToolbar()], new Attribute('id', 'post-controller'));
         this.updateButtons();
     }
@@ -28,7 +31,7 @@ export class PostController implements Component {
         Logger.log('PostController', 'pageForward', this.currentPage);
         if (this.currentPage < this.paginatedPosts.length) {
             this.currentPage++;
-            this.fillNode(this.paginatedPosts[this.currentPage]);
+            this.fillNode(this.currentNodes());
             this.updatePageText();
         }
     }
@@ -37,7 +40,7 @@ export class PostController implements Component {
         Logger.log('PostController', 'pageBackward', this.currentPage);
         if (this.currentPage > 0) {
             this.currentPage--;
-            this.fillNode(this.paginatedPosts[this.currentPage]);
+            this.fillNode(this.currentNodes());
             this.updatePageText();
         }
     }
@@ -49,27 +52,34 @@ export class PostController implements Component {
         this.html.addContent(this.posts, nodes);
     }
 
-    constructPosts(posts: Post[], editable: boolean): BlogPost[] {
-        Logger.log('PostController', 'constructPosts', posts, editable);
+    constructPosts(posts: Post[]): BlogPost[] {
+        Logger.log('PostController', 'constructPosts', posts);
         var blogPosts = [];
         for (var i = 0; i < posts.length; i++) {
-            blogPosts.push(new BlogPost(posts[i], editable));
+            blogPosts.push(new BlogPost(posts[i], this.editable));
         }
         return blogPosts;
     }
 
-    paginatePosts(posts: BlogPost[]): Array<HTMLElement[]> {
+    paginatePosts(posts: BlogPost[]): Array<BlogPost[]> {
         Logger.log('PostController', 'paginatePosts', posts);
-        var ret:Array<HTMLElement[]> = [];
-        var currentPage: HTMLElement[] = [];
+        var ret:Array<BlogPost[]> = [];
+        var currentPage: BlogPost[] = [];
         for (var i = 0; i < posts.length; i++) {
-            currentPage.push(posts[i].node);
+            currentPage.push(posts[i]);
             if (currentPage.length >= 10
                 || i == posts.length - 1) {
                 ret.push(currentPage.splice(0));
             }
         }
         return ret;
+    }
+
+    private currentNodes(): Array<HTMLElement> {
+        var currentPosts = this.paginatedPosts[this.currentPage];
+        return currentPosts.map(element => {
+            return element.node;
+        });
     }
 
     footerToolbar(): HTMLElement {
@@ -107,6 +117,14 @@ export class PostController implements Component {
             this.forwardButton.disabled = true;
         } else {
             this.forwardButton.disabled = false;
+        }
+
+    }
+
+    makeEditable(): void {
+        var currentPosts = this.paginatedPosts[this.currentPage];
+        for (var i = 0; i < currentPosts.length; i++) {
+            var post = currentPosts[i].makeEditable();
         }
     }
 }

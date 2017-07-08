@@ -7,7 +7,6 @@ import * as Fire from 'firebase';
 var app;
 window.addEventListener('DOMContentLoaded', function() {
     app = new App();
-
 });
 
 class App {
@@ -18,6 +17,7 @@ class App {
     private nav: Nav;
     private currentPage = 1;
     private currentComponent: Component | Component[];
+    private ready = false;
 
     constructor() {
         var app = Fire.initializeApp({
@@ -45,6 +45,7 @@ class App {
         this.events.registerEvent('error', this.displayMessage, this);
         this.events.registerEvent('event-saved', this.editComplete, this);
         this.events.registerEvent('event-created', this.newPost, this);
+        this.events.registerEvent('single', this.displaySinglePost, this);
     }
 
     /**
@@ -94,14 +95,16 @@ class App {
         var a = this.html.a('Logout', null, new Attribute('id', 'login'));
         this.html.swapNode('#login', a);
         this.events.reRegister(a);
-        var text = this.auth.isLoggedIn ? 'Logout' : 'Login';
+
         if (this.currentComponent instanceof PostController === false)
             this.displayPosts();
 
+        var controller = <PostController>(this.currentComponent);
+        controller.makeEditable();
         this.displayMessage('Successfully logged in', false);
         this.nav.addItem('New');
         this.events.registerSelectorEvent('#new-nav-link', 'click', this.displayPostForm, this);
-        this.events.registerSelectorEvent('.edit-button', 'click', this.displayPostForm, this);
+        this.events.registerEvent('edit', this.displayPostForm, this);
     }
 
     /**
@@ -151,15 +154,22 @@ class App {
         this.updateNav(target);
         this.currentComponent = new PostController(this.data.postElements, this.auth.isLoggedIn);
         this.fillMain(this.currentComponent.node);
+    }
 
-        if (this.auth.isLoggedIn) {
-        } else {
+    displaySinglePost(id: string): void {
+        var end = id.lastIndexOf('more-');
+        if (end > -1) {
+            id = id.substr(end + 'more-'.length);
         }
+        var post = this.data.findPost(id);
+        if (post === undefined) return this.displayMessage('Unable to find that post', true);
+        this.currentComponent = new BlogPost(post, false, false);
+        this.fillMain(this.currentComponent.node);
     }
 
     //About
     /**
-     * Cear any content and display the About components
+     * Clear any content and display the About components
      */
     displayAbout(event): void {
         Logger.log('App','displayAbout')
@@ -193,24 +203,15 @@ class App {
 
     /**
      * Display the new post form
-     * @param event The HTML event object
+     * @param {string} id The HTML event object
      */
-    displayPostForm(event: Event) {
-        Logger.log('App', 'displayPostForm', event);
-        var target = <HTMLElement>event.target;
-        if (!target) return Logger.error('App', 'displayPostForm', new Error('No event.target'), event);
-        this.updateNav(target);
-        
-        if (!this.auth.isLoggedIn) 
-            return this.displayMessage('You are not authorized to add new content here, have you tried loggin in?', true);
-        var post: PostForm;
-        Logger.log('App', 'displayPostForm', target.innerHTML);
-        if (target.innerHTML == 'edit') {
-            var postToEdit = this.data.findPost(target.id);
-            Logger.log('App', 'displayPostForm', 'found post', postToEdit);
-            this.currentComponent = new PostForm(postToEdit);
-        } else {
+    displayPostForm(id?: string) {
+        Logger.log('App', 'displayPostForm', id);
+        if (id === null) {
             this.currentComponent = new PostForm();
+        } else {
+            var postToEdit = this.data.findPost(id);
+            this.currentComponent = new PostForm(postToEdit);
         }
         this.fillMain(this.currentComponent.node);
     }
@@ -264,7 +265,7 @@ class App {
         var nav = document.getElementsByClassName('nav-item');
         for (var i = 0; i < nav.length;i++) {
             var button = nav[i];
-            if (button.isSameNode(selected)) {
+            if (button.id === selected.id) {
                 this.html.addClass(button.parentElement, 'selected');
             } else {
                 this.html.removeClass(button.parentElement, 'selected');

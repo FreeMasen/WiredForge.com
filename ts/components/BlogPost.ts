@@ -1,13 +1,18 @@
 import { Component, Attribute, Post }  from '../models';
-import { HTML, MDParser, Logger } from '../services';
+import { HTML, MDParser, Logger, EventHandler } from '../services';
 
 export class BlogPost implements Component {
-    node: HTMLElement 
+    node: HTMLElement
+    path: 'post/'
     edit: HTMLElement;
-    html = new HTML();
-    md = new MDParser();
+
+    private html = new HTML();
+    private md = new MDParser();
+    private events = new EventHandler();
+
     constructor(post:Post, editable: boolean = false, isInList: boolean = true) {
         let header = this.header(post.title, post.author, post.fbKey, editable);
+        this.path += post.fbKey;
         this.node = this.html.div(header,
             new Attribute('class', 'blog-post'));
         if (isInList) {
@@ -29,17 +34,37 @@ export class BlogPost implements Component {
         return container;
     }
 
-    title(title: string,id: string, editable: boolean): HTMLElement {
+    title(title: string, id: string, editable: boolean): HTMLElement {
         let text = this.html.span(title, 
             new Attribute('class', 'title-text'))
         var container = this.html.div(text,
             new Attribute('class', 'title-container'));
-        if (editable && id !==null) {
-            this.edit = this.html.button('edit', new Attribute('id', id),
-                                                new Attribute('class', 'edit-button'));
-            this.html.addContent(container, [this.edit]);
+        this.edit = this.html.button('edit', new Attribute('id', id),
+                                            new Attribute('class', 'edit-button'));
+        if (editable) {
+            this.makeEditable(container);
+            this.events.registerNodeEvent(this.edit, '.edit-button', 'click', this.editClicked, this);
         }
-    return container;
+        return container;
+    }
+
+    editClicked(event): void {
+        this.events.fire('edit', event.currentTarget.id);
+    }
+
+    moreClicked(event): void {
+        this.events.fire('single', event.currentTarget.id);
+    }
+
+    makeEditable(container?: HTMLDivElement): void {
+        Logger.log('BlogPost', 'makeEditable');
+        if (container === undefined) container = <HTMLDivElement>(this.node.querySelector('.title-container'));
+        this.html.addContent(container, [this.edit]);
+        this.events.reRegister(this.edit);
+    }
+
+    makeUneditable(): void {
+        this.edit.parentElement.removeChild(this.edit);
     }
 
     content(content: string): HTMLElement {
@@ -71,8 +96,10 @@ export class BlogPost implements Component {
         //create the main container
         var container = this.content(paragraphs.slice(0, numberOfParagraphs).join('\n'));
         //create the more button
+        var moreId = 'more-' + id;
         var more = this.html.button('more...', new Attribute('class', 'more-button'),
-                                                new Attribute('id', 'more-' + id));
+                                                new Attribute('id', moreId));
+        this.events.registerNodeEvent(more, '#' + moreId, 'click', this.moreClicked, this);
         //Add the more button to the container
         this.html.addContent(container, [more]);
         return container;

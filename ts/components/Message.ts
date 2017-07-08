@@ -1,7 +1,7 @@
 import { Component, Attribute } from '../models';
 import { HTML, Logger } from '../services';
 
-export class Message implements Component {
+export class Message {
     html = new HTML();
     node: HTMLElement;
     constructor(content: string, isError: boolean) {

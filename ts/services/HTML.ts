@@ -325,9 +325,15 @@ export class HTML {
         if (!originalNode) return;
         node.setAttribute('id', originalNode.id);
         node.setAttribute('class', originalNode.className);
-        
-        originalNode.insertAdjacentElement('beforeBegin', node);
+        try {
+        originalNode.parentElement.insertBefore(originalNode, node);
         originalNode.parentElement.removeChild(originalNode);
+
+        } catch (e) {
+            console.log(originalNode);
+            console.log(node)
+            console.log(originalNode.parentElement)
+        }
     }
 
     /**

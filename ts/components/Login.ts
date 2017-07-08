@@ -3,6 +3,7 @@ import { HTML, EventHandler, DataService, Logger } from '../services';
 
 export class Login implements Component {
     node: HTMLElement;
+    path = 'login';
     html = new HTML();
 
     constructor() {

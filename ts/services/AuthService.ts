@@ -5,16 +5,15 @@ import { Logger } from '../services';
 export class AuthService {
     private auth: Fire.auth.Auth;
     private events: EventHandler;
-    private static user;
+    private static user = null;
     constructor(app: Fire.app.App) {
         this.events = new EventHandler();
         this.auth = Fire.auth(app);
         this.auth.onAuthStateChanged((user) => {
             Logger.log('AuthService', 'onAuthStateChanged', 'with user: ', user !== null);
-            AuthService.user = user;
-            if (user) {
-                this.events.fire('user-logged-in');
-            } else {
+            if (AuthService.user === null) {
+                AuthService.user = user;
+            } else if (!user) {
                 this.events.fire('user-logged-out');
             }
         },(err) => {
@@ -33,6 +32,9 @@ export class AuthService {
         Logger.log('AuthService', 'login');
         if (AuthService.user !== null) return;
         this.auth.signInWithEmailAndPassword(email, password)
+                    .then(_ => {
+                        this.events.fire('user-logged-in');
+                    }) 
                     .catch(err => {
                         Logger.error('AuthService', 'signInWithEmailAndPassword', err);
                     });
@@ -43,6 +45,7 @@ export class AuthService {
         this.auth.signOut()
             .then(x => {
                 Logger.log('AuthService', 'signOut', x);
+                this.events.fire('user-logged-out');
             })
             .catch(err => {
                 Logger.error('AuthService', 'signOut', err);

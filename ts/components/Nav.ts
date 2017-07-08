@@ -2,7 +2,9 @@ import { Component, Attribute } from '../models';
 import { HTML, Logger } from '../services';
 export class Nav implements Component {
     node: HTMLElement;
+    path = '';
     html = new HTML();
+
     constructor(...navList: string[]) {
         this.node = this.html.nav(this.unorderedList(navList), new Attribute('id', 'main-nav'));
     }

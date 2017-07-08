@@ -5,6 +5,8 @@ export class About implements Component {
     html = new HTML();
     md = new MDParser();
     node: HTMLElement;
+    path = 'about';
+    
     constructor(title: string, content: string) {
         this.node = this.html.div(this.title(title), 
                         new Attribute('class', 'about-content'));

@@ -119,7 +119,7 @@ export class EventHandler {
     }
 
     private findTarget(target: HTMLElement): any {
-        Logger.log('EventHandler', 'findTarget', target);
+        Logger.log('EventHandler', 'findTarget', target, EventHandler.elementEvents, EventHandler.nonHTMLEvent);
         //first try the id attribute
         var selector = '#'  + target.id;
         var element = EventHandler.elementEvents[selector];
