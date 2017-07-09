@@ -13,7 +13,7 @@ export class EventHandler {
         this.registerNodeEvent(elements, selector, eventName, listener, context);
     }
 
-    registerNodeEvent(nodes: HTMLElement | HTMLElement[] | NodeListOf<Element>, selector: string, 
+    registerNodeEvent(nodes: HTMLElement | HTMLElement[] | NodeListOf<Element> | Window, selector: string, 
                         eventName: string, listener: Function, context: any): void {
         Logger.log('EventHandler', 'registerNodeEvent', nodes, selector, eventName);
         if (EventHandler.elementEvents[selector] === undefined) {
