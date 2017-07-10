@@ -4,15 +4,17 @@ export class Nav implements Component {
     node: HTMLElement;
     path = '';
     html = new HTML();
+    items: string[] = [];
 
     constructor(...navList: string[]) {
-        this.node = this.html.nav(this.unorderedList(navList), new Attribute('id', 'main-nav'));
+        this.items = navList;
+        this.node = this.html.nav(this.unorderedList(), new Attribute('id', 'main-nav'));
     }
 
-    private unorderedList(navList: string[]): HTMLUListElement {
+    private unorderedList(): HTMLUListElement {
         var lis = [];
-        for (var i = 0; i < navList.length; i++) {
-            lis.push(this.listItem(navList[i]));
+        for (var i = 0; i < this.items.length; i++) {
+            lis.push(this.listItem(this.items[i]));
         }
         return this.html.ul(lis, new Attribute('id', 'nav-list'));
     }
@@ -27,6 +29,7 @@ export class Nav implements Component {
 
     addItem(content: string): void {
         Logger.log('Nav', 'addItem', content);
+        this.items.push(content);
         if (!this.node.hasChildNodes()) return;
         var list = <HTMLUListElement>(this.node.firstChild);
         this.html.addContent(list, [this.listItem(content)]);
