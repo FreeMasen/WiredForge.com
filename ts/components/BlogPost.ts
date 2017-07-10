@@ -43,7 +43,7 @@ export class BlogPost implements Component {
                                             new Attribute('class', 'edit-button'));
         if (editable) {
             this.makeEditable(container);
-            this.events.registerNodeEvent(this.edit, '.edit-button', 'click', this.editClicked, this);
+            this.events.registerNodeEvent(this.edit,'#' + id, 'click', this.editClicked, this);
         }
         return container;
     }
