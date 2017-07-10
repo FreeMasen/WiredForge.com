@@ -326,13 +326,13 @@ export class HTML {
         node.setAttribute('id', originalNode.id);
         node.setAttribute('class', originalNode.className);
         try {
-        originalNode.parentElement.insertBefore(originalNode, node);
+        originalNode.parentElement.insertBefore(node, originalNode);
         originalNode.parentElement.removeChild(originalNode);
 
         } catch (e) {
-            console.log(originalNode);
-            console.log(node)
-            console.log(originalNode.parentElement)
+            console.error(originalNode);
+            console.error(node)
+            console.error(originalNode.parentElement)
         }
     }
 
