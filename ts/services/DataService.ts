@@ -103,10 +103,17 @@ export class DataService {
         posts.child(post.fbKey).update(post, callback);
     }
 
-    private transform(post: Post) {
+    private transform(post: Post): any {
         return {
             title: post.title,
             author: post.author,
         }
+    }
+
+    deletePost(id: string, callback: (Error) => void): void {
+        if (id[0] === '#') id = id.substr(1);
+        var post = this.db.ref('/posts/' + id);
+        var self = this;
+        post.remove(callback);
     }
 }

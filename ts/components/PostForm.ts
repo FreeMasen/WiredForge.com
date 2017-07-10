@@ -17,23 +17,31 @@ export class PostForm {
         if (post) {
             this.path += post.fbKey;
             titleText = 'Edit Post';
-            this.timeStamp = post.timeStamp;
             this.postKey = post.fbKey;
-        } else {
-            this.timeStamp = new Date().getTime();
         }
-        var title = this.title(titleText);
+        if (!post || !post.timeStamp) this.timeStamp = new Date().getTime();
+        var title = this.title(titleText, this.postKey);
         this.node = this.html.div(title, new Attribute('id', 'form-container'));
         var form = this.form(post);
         this.html.addContent(this.node, [form]);
-        if (post) {}
     }
 
-    private title(titleText: string): HTMLDivElement {
+    private title(titleText: string, id?: string): HTMLDivElement {
         var text = this.html.span(titleText, new Attribute('class', 'title-text'),
                                                 new Attribute('id', 'form-title'));
         var container = this.html.div(text, new Attribute('class', 'title-container header'));
+        if (id) {
+            var delId = 'delete-' + id;
+            var del = this.html.button('delete', new Attribute('id', delId),
+                                                    new Attribute('class', 'delete-button'));
+            this.events.registerNodeEvent(del, '#' + delId, 'click', this.deletePost, this);
+            this.html.addContent(container, [del]);
+        }
         return container;
+    }
+
+    private deletePost(): void {
+        this.events.fire('delete-post', this.postKey);
     }
 
     private form(post?: Post): HTMLFormElement {
