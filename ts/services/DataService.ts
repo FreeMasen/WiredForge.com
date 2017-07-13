@@ -21,36 +21,35 @@ export class DataService {
     private startListening(): void {
         Logger.log('DataService', 'startListening');
         var posts = this.db.ref('/posts');
-        posts.on('value', snapshot => {
-            var list = [];
-            var counter = 0
-            snapshot.forEach(element => {
-                counter++;
-                Logger.log('DataService', 'posts.value', counter);
-                var unparsed = element.val();
-                var post = new Post(unparsed.timeStamp, unparsed.title, unparsed.content, unparsed.author, element.key);
-                DataService._dbPosts[element.key] = post;
-                list.push(post);
-                return false;
-            });
-            DataService._posts = list;
-            this.checkForReady();
-        });
+        posts.on('value', this.postListener, this);
         var about = this.db.ref('/about');
-        about.on('value', snapshot => {
-            var list = [];
-            snapshot.forEach(element => {
-                var unparsed = element.val();
-                var parsed = new Description(unparsed.title, unparsed.content);
-                list.push(parsed);
-                return false;
-            });
-            DataService._about = list;
-            this.checkForReady();
+        about.on('value', this.aboutListener, this);
+            
+    }
+
+    postListener(snapshot: Fire.database.DataSnapshot): void {
+        DataService._dbPosts = {};
+        snapshot.forEach(element => {
+            var unparsed = element.val();
+            var post = new Post(unparsed.timeStamp, unparsed.title, unparsed.content, unparsed.author, element.key);
+            DataService._dbPosts[element.key] = post;
+            return false;
         });
+        this.checkForReady();
+    }
+
+    aboutListener(snapshot:Fire.database.DataSnapshot): void {
+        DataService._about = [];
+        snapshot.forEach(element => {
+            var unparsed = element.val();
+            DataService._about.push(new Description(unparsed.title, unparsed.content));
+            return false;
+        });
+        this.checkForReady();
     }
 
     get postElements(): Post[] {
+        Logger.log('DataService', 'postElements', DataService._dbPosts);
         var list = [];
         var lastTimestamp: number;
         for (var k in DataService._dbPosts) {
@@ -114,6 +113,9 @@ export class DataService {
         if (id[0] === '#') id = id.substr(1);
         var post = this.db.ref('/posts/' + id);
         var self = this;
-        post.remove(callback);
+        post.remove(err => {
+            if (err) return callback(err);
+            callback(null);
+        });
     }
 }
