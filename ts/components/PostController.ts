@@ -40,13 +40,6 @@ export class PostController implements Component {
         }
     }
 
-    cleanUp(): void {
-        var currentPosts = this.paginatedPosts[this.currentPage];
-        for (var i = 0; i < currentPosts.length; i++) {
-            currentPosts[i].cleanUp();
-        }
-    }
-
     pageForward(): void {
         Logger.log('PostController', 'pageForward', this.currentPage);
         if (this.currentPage < this.paginatedPosts.length) {
