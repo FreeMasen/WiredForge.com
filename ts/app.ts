@@ -25,10 +25,15 @@ class App {
             authDomain: "wired-forge.firebaseapp.com",
             databaseURL: "https://wired-forge.firebaseio.com"});
         this.nav = new Nav('Home', 'About');
-        this.displayNav();
-        this.registerAllEvents();
         this.data = new DataService(app);
         this.auth = new AuthService(app);
+        this.displayNav();
+        this.registerAllEvents();
+        if (this.auth.isLoggedIn) {
+            this.addUser(false);
+        } else {
+            this.clearUser(false);
+        }
     }
 
     /**
@@ -40,12 +45,15 @@ class App {
         this.events.registerSelectorEvent('#login', 'click', this.loginButtonClicked, this);
         this.events.registerSelectorEvent('#home-nav-link','click', this.displayPosts, this);
         this.events.registerSelectorEvent('#about-nav-link', 'click', this.displayAbout, this);
-        this.events.registerEvent('user-logged-in', this.userChange, this);
-        this.events.registerEvent('user-logged-out', this.userChange, this);
+        this.events.registerEvent('user-logged-in', this.addUser, this);
+        this.events.registerEvent('user-logged-out', this.clearUser, this);
         this.events.registerEvent('error', this.displayMessage, this);
         this.events.registerEvent('event-saved', this.editComplete, this);
         this.events.registerEvent('event-created', this.newPost, this);
         this.events.registerEvent('single', this.displaySinglePost, this);
+        this.events.registerEvent('edit', this.displayPostForm, this);
+        this.events.registerEvent('delete-post', this.deletePost, this);
+        this.events.registerEvent('login-attempt', this.sendLoginRequest, this);
     }
 
     /**
@@ -56,6 +64,9 @@ class App {
         var main = document.getElementById('inner-wrapper');
         var wrapper = document.getElementById('wrapper');
         if (!main || !wrapper) return;
+        if (this.auth.isLoggedIn) {
+            this.nav.addItem('New');
+        }
         wrapper.insertBefore(this.nav.node, main);
     }
 
@@ -68,61 +79,57 @@ class App {
         if (event.target.innerHTML === 'Logout') {
             return this.auth.logout();
         }
-        this.updateNav(event.target);
         if (this.auth.isLoggedIn) {
-            this.addUser();
+            this.addUser(true);
             return;
         }
         this.currentComponent = new Login();
         this.fillMain(this.currentComponent.node);
-        this.events.registerSelectorEvent('#login-submit','click', this.sendLoginRequest, this);
-    }
-
-    /**
-     * Event handler for a change in the user
-     */
-    userChange(): void {
-        Logger.log('App','userChange', this.auth.isLoggedIn);
-        if (this.auth.isLoggedIn) return this.addUser();
-        this.clearUser();
     }
 
     /**
      * Event handler for login
      */
-    addUser(): void {
+    addUser(message: boolean = true): void {
         Logger.log('App','addUser')
         var a = this.html.a('Logout', null, new Attribute('id', 'login'));
         this.html.swapNode('#login', a);
-        this.events.reRegister(a);
+        this.events.clearEvent('click', '#login');
+        this.events.registerNodeEvent(a, '#login', 'click', this.loginButtonClicked, this);
 
         if (this.currentComponent instanceof PostController === false)
             this.displayPosts();
 
         var controller = <PostController>(this.currentComponent);
         controller.makeEditable();
-        this.displayMessage('Successfully logged in', false);
-        this.nav.addItem('New');
+        if (message)
+            this.displayMessage('Successfully logged in', false);
+
+        if (this.nav.items.indexOf('New') === -1) {
+            this.nav.addItem('New');
+            this.events.registerSelectorEvent('#new-nav-link', 'click', this.displayPostForm, this);
+        }
         this.events.registerSelectorEvent('#new-nav-link', 'click', this.displayPostForm, this);
-        this.events.registerEvent('edit', this.displayPostForm, this);
     }
 
     /**
      * Event handler for logout
      */
-    clearUser(): void {
-        this.displayMessage('Successfuly logged out', false);
+    clearUser(message: boolean = true): void {
         Logger.log('App','clearUser')
-        var text = this.auth.isLoggedIn ? 'Logout' : 'Login';
-        var a = this.html.a(text, null, new Attribute('id', 'login'));
+        if (message)
+            this.displayMessage('Successfuly logged out', false);
+        var a = this.html.a('Login', null, new Attribute('id', 'login'));
+        this.events.clearEvent('click', '#login');
         this.html.swapNode('#login', a);
-        this.events.reRegister(a);
-        this.nav.removeItem('New');
-        this.events.clearEvent('click', '.edit-button');
-        var editButtons = document.querySelectorAll('.edit-button');
-        for (var i = 0; i < editButtons.length; i++) {
-            var button = editButtons[i];
-            button.parentElement.removeChild(button);
+        this.events.registerNodeEvent(a, '#login', 'click', this.loginButtonClicked, this);
+        if (this.currentComponent instanceof PostController) {
+            let component = <PostController>(this.currentComponent);
+            component.makeUneditable();
+
+        }
+        if (this.nav.items.indexOf('New') > -1) {
+            this.nav.removeItem('New');
         }
     }
 
@@ -151,7 +158,7 @@ class App {
         else {
             target = document.getElementById('home-nav-link')
         }
-        this.updateNav(target);
+        this.updateSelectedNavElement(target);
         this.currentComponent = new PostController(this.data.postElements, this.auth.isLoggedIn);
         this.fillMain(this.currentComponent.node);
     }
@@ -173,7 +180,7 @@ class App {
      */
     displayAbout(event): void {
         Logger.log('App','displayAbout')
-        this.updateNav(event.target);
+        this.updateSelectedNavElement(event.target);
         var sections = this.data.aboutElements;
         var elements = [];
         for (var i = 0; i < sections.length; i++) {
@@ -207,7 +214,7 @@ class App {
      */
     displayPostForm(id?: string) {
         Logger.log('App', 'displayPostForm', id);
-        if (id === null) {
+        if (typeof id !== 'string') {
             this.currentComponent = new PostForm();
         } else {
             var postToEdit = this.data.findPost(id);
@@ -221,7 +228,6 @@ class App {
         if (this.currentComponent instanceof PostForm) {
             var form = <PostForm>(this.currentComponent);
             var result = this.currentComponent.result();
-            Logger.log('App', 'postEdited', result);
             this.data.updatePost(result, (err: Error) => {
                 Logger.log('App', 'data.editComplete');
                 if (err) return this.displayMessage(err.message, true);
@@ -229,6 +235,15 @@ class App {
                 this.displayPosts();
             });
         }
+    }
+
+    deletePost(id: string): void {
+        Logger.log('App', 'deletePost', id);
+        this.data.deletePost(id, err => {
+            if (err) return this.displayMessage(err.message, true);
+            this.displayMessage('Post deleted', false);
+            this.displayPosts();
+        });
     }
 
     newPost(event): void {
@@ -240,6 +255,7 @@ class App {
                 if (err) return this.displayMessage(err.message, true);
                 this.displayMessage('New post aded', false);
                 this.displayPosts();
+                document.scrollingElement.scrollTop = 0;
             });
         }
     }
@@ -255,13 +271,15 @@ class App {
         if (main === null) return;
         this.html.clearChildren(main);
         this.html.addContent(main, content);
+        if (document.body.scrollTo)
+            document.body.scrollTo(0, 0);
     }
 
     /**
      * Apply the selected class to our current page
      * @param selected The element that was selected to trigger the event
      */
-    updateNav(selected: HTMLElement) {
+    updateSelectedNavElement(selected: HTMLElement) {
         var nav = document.getElementsByClassName('nav-item');
         for (var i = 0; i < nav.length;i++) {
             var button = nav[i];

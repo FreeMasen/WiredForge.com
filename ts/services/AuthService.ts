@@ -13,9 +13,7 @@ export class AuthService {
             Logger.log('AuthService', 'onAuthStateChanged', 'with user: ', user !== null);
             if (AuthService.user === null) {
                 AuthService.user = user;
-            } else if (!user) {
-                this.events.fire('user-logged-out');
-            }
+            } 
         },(err) => {
             if (err) {
                 return Logger.error('AuthService', 'onAuthStateChanged', err);
@@ -30,7 +28,7 @@ export class AuthService {
 
     login(email, password) {
         Logger.log('AuthService', 'login');
-        if (AuthService.user !== null) return;
+        if (AuthService.user !== null) return Logger.error('AuthService', 'login', new Error('login clicked when already logged in'), AuthService.user);
         this.auth.signInWithEmailAndPassword(email, password)
                     .then(_ => {
                         this.events.fire('user-logged-in');

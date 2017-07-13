@@ -42,5 +42,8 @@ export class Nav implements Component {
         var link = this.node.querySelector('#' + id);
         if (!link) return Logger.error('Nav', new Error('No nav element'), id);
         link.parentElement.parentElement.removeChild(link.parentElement);
+        this.items = this.items.filter(item => {
+            return item != 'New';
+        });
     }
 }
