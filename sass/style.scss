@@ -58,8 +58,7 @@ i {
     width: 100%;
     top: 0;
     background: $gray;
-    padding-top: 2px;
-    padding-bottom: 5px;
+
 }
 
 .error {
@@ -73,6 +72,8 @@ i {
     text-align: center;
     font-size: 19pt;
     font-weight: bold;
+        padding-top: 2px;
+    padding-bottom: 5px;
 }
 
 .clickable {
