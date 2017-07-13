@@ -43,7 +43,6 @@ export class BlogPost implements Component {
                                             new Attribute('class', 'edit-button'));
         if (editable) {
             this.makeEditable(container);
-            this.events.registerNodeEvent(this.edit,'#' + id, 'click', this.editClicked, this);
         }
         return container;
     }
@@ -60,11 +59,14 @@ export class BlogPost implements Component {
         Logger.log('BlogPost', 'makeEditable');
         if (container === undefined) container = <HTMLDivElement>(this.node.querySelector('.title-container'));
         this.html.addContent(container, [this.edit]);
-        this.events.reRegister(this.edit);
+        this.events.clearEvent('click', '#' + this.edit.id);
+        this.events.registerNodeEvent(this.edit, '#' + this.edit.id, 'click', this.editClicked, this);
     }
 
     makeUneditable(): void {
+        if (this.edit === undefined) return Logger.error('BlogPost', 'makeUneditable', new Error('edit button undefined'), this.path);
         this.edit.parentElement.removeChild(this.edit);
+        this.events.clearEvent('click', '#' + this.edit.id);
     }
 
     content(content: string): HTMLElement {

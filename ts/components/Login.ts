@@ -5,13 +5,20 @@ export class Login implements Component {
     node: HTMLElement;
     path = 'login';
     html = new HTML();
+    events = new EventHandler();
 
     constructor() {
-       this.node = this.html.form(this.createControlList()
-                                , this.html.button('Login'
+        var button = this.html.button('Login'
                                 , new Attribute('id', 'login-submit')
                                 , new Attribute('type', 'button'))
+        this.events.registerNodeEvent(button, '#login-submit', 'click', this.loginButtonClicked, this);
+        this.node = this.html.form(this.createControlList()
+                                , button
                                 , new Attribute('id', 'login-button'));
+    }
+
+    loginButtonClicked(event): void {
+        this.events.fire('login-attempt');
     }
 
     createControlList(): HTMLElement[] {

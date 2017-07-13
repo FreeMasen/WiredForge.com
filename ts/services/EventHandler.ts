@@ -25,13 +25,35 @@ export class EventHandler {
             Logger.log('EventHandler', 'registerNodeEvent', 'event not found adding to map');
             eventTarget[eventName] = [];
         }
+        var listenerText = listener.toString();
         var bound = listener.bind(context);
-        eventTarget[eventName].push(bound);
+        if (this.checkForExisting(selector, eventName, listener.toString()))
+            return;
+        eventTarget[eventName].push(
+            {
+                func: bound,
+                text: listener.toString()
+            }
+        );
         if (nodes instanceof HTMLElement) nodes = [nodes];
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             node.addEventListener(eventName, this, false);
         }
+    }
+
+    checkForExisting(selector: string, eventName: string, listenerText: string): boolean {
+        var grandParent = EventHandler.elementEvents[selector];
+        if (!grandParent) return false;
+        var parent = grandParent[eventName];
+        if (!parent) return false;
+        for (var i = 0; i < parent.length; i++) {
+            var listener = parent[i];
+            if (listener.text === listenerText) {
+                return true;
+            }
+        }
+        return false;
     }
 
     registerEvent(eventName: string, listener: Function, context: any): void {
@@ -63,26 +85,8 @@ export class EventHandler {
             return Logger.log('EventHandler', 'handleEvent', 'Unable to find listeners');
         }
         for (var i = 0; i < listeners.length; i++) {
-            var fn = listeners[i];
+            var fn = listeners[i].func;
             fn(event);
-        }
-    }
-
-    reRegister(node: HTMLElement): void {
-        var idElement = EventHandler.elementEvents['#' + node.id]
-        if (idElement !== undefined) {
-            for (var k in idElement) {
-                node.addEventListener(k, this, false);
-            }
-        }
-        var classes = node.className.split(' ');
-        for (var i = 0; i < classes.length; i++) {
-            var classEvent = EventHandler.elementEvents['.' + classes[i]]
-            if (classEvent != undefined) {
-                for (var k in classEvent) {
-                    node.addEventListener(k, this, false);
-                }
-            }
         }
     }
 
