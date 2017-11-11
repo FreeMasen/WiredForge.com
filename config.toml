@@ -8,5 +8,11 @@ compile_sass = true
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
 highlight_code = true
 
+title = "Wired Forge"
+description = "A blog about software development"
+language_code = "en"
+
+theme = "hyde"
+
 [extra]
 # Put all your custom variables here
