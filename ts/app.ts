@@ -7,6 +7,7 @@ import * as Fire from 'firebase';
 var app;
 window.addEventListener('DOMContentLoaded', function() {
     app = new App();
+
 });
 
 class App {
@@ -154,7 +155,7 @@ class App {
     displayPosts(event?): void {
         Logger.log('App', 'displayPosts', event);
         var target;
-        if (event) target = event.target;
+        if (event) target = event.currentTarget;
         else {
             target = document.getElementById('home-nav-link')
         }

@@ -38,7 +38,7 @@ export class DataService {
         this.checkForReady();
     }
 
-    aboutListener(snapshot:Fire.database.DataSnapshot): void {
+    aboutListener(snapshot: Fire.database.DataSnapshot): void {
         DataService._about = [];
         snapshot.forEach(element => {
             var unparsed = element.val();

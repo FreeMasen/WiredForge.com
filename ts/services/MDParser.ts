@@ -30,4 +30,36 @@ export class MDParser {
         href = href.substr(0, href.length - 1);
         return this.html.a(linkText, href);
     }
+
+    // parseCode(block: string): HTMLDivElement {
+    //     var container = this.html.div(null, new Attribute('class', 'code-block'));
+
+    //     var lines = block.split('\n');
+    //     for (var i = 0; i < lines.length; i++) {
+    //         var line = lines[i];
+    //         if (line.indexOf('(') > -1) {
+    //             this.html.addContent(container, [this.parseFunctionLine(line)]);
+    //             continue;
+    //         } 
+    //         var span = this.html.span('', new Attribute('class', 'code-line'));
+    //     }
+    //     return container;
+    // }
+
+    // parseFunctionLine(func: string): HTMLSpanElement {
+    //     var span = this.html.span('', new Attribute('class', 'code-line'));
+    //     var openParenIndex = func.indexOf('(');
+    //     var closeParenIndex = func.indexOf(')');
+
+    // }
+
+    // private keywords = [
+    //     'function',
+    //     'func',
+    //     'fn',
+    //     'class',
+    //     'var',
+    //     'let',
+    //     'namespace'
+    // ];
 }

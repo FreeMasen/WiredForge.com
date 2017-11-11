@@ -35,7 +35,18 @@ export class HTML {
         }
         return <HTMLButtonElement>element;
     }
-    
+
+    /**
+     * Create a <code> element
+     * @param {string} text - The text to appear in the code block
+     * @param {Array<Attribute>} attributeList - The list of attributes
+     */
+    code(text: string, ...attributeList: Attribute[]): HTMLElement {
+        var element = this.createElement('code', ...attributeList);
+        element.appendChild(document.createTextNode(text));
+        return element;
+    }
+
     /**
      * Create a <div> element
      * @param {HTMLElement} innerContent - Inner content
