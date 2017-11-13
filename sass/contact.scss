@@ -1,0 +1,36 @@
+#contact {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+    height: 100%;
+    .input-group {
+        display: flex;
+        flex-flow: column;
+        input {
+            width: 250px;
+        }
+        &.with-area {
+            flex-grow: 3;
+            textarea {
+                flex-grow: 3;
+            }
+        }
+    }
+    .button-group {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-items: center;
+        .form-button {
+            border: 0;
+            padding: 10px 25px;
+            box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.5);
+            &.submit {
+                background: green;
+            }
+            &.cancel {
+                background: red;
+            }
+        }
+    }
+}
