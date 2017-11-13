@@ -1,18 +1,22 @@
 @font-face {
     font-family: 'Bungee Hairline';
-    src: url("/fonts/BungeeHairline-Regular.ttf");
+    src: url('/fonts/BungeeHairline-Regular.ttf');
 }
 
 @font-face {
     font-family: 'Raleway';
-    src: url("/fonts/Raleway-Thin.ttf")
+    src: url('/fonts/Raleway-Thin.ttf')
+}
+
+@font-face {
+    font-family: 'mono';
+    src: url('fonts/CutiveMono-Regular.ttf')
 }
 
 * {
     box-sizing: border-box;
     font-family:  'Raleway';
 }
-
 
 body,
 html, {
@@ -39,9 +43,13 @@ a {
 }
 
 pre {
-    font-family: monospace;
     border-radius: 5px;
     padding: 0px 10px 10px;
+    display: inline-block;
+}
+
+pre > span {
+    font-family: mono;
 }
 
 #nav-sidebar {
