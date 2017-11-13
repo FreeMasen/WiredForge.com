@@ -1,5 +1,4 @@
 +++
-slug = "about"
 +++
 
 ## About this site

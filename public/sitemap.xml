@@ -4,16 +4,16 @@
             <lastmod>2017-10-12</lastmod>
         </url>
     <url>
-            <loc>http://127.0.0.1:1111/contact/</loc>
-        </url>
-    <url>
-            <loc>http://127.0.0.1:1111/about/</loc>
-        </url>
-    <url>
             <loc>http://127.0.0.1:1111/blog/</loc>
         </url>
     <url>
+            <loc>http://127.0.0.1:1111/contact/</loc>
+        </url>
+    <url>
             <loc>http://127.0.0.1:1111/</loc>
+        </url>
+    <url>
+            <loc>http://127.0.0.1:1111/about/</loc>
         </url>
     
     

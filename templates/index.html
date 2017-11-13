@@ -6,7 +6,7 @@
     {% set posts = get_section(path="blog/_index.md") %}
     <div class="post-list">
         {% for page in posts.pages %}
-            <a class="post-summary" href="/blog/{{page.slug}}">
+            <a class="post-summary" href="/{{page.path}}/index.html">
                 <h3>{{page.title}}</h3>
                 <span class="sub-title">
                     {{page.date}}
