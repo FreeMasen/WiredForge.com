@@ -14,7 +14,7 @@
                       dx="10"
                       textLength="80"
                       style="font-weight: bold;"
-                      >{{config.title}}</text>
+                      >Wired Forge</text>
                   </clipPath>
                 </defs>
               <path
@@ -57,18 +57,24 @@
                       />
 
               </svg>
-            <span>{{config.description}}</span>
+            <span>A blog about software development</span>
             <a class="nav-button" href="/">Home</a>
             <a class="nav-button" href="/about">About</a>
             <a class="nav-button" href="/contact">Contact</a>
         </aside>
         <div id="content">
-            {% block content %}
+            
+<div class="section-content">
+    <h2 id="about-this-site">About this site</h2>
+<p>A collection of thoughts and experiments related to software development.</p>
+<h2 id="about-the-author">About the author</h2>
+<p>Robert Masen</p>
 
-            {% endblock content %}
+</div>
+
         </div>
         <div id="ad-bar">
 
         </div>
-    </body>
+    <script src="/livereload.js?port=1112&mindelay=10"></script></body>
 </html>

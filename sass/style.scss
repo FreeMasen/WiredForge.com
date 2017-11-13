@@ -26,7 +26,7 @@ html, {
 body {
     display: flex;
     flex-flow: row;
-
+    justify-content: space-between;
 }
 
 a {
@@ -38,9 +38,17 @@ a {
     }
 }
 
+pre {
+    font-family: monospace;
+    border-radius: 5px;
+    padding: 0px 10px 10px;
+}
+
 #nav-sidebar {
     width: 25%;
     height: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
     display: flex;
     flex-flow: column;
     box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
@@ -68,6 +76,16 @@ a {
 }
 
 #content {
-    width: 75%;
+    width: calc(75%- 250px);
     padding: 50px 25px;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+#ad-bar {
+    width: 250px;
+    height: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: rgba(0,0,0,0.5);
 }
