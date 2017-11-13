@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+<link rel="stylesheet" type="text/css" href="/page.css" />
+{% block content %}
+    <h2>{{page.title}}</h2>
+    <span class="date-string">{{page.date}}</span>
+    {{page.content | safe}}
+    <div class="tags">
+    </div>
+{% endblock content %}

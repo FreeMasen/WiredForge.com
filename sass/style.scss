@@ -1,6 +1,18 @@
+@font-face {
+    font-family: 'Bungee Hairline';
+    src: url("/fonts/BungeeHairline-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Raleway';
+    src: url("/fonts/Raleway-Thin.ttf")
+}
+
 * {
     box-sizing: border-box;
+    font-family:  'Raleway';
 }
+
 
 body,
 html, {
@@ -11,10 +23,51 @@ html, {
     border: 0;
 }
 
+body {
+    display: flex;
+    flex-flow: row;
+
+}
+
+a {
+    text-decoration: none;
+    color: unset;
+    &:visited,
+    &:active {
+        color: unset;
+    }
+}
+
 #nav-sidebar {
     width: 25%;
     height: 100%;
     display: flex;
     flex-flow: column;
     box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
+    padding-left: 10px;
+    .nav-button,
+    .nav-button:visited {
+        display: block;
+        width: 100%;
+        padding: 20px 10px 20px 10px;
+        box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
+        text-decoration: none;
+        color: rgba(0,0,0,0.5);
+        margin-top: 10px;
+        font-size: 20pt;
+        font-weight: bold;
+    }
+
+    .nav-button:hover {
+        box-shadow: 1px 1px 2px 1px rgba(0, 180, 255, 0.5);
+    }
+
+    .nav-button:active {
+        transform: translate(4, -4);
+    }
+}
+
+#content {
+    width: 75%;
+    padding: 50px 25px;
 }
