@@ -9,7 +9,7 @@ use lettre::{SimpleSendableEmail, EmailTransport, EmailAddress, SmtpTransport};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 fn main() {
-    rouille::start_server("localhost:8080", move |request| {
+    rouille::start_server("localhost:1111", move |request| {
         match request.url().as_str() {
             "/contact" => {
                 let mut data = request.data().expect("unable to read request body");
