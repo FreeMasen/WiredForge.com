@@ -16,8 +16,9 @@ fn main() {
                 let mut buf = Vec::new();
                 data.read_to_end(&mut buf).expect("unable to read request body");
                 let body = String::from_utf8(buf).expect("unable to decode body");
-
-                Response::text(body)
+                let email = Email::from_url_params(body);
+                contact(email.name, email.address, email.message);
+                Response::text("")
             },
             "/gh" => {
                 Response::text("")
@@ -45,9 +46,41 @@ fn contact(name: String, email: String, message: String) {
     // Send the email
     let result = mailer.send(&email);
 }
-
+#[derive(Debug)]
 struct Email {
     name: String,
     address: String,
     message: String,
+}
+
+impl Email {
+    fn from_url_params(url: String) -> Email {
+        let mut ret = Email {
+            name: String::from(""),
+            address: String::from(""),
+            message: String::from(""),
+        };
+        let split = url.split("&");
+        println!("parsing: {:?}", split);
+        for section in split {
+            let parts: Vec<&str> = section.split("=").collect();
+            println!("key: {:?}\nvalue: {:?}\n", parts[0], parts[1]);
+            match parts[0] {
+                "your-name-input" => {
+                    ret.name = String::from(parts[1]).replace("+", " ");
+                },
+                "your-email-address-input" => {
+                    ret.address = String::from(parts[1]).replace("%40", "@");
+                },
+                "your-message-input" => {
+                    ret.message = String::from(parts[1]).replace("+", " ")
+                                                        .replace("\\'", "'")
+                                                        .replace("%2C", ",")
+                                                        .replace("%0A", "\n");
+                },
+                _ => ()
+            }
+        }
+        ret
+    }
 }
