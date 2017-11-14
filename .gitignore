@@ -3,3 +3,5 @@
 **/*.js
 **/*.js.map
 **/.vscode
+/public/
+server/target
