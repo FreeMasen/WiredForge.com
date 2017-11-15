@@ -11,8 +11,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
     rouille::start_server("localhost:1111", move |request| {
         match request.url().as_str() {
-            "/contact" => {
-                println!("/contact");
+            "/send" => {
+                println!("/send");
                 let mut data = request.data().expect("unable to read request body");
                 let mut buf = Vec::new();
                 data.read_to_end(&mut buf).expect("unable to read request body");
