@@ -18,7 +18,7 @@ fn main() {
                 let body = String::from_utf8(buf).expect("unable to decode body");
                 let email = Email::from_url_params(body);
                 contact(email.name, email.address, email.message);
-                Response::text("")
+                Response::redirect_301("/")
             },
             "/gh" => {
                 Response::text("")
