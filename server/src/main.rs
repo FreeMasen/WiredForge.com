@@ -45,6 +45,10 @@ fn contact(name: String, email: String, message: String) {
         SmtpTransport::builder_unencrypted_localhost().unwrap().build();
     // Send the email
     let result = mailer.send(&email);
+    match result {
+        Ok(_) => println!("send mail"),
+        Err(e) => println!("Error sending mail: {:?}", e),
+    }
 }
 #[derive(Debug)]
 struct Email {
