@@ -12,12 +12,15 @@ fn main() {
     rouille::start_server("localhost:1111", move |request| {
         match request.url().as_str() {
             "/contact" => {
+                println!("/contact");
                 let mut data = request.data().expect("unable to read request body");
                 let mut buf = Vec::new();
                 data.read_to_end(&mut buf).expect("unable to read request body");
+                println!("read buffer");
                 let body = String::from_utf8(buf).expect("unable to decode body");
                 let email = Email::from_url_params(body);
                 contact(email.name, email.address, email.message);
+                println!("sent email");
                 Response::redirect_301("/")
             },
             "/gh" => {
