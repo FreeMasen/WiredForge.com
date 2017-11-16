@@ -22,6 +22,9 @@ pre {
     border-radius: 5px;
     padding: 0px 10px 10px;
     display: inline-block;
+    max-width: 100%;
+    white-space: pre-wrap;
+    box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
 }
 
 pre > span {
@@ -74,10 +77,11 @@ text {
 }
 
 #content {
-    width: calc(75%- 250px);
+    width: calc(75% - 250px);
     padding: 50px 25px;
     flex-grow: 1;
     flex-shrink: 1;
+    max-width: calc(75% - 250px);
 }
 
 #ad-bar {
