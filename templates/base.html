@@ -93,8 +93,8 @@
 
             function startBling() {
                 let interval = Math.floor((Math.random() * 30 + 10) * 1000)
-                bling();
                 setTimeout(() => {
+                bling();
                     startBling()
                 }, interval)
             }
@@ -103,7 +103,7 @@
                     if (frame()) {
                         bling()
                     }
-                }, 0);
+                }, 1);
             }
             function frame() {
                 let pattern = document.getElementById('pattern');
