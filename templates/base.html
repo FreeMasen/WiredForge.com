@@ -17,12 +17,17 @@
                       style="font-weight: bold;"
                       >{{config.title}}</text>
                   </clipPath>
+                  <linearGradient id="pattern">
+                      <stop id="trailer" offset="0%" stop-color="rgba(0,0,0,0.3)" />
+                      <stop id="color" offset="0%" stop-color="rgba(0, 180, 255, 0.5)" />
+                      <stop id="leader" offset="0%" stop-color="rgba(0,0,0,0.3)" />
+                  </linearGradient>
                 </defs>
               <path
                     id="main-panel"
                     class="box-section"
                     clip-path="url(#clip-name)"
-                    fill="rgba(0,0,0,0.3)"
+                    fill="url(#pattern)"
                     stroke="none"
                     stroke-width=1
                     stroke-linecap="round" 
@@ -34,7 +39,7 @@
                        z"
                     />
                 <path
-                      fill="rgba(0,0,0,0.3)"
+                      fill="rgba(0, 180, 255, 0.5)"
                       class="box-section"
                       stroke="none"
                       stroke-linecap="round" 
@@ -45,7 +50,7 @@
                          l 5 -5"
                       />
                 <path
-                      fill="rgba(0,0,0,0.3)"
+                      fill="url(#pattern)"
                       class="box-section"
                       stroke="none"
                       stroke-width="0.25"
@@ -80,5 +85,50 @@
             (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                startBling();
+                // bling();
+            });
+
+            function startBling() {
+                let interval = Math.floor((Math.random() * 30 + 10) * 1000)
+                bling();
+                setTimeout(() => {
+                    startBling()
+                }, interval)
+            }
+            function bling() {
+                setTimeout(() => {
+                    if (frame()) {
+                        bling()
+                    }
+                }, 0);
+            }
+            function frame() {
+                let pattern = document.getElementById('pattern');
+                let color = pattern.querySelector('#color');
+                if (increaseOffset(color) >= 1) {
+                    color.setAttribute('offset', '0%');
+                    return false;
+                }
+                return true;
+            }
+
+            function getOffset(element) {
+                let offsetStr = element.getAttribute('offset');
+                return parseInt(offsetStr.replace('%', ''));
+            }
+
+            function increaseOffset(element) {
+                let offset = getOffset(element);
+                if (offset < 100) {
+                    element.setAttribute('offset', offset + 4 + '%');
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        </script>
     </body>
 </html>
