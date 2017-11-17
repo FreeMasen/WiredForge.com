@@ -6,7 +6,9 @@
     margin: auto;
     border: 1px solid black;
     margin-top: 5px;
-    font-family: 'mono';
+    * {
+        font-family: 'mono';
+    }
 }
 
 .byte {
@@ -54,7 +56,7 @@
     border: 1px solid black;
     text-align: center;
     font-size: 48pt;
-    line-height: 38px;
+    line-height: 46px;
 }
 
 .bit-switch {
@@ -70,7 +72,7 @@
 
 #current-total {
     grid-column: 1 / 3;
-    font-size: 28pt;
+    font-size: 26pt;
     line-height: 78px;
     text-align: center;
     display: block;
