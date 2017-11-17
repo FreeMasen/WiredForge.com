@@ -1,0 +1,76 @@
+#binary-calc {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, auto);
+    width: 75%;
+    margin: auto;
+    border: 1px solid black;
+    margin-top: 5px;
+}
+
+.byte {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 25px 50px;
+    grid-template-areas: "un name name vapid" "left-nibble left-nibble right-nibble right-nibble";
+    text-align: center;
+    font-size: 14pt;
+    line-height: 26px;
+    border: 1px solid black;
+}
+
+.byte-name {
+    grid-area: name;
+    margin: 0;
+}
+
+.byte-value {
+    grid-area: value;
+}
+
+.nibble {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 50px;
+    grid-template-areas: "bit bit bit bit";
+}
+
+.nibble.left {
+    grid-area: left-nibble;
+    border: 1px solid red;
+}
+
+.nibble.right {
+    grid-area: right-nibble;
+    border: 1px solid blue;
+}
+
+.nibble-value {
+    grid-area: value;
+}
+
+.bit {
+    border: 1px solid black;
+    text-align: center;
+    font-size: 48pt;
+    line-height: 38px;
+}
+
+.bit-switch {
+    display: none;
+}
+
+.bit-value {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#current-total {
+    grid-column: 1 / 3;
+    font-size: 28pt;
+    line-height: 78px;
+    text-align: center;
+    display: block;
+}
