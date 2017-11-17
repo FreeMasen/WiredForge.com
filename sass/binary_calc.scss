@@ -1,8 +1,9 @@
+
 #binary-calc {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(5, auto);
-    width: 75%;
+    width: 100%;
     margin: auto;
     border: 1px solid black;
     margin-top: 5px;
@@ -76,4 +77,35 @@
     line-height: 78px;
     text-align: center;
     display: block;
+}
+
+@media (max-width: 800px) {
+    
+    #content {
+        padding: 5px 25px;
+        width: calc(75% - 50px);
+        max-width: calc(75% - 50px);
+    }
+    #binary-calc {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(5, auto);
+    }
+    .byte {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 25px 50px;
+        grid-template-areas: "name name" "left-nibble right-nibble";
+        .nibble {
+            .bit {
+                font-size: 12pt;
+            }
+        }
+    }    
+    #current-total {
+        grid-column: 1;
+        font-size: 10pt;
+    }
+    #ad-bar {
+        width: 50px;
+    }
 }
