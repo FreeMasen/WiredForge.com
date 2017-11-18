@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', () => {
     addEventListeners();
 });
-let bigUints = [];
+let bits = [];
 function addEventListeners() {
     captureBigUints()
     let numbers = document.querySelectorAll('.bit-value');
@@ -33,27 +33,26 @@ function flipBit(event) {
 
 function captureBigUints() {
     let switches = document.querySelectorAll('.bit-value');
+    let bit = new Bit();
     for (var i = 0; i < switches.length; i++) {
         switches[switches.length - (i + 1)].setAttribute('uint-index', i);
-        let bigUint = new BigUInt(Math.pow(2, i));
-        bigUints.push(bigUint);
+        bit = bit.next()
+        bits.push(bit);
     }
 }
 
 function count() {
     let values = []
-    let switches = document.querySelectorAll('.bit-value');
-    for (var i = 0; i < switches.length; i++) {
-        let bit = switches[switches.length - (i + 1)];
-        if (bit.innerHTML == "1") {
-            let index = bit.getAttribute('uint-index');
-            values.push(bigUints[index]);
-        }
+    let elements = document.querySelectorAll('.bit-value');
+    let switches = Array.from(elements, s => [s.getAttribute('uint-index'), s.innerHTML == '1'])
+    let flipped = switches.filter(sw => sw[1]);
+    for (let sw of flipped) {
+        values.push(bits[sw[0]]);
     }
     let newNum = values.reduce((acc, curr) => {
         acc.add(curr);
         return acc;
-    }, new BigUInt(0));
+    }, new Bit());
     return newNum.toString();
 }
 
@@ -61,52 +60,21 @@ function updateTotal(newValue) {
     let total = document.getElementById('current-total');
     total.innerHTML = newValue;
 }
-function BigUInt(num) {
+
+function Bit() {
     this.data = [];
-    //            17014118346046924168183820328401633280
-    let divisor = 100000000000000000000000000000;
-    let i = this.data.length;
-    while (num > 10) {
-        let position = Math.floor(num / divisor);
-        if (position === 0 && this.data.length < 1) {
-            divisor /= 10;
-            continue;
-        }
-        this.data.push(position);
-        num -= (position * divisor);
-        divisor /= 10;
-        i--
-    }
-    this.data.push(num);
-    this.realign();
-}
-
-BigUInt.prototype.add = function(other) {
-    let revOther = other.data.slice(0).reverse();
-    let revSelf = this.data.slice(0).reverse();
-    for (var i = 0; i < other.data.length; i++) {
-        let curOther = revOther[i];
-        let curSelf = revSelf[i];
-        if (curSelf === undefined) {
-            revSelf.push(curOther);
+    this.next = function() {
+        let nextBit = new Bit();
+        if (this.data.length < 1) {
+            nextBit.data = [1];
         } else {
-            let newVal = (curOther || 0) + curSelf;
-            revSelf[i] = newVal;
+            nextBit.data = this.data.slice(0).map(v => v * 2);
+            nextBit.realign();
         }
-    }
-    this.data = revSelf.slice(0).reverse();
-    this.realign();
-}
-
-
-BigUInt.prototype.toString = function() {
-    return this.data.join('');
-}
-BigUInt.prototype.realign = function() {
-    let carryOver = 0;
-    let tooBig;
-    console.log(this.data);
-    while ((tooBig = this.data.filter(v => v > 9)).length > 0) {
+        return nextBit;
+    };
+    this.realign = function() {
+        let carryOver = 0;
         for (let i = this.data.length - 1;i >= 0;i--) {
             let current = this.data[i];
             let update = 0;
@@ -125,24 +93,24 @@ BigUInt.prototype.realign = function() {
             this.data.unshift(carryOver);
         }
     }
-}
-
-function experiment(num) {
-    this.data = new Uint8Array(38);
-
-    //            17014118346046924168183820328401633280
-    let divisor = 100000000000000000000000000000;
-    while (num > 10) {
-        let position = Math.floor(num / divisor);
-        if (position === 0 && this.data.length < 1) {
-            divisor /= 10;
-            continue;
+    this.add = function(other) {
+        let revOther = other.data.slice(0).reverse();
+        let revSelf = this.data.slice(0).reverse();
+        for (var i = 0; i < other.data.length; i++) {
+            let curOther = revOther[i];
+            let curSelf = revSelf[i];
+            if (curSelf === undefined) {
+                revSelf.push(curOther);
+            } else {
+                let newVal = (curOther || 0) + curSelf;
+                revSelf[i] = newVal;
+            }
         }
-        this.data.push(position);
-        num -= (position * divisor);
-        divisor /= 10;
+        this.data = revSelf.slice(0).reverse();
+        this.realign();
     }
-    this.data.push(num);
-    this.realign();
-
+    this.toString = function() {
+        if (this.data.length == 0) return '0';
+        return this.data.join('');
+    }
 }
