@@ -1,4 +1,5 @@
 +++
+template = "about.html"
 +++
 
 ## About this site

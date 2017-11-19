@@ -18,7 +18,8 @@ body {
     justify-content: space-between;
 }
 
-pre {
+pre,
+blockquote {
     border-radius: 5px;
     padding: 0px 10px 10px;
     display: inline-block;
@@ -90,4 +91,13 @@ text {
     flex-grow: 0;
     flex-shrink: 0;
     background-color: rgba(0,0,0,0.5);
+}
+
+blockquote,
+blockquote > * {
+    margin: 0;
+}
+
+blockquote {
+    box-shadow: 1px 1px 2px 1px rgba(0, 180, 255, 0.5);
 }

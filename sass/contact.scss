@@ -23,13 +23,18 @@
         align-items: center;
         .form-button {
             border: 0;
-            padding: 10px 25px;
+            padding: 5px 15px;
             box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 14pt;
             &.submit {
-                background: green;
+                background: #0df;
+                color: white;
             }
             &.cancel {
-                background: red;
+                background: rgba(0,0,0,0.5);
+                color: white;
             }
         }
     }

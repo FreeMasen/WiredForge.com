@@ -28,8 +28,6 @@ To did deeper, their [website](http://sqlite.org) has quite a bit of information
 Databases are fascinating. Just about every application I have built has amounted to a user interface for data storage, however the database as a whole is a black box to me. While I have been able to infer how the system works from experience, I really wanted to dig into how it all seems to work 'automagically'.
 
 I started to read the documentation for SQLite as a way to demystify the magic part of data warehousing. SQLite provides a detailed specification for its file format, I thought this would be a great place to start. At about the 4th paragraph I started to doubt that I would be able to make sense of any of it:
-
-
 > The main database file consists of one or more pages. The size of a page is a power of two between 512 and 65536 inclusive. All pages within the same database are the same size. The page size for a database file is determined by the 2-byte integer located at an offset of 16 bytes from the beginning of the database file.
 >
 > Pages are numbered beginning with 1. The maximum page number is 2147483646 (2<sup>31</sup> - 2). The minimum size SQLite database is a single 512-byte page. The maximum size database would be 2147483646 pages at 65536 bytes per page or 140,737,488,224,256 bytes (about 140 terabytes). Usually SQLite will hit the maximum file size limit of the underlying filesystem or disk hardware long before it hits its own internal size limit.
