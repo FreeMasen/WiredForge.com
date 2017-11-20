@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="/page.css" />
+    {% if page.draft %}
+    <h2 class="draft-message">This post is a work in progress.</h2>
+    {% endif %}
     <h2>{{page.title}}</h2>
     <span class="date-string">{{page.date}}</span>
         {{page.content | safe}}

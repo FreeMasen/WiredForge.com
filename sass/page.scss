@@ -5,4 +5,16 @@
     blockquote, {
         font-size: 16pt;
     }
+    .draft-message {
+        margin: 0 auto;
+        display: block;
+        color: rgba(255, 105, 105, 1);
+        font-style: italic;
+        width: 100%;
+        text-align: center;
+        &::before,
+        &::after {
+            content: '  !!  ';
+        }
+    }
 }
