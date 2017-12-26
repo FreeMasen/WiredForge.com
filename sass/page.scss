@@ -18,13 +18,11 @@
     }
 }
 
-blockquote {
-    filter: invert(5%);
-}
 pre {
     overflow-x: auto;
     max-width: 100%;
     white-space: pre;
+    filter: invert(5%);
 }
 code {
     font-family: 'mono';
