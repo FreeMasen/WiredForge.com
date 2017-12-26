@@ -16,6 +16,7 @@ body {
     display: flex;
     flex-flow: row;
     justify-content: space-between;
+    align-items: flex-start;
 }
 
 pre,
@@ -83,6 +84,7 @@ text {
     flex-grow: 1;
     flex-shrink: 1;
     max-width: calc(75% - 250px);
+    padding-bottom: 25px;
 }
 
 #ad-bar {
