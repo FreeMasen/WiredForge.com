@@ -17,6 +17,10 @@
         }
     }
 }
+
+blockquote {
+    filter: invert(5%);
+}
 pre {
     overflow-x: auto;
     max-width: 100%;
