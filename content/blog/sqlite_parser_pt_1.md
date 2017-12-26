@@ -90,7 +90,7 @@ fn main() {
     let path = PathBuf::from("db.sqlite");
     //Open the file or print a failure message
     let file = File::open(path).expect("Unable to open db file");
-    //creat a reader with an internal buffer of 100 bytes in length that is pointing to our file
+    //creat a reader with an internal buffer of 100 bytes in length that for our file
     let mut reader = BufReader::with_capacity(100, file);
     //fill the internal buffer with the first 100 bytes in our file
     //or print a failure message
@@ -104,7 +104,11 @@ When we run this, the output should look something like this.
 ```bash
 $ cargo run
 First 100 bytes:
-[83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0, 16, 0, 1, 1, 0, 64, 32, 32, 0, 0, 0, 8, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 46, 1, 90]
+[83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0, 
+16, 0, 1, 1, 0, 64, 32, 32, 0, 0, 0, 8, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 2, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 46, 1, 90]
 ```
 
 Success!
@@ -117,7 +121,7 @@ Looking at the last example, we want to work on this set of data
 
 `[83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0]`
 
-We could manually look up each of these using a [utf-8 table](https://en.wikipedia.org/wiki/List_of_Unicode_characters#Basic_Latin) by just matching up our numbers to the number listed like 83=S, 81=Q... but that would take far too long. Let's let the computer do all that for us.
+We could manually look up each of these using a [utf-8 table](https://en.wikipedia.org/wiki/List_of_Unicode_characters#Basic_Latin) by just matching up our numbers to the number listed like `83=S, 81=Q...` but that would take far too long. Let's let the computer do all that for us.
 
 
 ```rust
@@ -125,19 +129,20 @@ fn main() {
     //create a path buffer for our file, this will help the io operations
     //to know where to look without manually having to look up OS conventions like 
     //the type of slash they are using
-    let path = PathBuf::from("db.sqlite");
-    //Open the file or print a failure message
+     let path = PathBuf::from("db.sqlite");
+    //Open the file
     let file = File::open(path).expect("Unable to open db file");
-    //creat a reader with an internal buffer of 100 bytes in length that is pointing to our file
+    //creat a reader with an internal buffer of 100 bytes in length that for our file
     let mut reader = BufReader::with_capacity(100, file);
     //fill the internal buffer with the first 100 bytes in our file
-    //or print a failure message
     let buf = reader.fill_buf().expect("Unable to fill buffer");
     //slice off the first 16 bytes of our buffer
-    let first_16 = buf.get(0..16).expect("Unable to slice our first 16 bytes");
+    let first_16 = buf.get(0..16)
+                    .expect("Unable to slice our first 16 bytes");
     //Try and create a string from the slice, note the from_utf8 method is expecting a vector 
     //so we are casting our &[u8] to Vec<u8> by calling .to_vec()
-    let magic_string = String::from_utf8(first_16).to_vec()).expect("Unable to convert from utf8 to magic string");
+    let magic_string = String::from_utf8(first_16).to_vec())
+                    .expect("Unable to convert from utf8 to magic string");
     println!("did it work?\n{:?}", magic_string);
 }
 ```
