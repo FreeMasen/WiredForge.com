@@ -51,69 +51,65 @@ The key here that the number is big-endian, for those in the know about about en
 
 If you have made it this far, you probably know that all numbers need to be somehow representable in binary and if a byte is 8 bits, it would look something like this.
 ```
-0000 0001 = 1 = 1
-0000 0011 = 1 + 2 = 3
-0010 1100 = 4 + 8 + 32 = 44
-1010 1010 = 128 + 32 + 8 + 2 = 170
+0000 0001 = 1
+0000 0011 = 3
+0010 1100 = 44
+1010 1010 = 170
 ```
 When we get bigger than 8 bits, it gets more complicated. Some people seem to believe that if you had two separate bytes to define one number then the bigger half should be to the left of the smaller half while others believe that the bigger half should be to the right of the smaller half. I don't really care why anyone would be in either camp but the consequence is we need to know about it.
-## Big-Endian
-```
-+===========+============+=======+
-| Big End   | Little End | Total |
-+===========+============+=======+
-|     0     |     1      |       |
-+-----------+------------+-------+
-| 0000 0000 | 0000 0001  |   1   |
-+-----------+------------+-------+
-| 65280(255)|     0      |       |
-+-----------+------------+-------+
-| 1111 1111 | 0000 0000  | 65280 |
-+-----------+------------+-------+
 
-```
-## Little-Endian
-```
-+============+============+=======+
-| Little End | Big End    | Total |
-+============+============+=======+
-|     0      |   256(1)   |       |
-+------------+------------+-------+
-| 0000 0000  | 0000 0001  | 256   |
-+------------+------------+-------+
-|    255     |     0      |       |
-+------------+------------+-------+
-| 1111 1111  |  0000 0000 | 255   |
-+------------+------------+-------+
-```
-As you can see, they are very different and also very confusing. Thankfully, we have been told that we need to care about big-endian for this particular problem.
+Here is a little tool to illustrate the difference.
+<div class="endian-wrapper">
+    <span class="endian-title">Interactive Endian Calculator</span>
+    <div class="endian-controls">
+        <div class="radio-wrapper">
+            <span class="radio-title">Endian-ness</span>
+            <div class="radio-group">
+                <div class="radio" id="big">
+                    <span class="end-ness">Big</span>
+                </div>
+                <div class="radio" id="little">
+                    <span class="end-ness" id="little">Little</span>
+                </div>
+            </div>
+        </div>
+        <div class="unsigned-ints">
+            <div class="input-group">
+                <label for="left-uint">Left u8</label>
+                <input class="uint" type="number" max="255" min="0" value="0" id="left-uint" />
+            </div>
+            <div class="input-group">
+                <label for="right-uint">Right u8</label>
+                <input class="uint" type="number" max="255" min="0" id="right-uint" value="0" />
+            </div>
+        </div>
+    </div>
+    <div class="representations">
+        <div class="representation">
+            <span class="name">Binary</span>
+            <span id="binary-representation"></span>
+        </div>
+        <div class="representation">
+            <span class="name">Result</span>
+            <span id="u16-representation"></span>
+        </div>
+    </div>
+</div>
+<script src="/js/endian.js" type="text/javascript">
+</script>
 
-```
-+===========+============+=======+
-| Big End   | Little End | Total |
-+===========+============+=======+
-|   1024(4) |     0      |       |
-+-----------+------------+-------+
-| 0000 0100 | 0000 0000  | 1024  |
-+-----------+------------+-------+
-```
+.that was fun... but lets get back to the task.
 
-...and now back to the practical, lets write some code.
+Since we will probably need to do this a bunch, let's pull
+this out into its own function
 
 ```rust
-//first we need to add a new import
-use std::Wrapping;
 
-//then we are going to add a new helper function
 fn parse_u16(big_end: u8, little_end: u8) -> u16 {
-    (
-        //shift the big end over 8 bits and
-        //combine it with the little end
-        Wrapping(big_end    as u16) << 8 |
-        Wrapping(little_end as u16)
-    ).0
+        (big_end as u16) << 8 | little_end as u16
 }
 ```
+
 Let's unpack this a little.
 
 First, our operation `<<`, this is the symbol that someone deciede would be a binary shift operator. Binary shifts only make sense if you can really think in binary... but examples also help.
