@@ -16,6 +16,11 @@
             content: '  !!  ';
         }
     }
+
+    h2 {
+        margin: 0;
+
+    }
 }
 
 pre {
@@ -43,6 +48,25 @@ code {
             font-weight: bold;
             font-style: oblique;
 
+        }
+    }
+}
+
+.doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.5);
+    tr {
+        .number-cell {
+            text-align: center;
+        }
+        td {
+            border: 1px solid black;
+            vertical-align: center;
+            padding: 0 2px;
+        }
+        th {
+            border: 2px solid black;
         }
     }
 }
