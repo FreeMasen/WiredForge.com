@@ -37,6 +37,7 @@ There is a lot to unpack here. First, our position is at offset 16 (with an inde
 let next_two = buf.get(16..18).expect("Unable to slice of next two");
 println!("next_two: {:?}", next_two);
 ```
+Running our program should now output.
 
 ```bash
 $ cargo run
@@ -59,44 +60,8 @@ If you have made it this far, you probably know that all numbers need to be some
 When we get bigger than 8 bits, it gets more complicated. Some people seem to believe that if you had two separate bytes to define one number then the bigger half should be to the left of the smaller half while others believe that the bigger half should be to the right of the smaller half. I don't really care why anyone would be in either camp but the consequence is we need to know about it.
 
 Here is a little tool to illustrate the difference.
-<div class="endian-wrapper">
-    <span class="endian-title">Interactive Endian Calculator</span>
-    <div class="endian-controls">
-        <div class="radio-wrapper">
-            <span class="radio-title">Endian-ness</span>
-            <div class="radio-group">
-                <div class="radio" id="big">
-                    <span class="end-ness">Big</span>
-                </div>
-                <div class="radio" id="little">
-                    <span class="end-ness" id="little">Little</span>
-                </div>
-            </div>
-        </div>
-        <div class="unsigned-ints">
-            <div class="input-group">
-                <label for="left-uint">Left u8</label>
-                <input class="uint" type="number" max="255" min="0" value="0" id="left-uint" />
-            </div>
-            <div class="input-group">
-                <label for="right-uint">Right u8</label>
-                <input class="uint" type="number" max="255" min="0" id="right-uint" value="0" />
-            </div>
-        </div>
-    </div>
-    <div class="representations">
-        <div class="representation">
-            <span class="name">Binary</span>
-            <span id="binary-representation"></span>
-        </div>
-        <div class="representation">
-            <span class="name">Result</span>
-            <span id="u16-representation"></span>
-        </div>
-    </div>
-</div>
-<script src="/js/endian.js" type="text/javascript">
-</script>
+
+{{ endian() }}
 
 .that was fun... but lets get back to the task.
 

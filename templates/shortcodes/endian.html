@@ -1,0 +1,38 @@
+<div class="endian-wrapper">
+    <span class="endian-title">Interactive Endian Calculator</span>
+    <div class="endian-controls">
+        <div class="radio-wrapper">
+            <span class="radio-title">Endian-ness</span>
+            <div class="radio-group">
+                <div class="radio" id="big">
+                    <span class="end-ness">Big</span>
+                </div>
+                <div class="radio" id="little">
+                    <span class="end-ness" id="little">Little</span>
+                </div>
+            </div>
+        </div>
+        <div class="unsigned-ints">
+            <div class="input-group">
+                <label for="left-uint">Left u8</label>
+                <input class="uint" type="number" max="255" min="0" value="0" id="left-uint" />
+            </div>
+            <div class="input-group">
+                <label for="right-uint">Right u8</label>
+                <input class="uint" type="number" max="255" min="0" id="right-uint" value="0" />
+            </div>
+        </div>
+    </div>
+    <div class="representations">
+        <div class="representation">
+            <span class="name">Binary</span>
+            <span id="binary-representation"></span>
+        </div>
+        <div class="representation">
+            <span class="name">u16</span>
+            <span id="u16-representation"></span>
+        </div>
+    </div>
+</div>
+<script src="/js/endian.js" type="text/javascript">
+</script>
