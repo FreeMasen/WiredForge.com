@@ -31,8 +31,19 @@ the next entry in the header is defined as:
     </tr>
 </table>
 
-There is a lot to unpack here. First, our position is at offset 16 (with an index starting at 0) which means that it should be butted right up against the magic string from the last post. Next, the length should be 2 bytes, sounds easy enough(?). Lastly, we have our description pretty simply says that it should be a number between 512 and 32768 or 1. The only issue is that `u8` would only be the numbers between 0 and 255, so we need to figure out
-how to combine these two numbers. Further down the documentation gives us a good hint on how to make this work:
+There is a lot to unpack here. First, our position is at offset 16 (with an index starting at 0) which means that it should be butted right up against the magic string from the last post. Next, the length should be 2 bytes, sounds easy enough(?). By adding the following to our current main method, we should see the next two bytes.
+
+```rust
+let next_two = buf.get(16..18).expect("Unable to slice of next two");
+println!("next_two: {:?}", next_two);
+```
+
+```bash
+$ cargo run
+next_two: [4, 0]
+```
+
+Now that we have our value, let's dig into the description. The important parts here is that we should expect the total page size to be between 512 and 32768 or 1. Looking at our output `[4, 0]` we need to figure out how to combine these two numbers. Further down the documentation gives us a good hint on how to make this work:
 
 > ...this value is interpreted as a big-endian integer...
 
@@ -45,19 +56,47 @@ If you have made it this far, you probably know that all numbers need to be some
 0010 1100 = 4 + 8 + 32 = 44
 1010 1010 = 128 + 32 + 8 + 2 = 170
 ```
-
-When we get bigger than 8 bits, it (surprisingly) gets more complicated. Some people seem to believe that if you had two separate bytes to define one number then the bigger half should be to the left of the smaller half while others believe that the bigger half should be to the right of the smaller half. I don't really care why anyone would be in either camp but the consequence is we need to know about it.
+When we get bigger than 8 bits, it gets more complicated. Some people seem to believe that if you had two separate bytes to define one number then the bigger half should be to the left of the smaller half while others believe that the bigger half should be to the right of the smaller half. I don't really care why anyone would be in either camp but the consequence is we need to know about it.
 ## Big-Endian
 ```
-0000 0000 0000 0001 = 1
-1111 1111 0000 0000 = 65280
++===========+============+=======+
+| Big End   | Little End | Total |
++===========+============+=======+
+|     0     |     1      |       |
++-----------+------------+-------+
+| 0000 0000 | 0000 0001  |   1   |
++-----------+------------+-------+
+| 65280(255)|     0      |       |
++-----------+------------+-------+
+| 1111 1111 | 0000 0000  | 65280 |
++-----------+------------+-------+
+
 ```
 ## Little-Endian
 ```
-0000 0000 0000 0001 = 256
-1111 1111 0000 0000 = 255
++============+============+=======+
+| Little End | Big End    | Total |
++============+============+=======+
+|     0      |   256(1)   |       |
++------------+------------+-------+
+| 0000 0000  | 0000 0001  | 256   |
++------------+------------+-------+
+|    255     |     0      |       |
++------------+------------+-------+
+| 1111 1111  |  0000 0000 | 255   |
++------------+------------+-------+
 ```
 As you can see, they are very different and also very confusing. Thankfully, we have been told that we need to care about big-endian for this particular problem.
+
+```
++===========+============+=======+
+| Big End   | Little End | Total |
++===========+============+=======+
+|   1024(4) |     0      |       |
++-----------+------------+-------+
+| 0000 0100 | 0000 0000  | 1024  |
++-----------+------------+-------+
+```
 
 ...and now back to the practical, lets write some code.
 
