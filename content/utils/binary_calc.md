@@ -1,6 +1,7 @@
 +++
-template = "binary_calc.html"
 title = "Binary Calculator"
 [extra]
-snipet = ""
+snipet = "A tool for counting binary, similar to the 'programmer' settings for OSX or Window's calculator"
 +++
+
+{{ binarycalc() }}
