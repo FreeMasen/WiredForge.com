@@ -63,32 +63,45 @@ Here is a little tool to illustrate the difference.
 
 {{ endian() }}
 
-.that was fun... but lets get back to the task.
+If we enter 12 in the left box and 32 in the right box the big endian value is 3104 while the little endian value is 8204. Whoa! that is a spread.
 
-Since we will probably need to do this a bunch, let's pull
-this out into its own function
+While it has been fun illustrating this very strange concept, let's get back to our task (combining two u8s into 1 u16).
+
+I am expecting that we will need to perform this sort of operation more than once so why not break this out into its own function.
 
 ```rust
-
 fn parse_u16(big_end: u8, little_end: u8) -> u16 {
-        (big_end as u16) << 8 | little_end as u16
+    let left_16 = (big_end as u16) << 8;
+    left_16 | little_end as u16
 }
 ```
+Ok, there are a few things to go over here. To start our function is going to take in two unsigned 8 bit integers, and returns an unsigned 16 bit integers.
 
-Let's unpack this a little.
+Now we need to figure out how to put the value from `big_end` in the bits to the left of our return value and the `little_end` can essentially stay the same. To move our big end to the left we are going to shift the numbers bits to the left, that is what we are doing with the `<<` operator. In our header the big end was 4 which would be `0000 0100` and our little end was 0 which would be `0000 0000`. Our page size then would be `0000 0100 0000 0000`, the left shifting operator moves you bits over 8 places. Now to combine them we are using the `|`, which should be familiar from writing if statements. In this case the `|` will take the 1 bits from both sides and make a new number.
 
-First, our operation `<<`, this is the symbol that someone deciede would be a binary shift operator. Binary shifts only make sense if you can really think in binary... but examples also help.
+some examples of `|`
+```
+0000 0100 | 1000 0000 = 1000 0100
+1111 0000 0000 0000 | 0000 0000 1111 0000 = 1111 0000 1111 0000
+0000 0010 0000 0000 | 0000 0000 0000 000 = 0000 0010 0000 0000 (our example)
+```
+So now we have are on the same page with the operation, let's run the program.
+
+```bash
+$ cargo run
+next_two: [4, 0]
+page size: 1024
+```
+Looks good, we now have the page size at 1024 bytes. The next two entries in our header will tell us if SQLite is using the Write Ahead Log mode (2) or Legacy (1) mode for writing then reading. lets see what we have.
 
 ```rust
-let start: Wrapping<u16> = 1; // 0000 0000 0000 0001
-let shift_left: Wrapping<u16> = start << 8; //0000 0001 0000 0000
-let shift_right: Wrapping<u16> = start >> 4; //0001 0000 0000 0000
-
+let write_mode = buf.get(19).expect("Unable to get write mode byte");
+let read_mode = buf.get(20).expect("Unable to get read mode byte");
+println!("Write: {:?}, Read: {:?}", write_mode, read_mode);
 ```
-
-the Wrapping import allows us to wrap any overflowing number to the
-lowest option before continuing. To give an example:
+And when we run it.
+```bash
+next_two: [4, 0]
+page size: 1024
+Write: 1, Read: 1
 ```
-255 + 1 = 0
-```
-Since we know that our big_end will never actually get bigger than 255, we don't have to worry about growing larger than a u16 can handle. The Rust compiler, like most compilers, doesn't know that we can make that promise so we have to give it an out, in case we don't hold up our end of the bargin. Other languages would make this the default behavior or throw a runtime exception but the Rust team has decided that this should be a compiler error so we are going to have to just deal with that.
