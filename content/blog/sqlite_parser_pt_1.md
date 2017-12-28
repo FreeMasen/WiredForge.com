@@ -1,6 +1,6 @@
 +++
 title = "SQLite Parser Pt. 1: The Header"
-date = "2017-10-12"
+date = "2017-12-26"
 slug = "sqlite1"
 draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
@@ -8,7 +8,8 @@ tags = ["sqlite", "integer-storage", "decoding"]
 snipet = "This is the first in a series of posts describing the process of building a SQLite file parser"
 image = "sqlite.gif"
 series = [{title = "SQLite Parser Pt. 1: The Header", link = "/blog/sqlite1/index.html"},
-{title = "SQLite Parser Pt. 2: The Header... continues",link = "/blog/sqlite2/index.html"}
+{title = "SQLite Parser Pt. 2: The Header... continues",link = "/blog/sqlite2/index.html"},
+{title = "SQLite Parser Pt. 3: The Header... reorganized",link = "/blog/sqlite3/index.html"}
 ]
 +++
 
