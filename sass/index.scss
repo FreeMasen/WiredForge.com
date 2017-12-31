@@ -1,10 +1,11 @@
 
 .post-list {
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-auto-rows: 1fr;
-    grid-gap: 25px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+
     .post-summary {
         border-radius: 10px;
         box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
@@ -13,6 +14,11 @@
         flex-flow: column;
         text-decoration: none;
         color: black;
+        width: 250px;
+        margin-top: 15px;
+         + .post-summary {
+             margin-left: 15px;
+         }
         &:hover {
             box-shadow: 1px 1px 2px 1px rgba(0, 180, 255, 0.5);
         }

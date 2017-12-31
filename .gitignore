@@ -3,4 +3,5 @@
 **/*.js.map
 **/.vscode
 /public/
-server/target
+**/target
+rf

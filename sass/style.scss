@@ -1,3 +1,4 @@
+@import "colors";
 * {
     box-sizing: border-box;
     font-family:  'Raleway-light';
@@ -19,6 +20,7 @@ body {
     align-items: flex-start;
 }
 
+
 pre,
 blockquote {
     border-radius: 5px;
@@ -36,8 +38,53 @@ text {
     font-family: 'Raleway-light';
 }
 
+@media (max-width: 841px) {
+    #nav-sidebar {
+        .site-description {
+            display: none;
+        }
+        .nav-button {
+            font-size: 12pt;
+            span {
+                display: none;
+            }
+        }
+    }
+
+    #content-wrapper {
+        flex-flow: column-reverse;
+        #ad-bar {
+            width: 100%;
+            height: 150px;
+        }
+    }
+}
+@media (min-width: 841px) {
+    #content-wrapper {
+        display: flex;
+        flex-flow: row;
+        width: 80%;
+        height: 100%;
+        justify-content: space-between;
+        align-items: flex-start;
+        #content {
+            padding: 50px 25px;
+            flex-grow: 1;
+            flex-shrink: 1;
+            padding-bottom: 25px;
+        }
+    
+        #ad-bar {
+            width: 150px;
+            height: 100%;
+            flex-grow: 0;
+            flex-shrink: 0;
+            background: rgba(0,0,0,0.5);
+        }
+    }
+}
 #nav-sidebar {
-    width: 25%;
+    width: 20%;
     height: 100%;
     flex-grow: 0;
     flex-shrink: 0;
@@ -45,7 +92,7 @@ text {
     flex-flow: column;
     box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
     padding-left: 10px;
-    span {
+    .site-description {
         font-size: 16pt;
     }
     a {
@@ -55,10 +102,32 @@ text {
         &:active {
             color: unset;
         }
+        svg {
+            width: 35px;
+            height: 35px;
+            margin-left: 10px;
+            .icon-background,
+            .cutout {
+                fill: $blue;
+                stroke: none;
+            }
+            #lines {
+                stroke: $blue;
+                fill: none;
+            }
+            .icon {
+                fill: white;
+                font-size: 70pt;
+            }
+
+        }
     }
     .nav-button,
     .nav-button:visited {
-        display: block;
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        justify-content: space-between;
         width: 100%;
         padding: 20px 10px 20px 10px;
         box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
@@ -78,22 +147,6 @@ text {
     }
 }
 
-#content {
-    width: calc(75% - 250px);
-    padding: 50px 25px;
-    flex-grow: 1;
-    flex-shrink: 1;
-    max-width: calc(75% - 250px);
-    padding-bottom: 25px;
-}
-
-#ad-bar {
-    width: 250px;
-    height: 100%;
-    flex-grow: 0;
-    flex-shrink: 0;
-    background-color: rgba(0,0,0,0.5);
-}
 
 blockquote,
 blockquote > * {

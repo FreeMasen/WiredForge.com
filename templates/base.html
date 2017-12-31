@@ -63,28 +63,127 @@
                       />
 
               </svg>
-            <span>{{config.description}}</span>
-            <a class="nav-button" href="/">Home</a>
-            <a class="nav-button" href="/utils">Utilities</a>
-            <a class="nav-button" href="/about/index.html">About</a>
-            <a class="nav-button" href="/contact/index.html">Contact</a>
+            <span class="site-description">{{config.description}}</span>
+            <a class="nav-button" href="/">
+                <span>Home</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <circle class="icon-background" cx="50" cy="50" r="49"/>
+                    <path class="icon"
+                          d="
+                             M 5 44
+                             l 45 -33
+                             l 45 33
+                             l -15 0
+                             l 0 35
+                             l -60 0
+                             l 0 -35
+                             z"
+                          />
+                  </svg>
+            </a>
+            <a class="nav-button" href="/utils">
+                <span>Utilities</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="49" class="icon-background"/>
+                    <path class="icon"
+                          d="
+                             M 15 75
+                             l 60 -60
+                             l 5 5
+                             l -60 60
+                             z
+                             "
+                          />
+                    <path class="icon"
+                          d="
+                             M 85 75
+                             l -60 -60
+                             l -5 5
+                             l 60 60
+                             z"
+                          />
+                    <path class="icon"
+                          d="
+                             M 22 22
+                             l -10 10
+                             l 10 10
+                             l 20 -20
+                             l 10 -18
+                             l -18 7
+                             z"
+                          />
+                    <circle class="wrench-head icon"
+                            cx="71"
+                            cy="25"
+                            r="15"
+                            clipPath="url(#wrench-cutout)"
+                          />
+                    <path class="cutout"
+                          d="M 79 11
+                             l 5 5
+                             l -10 10
+                             l -5 -5
+                             z"
+                          />
+                  </svg>
+            </a>
+            <a class="nav-button" href="/about/index.html">
+                <span>
+                    About
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="49" class="icon-background"/>
+                    <text class="icon" x="18" y="75">A</text>
+                </svg>
+            </a>
+            <a class="nav-button" href="/contact/index.html">
+                <span>
+                    Contact
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="49" class="icon-background"/>
+                    <path
+                    class="icon"
+                    d="
+                    M 15 30
+                    l 70 0
+                    l 0 40
+                    l -70 0
+                    z
+                    "
+                    />
+                    <path id="lines"
+                    d="
+                    M 14 29
+                    l 35 25
+                    l 35 -25
+                    M 86 70
+                    l -34 -19
+                    m -8 0
+                    l -30 20
+                    "
+                    />
+                </svg>
+            </a>
         </aside>
-        <div id="content">
-            {% block content %}
+        <div id="content-wrapper">
+            <div id="content">
+                {% block content %}
 
-            {% endblock content %}
-        </div>
-        <div id="ad-bar">
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- static_wired -->
-            <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-3645196637290477"
-                    data-ad-slot="2745081135"
-                    data-ad-format="auto"></ins>
-            <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+                {% endblock content %}
+            </div>
+            <div id="ad-bar">
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- static_wired -->
+                <ins class="adsbygoogle"
+                        style="display:block"
+                        data-ad-client="ca-pub-3645196637290477"
+                        data-ad-slot="2745081135"
+                        data-ad-format="auto"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
         </div>
         <script>
             window.addEventListener('DOMContentLoaded', () => {
