@@ -1,75 +1,81 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="/fonts.css" />
-        <link rel="stylesheet" type="text/css" href="/style.css" />
-    </head>
-    <body>
-        <aside id="nav-sidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40">
+
+<head>
+    <link rel="stylesheet" type="text/css" href="/fonts.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link type="text/css" rel="stylesheet" href="/binary_calc.css" />
+    <link type="text/css" rel="stylesheet" href="/about.css" />
+
+
+</head>
+
+<body>
+    <input style="display: none;" type="text" value="{{ __tera_context }}" id="tera-context" />
+    <aside id="nav-sidebar">
+        <div id="icon-wrapper" class="icon-wrapper" title="Wired Forge">
+            <svg id="site-icon" class="site-icon wide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20">
                 <defs>
-                  <clipPath id="clip-name">
-                    <text
-                      x="0"
-                      y="26"
-                      dx="10"
-                      textLength="80"
-                      style="font-weight: bold;"
-                      >{{config.title}}</text>
-                  </clipPath>
-                  <linearGradient id="pattern">
-                      <stop id="trailer" offset="0%" stop-color="rgba(0,0,0,0.3)" />
-                      <stop id="color" offset="0%" stop-color="rgba(0, 180, 255, 0.5)" />
-                      <stop id="leader" offset="0%" stop-color="rgba(0,0,0,0.3)" />
-                  </linearGradient>
+                    <clipPath id="clip-name">
+                        <text x="0" y="12" dx="5" textLength="94"
+                            style="font-weight: bold;" id="clip-text">
+                            Wired Forge
+                        </text>
+                    </clipPath>
+                    <linearGradient id="pattern">
+                        <stop id="trailer" offset="0%" stop-color="rgba(0,0,0,0.3)" />
+                        <stop id="color" offset="0%" stop-color="rgba(0, 180, 255, 0.5)" />
+                        <stop id="leader" offset="0%" stop-color="rgba(0,0,0,0.3)" />
+                    </linearGradient>
                 </defs>
-              <path
+                <path
                     id="main-panel"
                     class="box-section"
                     clip-path="url(#clip-name)"
                     fill="url(#pattern)"
                     stroke="none"
-                    stroke-width=1
-                    stroke-linecap="round" 
+                    stroke-width="1"
+                    stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="M 10 10
-                       l 80 0
-                       l 0 20
-                       l -80 0
-                       z"
-                    />
+                    d="
+                    M 0 0
+                    l 99 0
+                    l 0 20
+                    l -99 0
+                    z"
+                />
                 <path
-                      fill="rgba(0, 180, 255, 0.5)"
-                      class="box-section"
-                      stroke="none"
-                      stroke-linecap="round" 
-                      stroke-linejoin="round"
-                      d="M 9.75 10.125
-                         l -5 5
-                         l 0 20
-                         l 5 -5"
-                      />
+                    fill="rgba(0, 180, 255, 0.5)"
+                    class="box-section"
+                    stroke="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M 5 0
+                    l -5 5
+                    l 0 15
+                    l 5 -5
+                    z"
+                />
                 <path
-                      fill="url(#pattern)"
-                      class="box-section"
-                      stroke="none"
-                      stroke-width="0.25"
-                      stroke-linecap="round" 
-                      stroke-linejoin="round"
-                      d="M 10 30.25
-                         l -5 5
-                         l 80 0
-                         l 5 -5"
-                      />
-
-              </svg>
+                    fill="url(#pattern)"
+                    class="box-section"
+                    stroke="none"
+                    stroke-width="0.25"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M 5.25 15.5
+                    l -5 5
+                    l 95 0
+                    l 5 -5"
+                />
+            </svg>
+        </div>
             <span class="site-description">{{config.description}}</span>
-            <a class="nav-button" href="/">
-                <span>Home</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <circle class="icon-background" cx="50" cy="50" r="49"/>
-                    <path class="icon"
-                          d="
+        <a title="Home" class="nav-button" href="/">
+            <span>Home</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle class="icon-background" cx="50" cy="50" r="49" />
+                <path class="icon" d="
                              M 5 44
                              l 45 -33
                              l 45 33
@@ -77,83 +83,65 @@
                              l 0 35
                              l -60 0
                              l 0 -35
-                             z"
-                          />
-                  </svg>
-            </a>
-            <a class="nav-button" href="/utils">
-                <span>Utilities</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="49" class="icon-background"/>
-                    <path class="icon"
-                          d="
+                             z" />
+            </svg>
+        </a>
+        <a title="Utilities" class="nav-button" href="/utils">
+            <span>Utilities</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="49" class="icon-background" />
+                <path class="icon" d="
                              M 15 75
                              l 60 -60
                              l 5 5
                              l -60 60
                              z
-                             "
-                          />
-                    <path class="icon"
-                          d="
+                             " />
+                <path class="icon" d="
                              M 85 75
                              l -60 -60
                              l -5 5
                              l 60 60
-                             z"
-                          />
-                    <path class="icon"
-                          d="
+                             z" />
+                <path class="icon" d="
                              M 22 22
                              l -10 10
                              l 10 10
                              l 20 -20
                              l 10 -18
                              l -18 7
-                             z"
-                          />
-                    <circle class="wrench-head icon"
-                            cx="71"
-                            cy="25"
-                            r="15"
-                            clipPath="url(#wrench-cutout)"
-                          />
-                    <path class="cutout"
-                          d="M 79 11
+                             z" />
+                <circle class="wrench-head icon" cx="71" cy="25" r="15" clipPath="url(#wrench-cutout)" />
+                <path class="cutout" d="M 79 11
                              l 5 5
                              l -10 10
                              l -5 -5
-                             z"
-                          />
-                  </svg>
-            </a>
-            <a class="nav-button" href="/about/index.html">
-                <span>
-                    About
-                </span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="49" class="icon-background"/>
-                    <text class="icon" x="18" y="75">A</text>
-                </svg>
-            </a>
-            <a class="nav-button" href="/contact/index.html">
-                <span>
-                    Contact
-                </span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="49" class="icon-background"/>
-                    <path
-                    class="icon"
-                    d="
+                             z" />
+            </svg>
+        </a>
+        <a title="About" class="nav-button" href="/about/index.html">
+            <span>
+                About
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="49" class="icon-background" />
+                <text class="icon" x="18" y="75">A</text>
+            </svg>
+        </a>
+        <a title="Contact" class="nav-button" href="/contact/index.html">
+            <span>
+                Contact
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="49" class="icon-background" />
+                <path class="icon" d="
                     M 15 30
                     l 70 0
                     l 0 40
                     l -70 0
                     z
-                    "
-                    />
-                    <path id="lines"
-                    d="
+                    " />
+                <path id="lines" d="
                     M 14 29
                     l 35 25
                     l 35 -25
@@ -161,74 +149,212 @@
                     l -34 -19
                     m -8 0
                     l -30 20
-                    "
-                    />
-                </svg>
-            </a>
-        </aside>
-        <div id="content-wrapper">
-            <div id="content">
-                {% block content %}
-
-                {% endblock content %}
-            </div>
-            <div id="ad-bar">
-                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                <!-- static_wired -->
-                <ins class="adsbygoogle"
-                        style="display:block"
-                        data-ad-client="ca-pub-3645196637290477"
-                        data-ad-slot="2745081135"
-                        data-ad-format="auto"></ins>
-                <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            </div>
+                    " />
+            </svg>
+        </a>
+    </aside>
+    <div id="content-wrapper">
+        <div id="content">
+            {% block content %} {% endblock content %}
         </div>
-        <script>
-            window.addEventListener('DOMContentLoaded', () => {
-                startBling();
-                // bling();
-            });
+        <div id="ad-bar">
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <!-- static_wired -->
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3645196637290477" data-ad-slot="2745081135" data-ad-format="auto"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', (ev) => {
+            startBling();
+            adjustIcon();
+        });
+        window.addEventListener('resize', ev => adjustIcon(ev));
 
-            function startBling() {
-                let interval = Math.floor((Math.random() * 30 + 10) * 1000)
-                setTimeout(() => {
+        function adjustIcon(ev) {
+            let currentIcon = document.getElementById('site-icon');
+            let screenShort = short();
+            if (!currentIcon) {
+                return insertIcon(screenShort);
+            }
+            let currentClass = currentIcon.getAttribute('class');
+            let currentlyShort = currentClass.indexOf('short') > -1;
+            if (screenShort !== currentlyShort) {
+                insertIcon(screenShort);
+            }
+        }
+
+        function startBling() {
+            let interval = Math.floor((Math.random() * 30 + 10) * 1000)
+            setTimeout(() => {
                 bling();
-                    startBling()
-                }, interval)
-            }
-            function bling() {
-                setTimeout(() => {
-                    if (frame()) {
-                        bling()
-                    }
-                }, 1);
-            }
-            function frame() {
-                let pattern = document.getElementById('pattern');
-                let color = pattern.querySelector('#color');
-                if (increaseOffset(color) >= 1) {
-                    color.setAttribute('offset', '0%');
-                    return false;
-                }
-                return true;
-            }
+                startBling()
+            }, interval)
+        }
 
-            function getOffset(element) {
-                let offsetStr = element.getAttribute('offset');
-                return parseInt(offsetStr.replace('%', ''));
-            }
-
-            function increaseOffset(element) {
-                let offset = getOffset(element);
-                if (offset < 100) {
-                    element.setAttribute('offset', offset + 4 + '%');
-                    return 0;
-                } else {
-                    return 1;
+        function bling() {
+            setTimeout(() => {
+                if (frame()) {
+                    bling()
                 }
+            }, 1);
+        }
+
+        function frame() {
+            let pattern = document.getElementById('pattern');
+            let color = pattern.querySelector('#color');
+            if (increaseOffset(color) >= 1) {
+                color.setAttribute('offset', '0%');
+                return false;
             }
-        </script>
-    </body>
+            return true;
+        }
+
+        function getOffset(element) {
+            let offsetStr = element.getAttribute('offset');
+            return parseInt(offsetStr.replace('%', ''));
+        }
+
+        function increaseOffset(element) {
+            let offset = getOffset(element);
+            if (offset < 100) {
+                element.setAttribute('offset', offset + 4 + '%');
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+
+        function insertIcon(short) {
+            let wrapper = document.getElementById('icon-wrapper');
+            while (wrapper.hasChildNodes()) {
+                wrapper.removeChild(wrapper.firstChild);
+            }
+            wrapper.appendChild(svg(short));
+        }
+
+        function svg(short) {
+            let svg = createSvgElement('svg');
+            let cls = short ? 'site-icon short' :
+                    'site-icon wide'
+            svg.setAttribute('id', 'site-icon');
+            svg.setAttribute('class', cls);
+            let viewBox = short ? '0 0 31.5 20' : '0 0 100 20';
+            svg.setAttribute('viewBox', viewBox);
+            svg.appendChild(defs(short));
+            svg.appendChild(mainPanel(short));
+            svg.appendChild(leftPanel());
+            svg.appendChild(bottomPanel(short))
+            return svg;
+        }
+
+        function short() {
+            let innerWidth = getWidth();
+            return innerWidth < 841;
+        }
+
+        function getWidth() {
+            return Math.max(
+              document.body.scrollWidth,
+              document.documentElement.scrollWidth,
+              document.body.offsetWidth,
+              document.documentElement.offsetWidth,
+              document.documentElement.clientWidth
+            );
+          }
+
+        function defs(short) {
+            let defs = createSvgElement('defs');
+            defs.appendChild(clipText(short));
+            defs.appendChild(pattern());
+            return defs;
+        }
+
+        function clipText(short) {
+            let clipPath = createSvgElement('clipPath');
+            clipPath.setAttribute('id', 'clip-name')
+            let text = createSvgElement('text');
+            text.setAttribute('x', '0');
+            text.setAttribute('y', '12');
+            text.setAttribute('dx', '5');
+            text.setAttribute('textLength', short ? '26' : '94');
+            text.setAttribute('style', 'font-weight: bold;');
+            let innerHTML = document.createTextNode(short ? 'WF' : 'Wired Forge');
+            text.appendChild(innerHTML);
+            clipPath.appendChild(text);
+            return clipPath;
+        }
+
+        function pattern() {
+            let linearGradient = createSvgElement('linearGradient');
+            linearGradient.setAttribute('id', 'pattern');
+            let trailer = createSvgElement('stop');
+            trailer.setAttribute('id', 'trailer');
+            trailer.setAttribute('offset', '0%');
+            trailer.setAttribute('stop-color', 'rgba(0,0,0,0.3)');
+            let color = createSvgElement('stop');
+            color.setAttribute('id', 'color');
+            color.setAttribute('offset', '0%');
+            color.setAttribute('stop-color', 'rgba(0, 180, 255, 0.5)');
+            let leader = createSvgElement('stop');
+            leader.setAttribute('id', 'leader');
+            leader.setAttribute('offset', '0%');
+            leader.setAttribute('stop-color', 'rgba(0,0,0,0.3)');
+            linearGradient.appendChild(trailer);
+            linearGradient.appendChild(color);
+            linearGradient.appendChild(leader);
+            return linearGradient;
+        }
+
+        function mainPanel(short) {
+            let path = createSvgElement('path');
+            path.setAttribute('id', 'main-panel');
+            path.setAttribute('class', 'box-section');
+            path.setAttribute('clip-path', 'url(#clip-name)');
+            path.setAttribute('fill', 'url(#pattern)');
+            path.setAttribute('stroke', 'none');
+            path.setAttribute('stroke-width', '1');
+            path.setAttribute('stroke-linecap', 'round');
+            path.setAttribute('stroke-linejoin', 'round');
+            let data = short ?
+                    'M 0 0 l 31 0 l 0 20 l -100 0 z' :
+                    'M 0 0 l 99 0 l 0 20 l -99 0 z'
+            path.setAttribute('d', data);
+            return path;
+        }
+
+        function leftPanel() {
+            let path = createSvgElement('path');
+            path.setAttribute('fill', 'rgba(0, 180, 255, 0.5)');
+            path.setAttribute('class', 'box-section');
+            path.setAttribute('stroke', 'none');
+            path.setAttribute('stroke-linecap', 'round');
+            path.setAttribute('stroke-linejoin', 'round');
+            path.setAttribute('d', 'M 5 0 l -5 5 l 0 15 l 5 -5 z');
+            return path;
+        }
+
+        function bottomPanel(short) {
+            let path = createSvgElement('path');
+            path.setAttribute('fill', 'url(#pattern)');
+            path.setAttribute('class', 'box-section');
+            path.setAttribute('stroke', 'none');
+            path.setAttribute('stroke-width', '0.25');
+            path.setAttribute('stroke-linecap', 'round');
+            path.setAttribute('stroke-linejoin', 'round');
+            let d = short ?
+                    'M 5.5 15 l -5 5 l 26 0 l 5 -5' :
+                    'M 5.25 15.5 l -5 5 l 95 0 l 5 -5';
+            path.setAttribute('d', d);
+            return path;
+        }
+
+        function createSvgElement(name) {
+            return document.createElementNS('http://www.w3.org/2000/svg', name);
+        }
+    </script>
+</body>
+
 </html>

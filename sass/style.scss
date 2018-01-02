@@ -52,10 +52,20 @@ text {
     }
 
     #content-wrapper {
-        flex-flow: column-reverse;
+        display: flex;
+        flex-direction: column-reverse;
+        width: 80%;
+        height: 100%;
+        justify-content: flex-end;
+        align-items: center;
+        #content {
+            width: 100%;
+            padding: 5px;
+        }
         #ad-bar {
             width: 100%;
-            height: 150px;
+            height: 75px;
+            background: $grey;
         }
     }
 }
@@ -79,7 +89,7 @@ text {
             height: 100%;
             flex-grow: 0;
             flex-shrink: 0;
-            background: rgba(0,0,0,0.5);
+            background: $grey;
         }
     }
 }
@@ -90,10 +100,13 @@ text {
     flex-shrink: 0;
     display: flex;
     flex-flow: column;
-    box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
-    padding-left: 10px;
+    box-shadow: 2px 1px 4px 1px rgba(0,0,0,0.5);
+    .icon-wrapper {
+        padding: 20px 10px 10px 10px;
+    }
     .site-description {
         font-size: 16pt;
+        margin-left: 10px;
     }
     a {
         text-decoration: none;
@@ -128,7 +141,7 @@ text {
         flex-flow: row;
         align-items: center;
         justify-content: space-between;
-        width: 100%;
+        width: calc(100% - 10px);
         padding: 20px 10px 20px 10px;
         box-shadow: 1px 1px 4px 1px rgba(0,0,0,0.5);
         text-decoration: none;
@@ -136,6 +149,7 @@ text {
         margin-top: 10px;
         font-size: 20pt;
         font-weight: bold;
+        margin-left: 10px;
     }
 
     .nav-button:hover {
