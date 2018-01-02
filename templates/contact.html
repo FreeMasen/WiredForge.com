@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% import "macros.html" as macros %}
 {% block content %}
-    <link type="text/css" rel="stylesheet" href="/contact.css" />
     <form id="contact" action="/send" method="POST">
         {{macros::input_group(label="Your Name")}}
         {{macros::input_group(label="Your Email Address")}}
