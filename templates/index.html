@@ -14,7 +14,13 @@
                 <span class="sub-title">
                     {{page.date}}
                 </span>
-                <img src="/images/sqlite.gif" height="100" />
+                {% if page.extra.image %}
+                <img src="/images/{{page.extra.image}}" 
+                {% if page.extra.image_desc %}
+                    alt="{{page.extra.image_desc}}" 
+                    {% endif %}
+                height="100" />
+                {% endif %}
                 <span class="summary">
                     {{page.extra.snipet}}                    
                 </span>

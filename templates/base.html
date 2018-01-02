@@ -2,6 +2,9 @@
 <html>
 
 <head>
+    <meta name="description" content="A blog about learning computer science concepts with practical projects" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="/fonts.css" />
     <link rel="stylesheet" type="text/css" href="/style.css" />
     <link type="text/css" rel="stylesheet" href="/binary_calc.css" />
@@ -10,7 +13,9 @@
     <link type="text/css" rel="stylesheet" href="/index.css" />
     <link rel="stylesheet" type="text/css" href="/page.css" />
     <link type="text/css" rel="stylesheet" href="/index.css" />
-
+    <link rel="apple-touch-icon" href="/favicon.ico">
+    <meta name="msapplication-TileColor" content="#0E2B5E"/>
+    <title>Wired Forge</title>
 </head>
 
 <body>
@@ -19,8 +24,7 @@
             <svg id="site-icon" class="site-icon wide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20">
                 <defs>
                     <clipPath id="clip-name">
-                        <text x="0" y="12" dx="5" textLength="94"
-                            style="font-weight: bold;" id="clip-text">
+                        <text x="0" y="12" dx="5" textLength="94" style="font-weight: bold;" id="clip-text">
                             Wired Forge
                         </text>
                     </clipPath>
@@ -30,49 +34,26 @@
                         <stop id="leader" offset="0%" stop-color="rgba(0,0,0,0.3)" />
                     </linearGradient>
                 </defs>
-                <path
-                    id="main-panel"
-                    class="box-section"
-                    clip-path="url(#clip-name)"
-                    fill="url(#pattern)"
-                    stroke="none"
-                    stroke-width="1"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="
+                <path id="main-panel" class="box-section" clip-path="url(#clip-name)" fill="url(#pattern)" stroke="none" stroke-width="1"
+                    stroke-linecap="round" stroke-linejoin="round" d="
                     M 0 0
                     l 99 0
                     l 0 20
                     l -99 0
-                    z"
-                />
-                <path
-                    fill="rgba(0, 180, 255, 0.5)"
-                    class="box-section"
-                    stroke="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M 5 0
+                    z" />
+                <path fill="rgba(0, 180, 255, 0.5)" class="box-section" stroke="none" stroke-linecap="round" stroke-linejoin="round" d="M 5 0
                     l -5 5
                     l 0 15
                     l 5 -5
-                    z"
-                />
-                <path
-                    fill="url(#pattern)"
-                    class="box-section"
-                    stroke="none"
-                    stroke-width="0.25"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    z" />
+                <path fill="url(#pattern)" class="box-section" stroke="none" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"
                     d="M 5.25 15.5
                     l -5 5
                     l 95 0
-                    l 5 -5"
-                />
+                    l 5 -5" />
             </svg>
         </div>
-            <span class="site-description">{{config.description}}</span>
+        <span class="site-description">{{config.description}}</span>
         <a title="Home" class="nav-button" href="/">
             <span>Home</span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -113,7 +94,7 @@
                              l 10 -18
                              l -18 7
                              z" />
-                <circle class="wrench-head icon" cx="71" cy="25" r="15" clipPath="url(#wrench-cutout)" />
+                <circle class="wrench-head icon" cx="71" cy="25" r="15" clip-path="url(#wrench-cutout)" />
                 <path class="cutout" d="M 79 11
                              l 5 5
                              l -10 10
@@ -240,7 +221,7 @@
         function svg(short) {
             let svg = createSvgElement('svg');
             let cls = short ? 'site-icon short' :
-                    'site-icon wide'
+                'site-icon wide'
             svg.setAttribute('id', 'site-icon');
             svg.setAttribute('class', cls);
             let viewBox = short ? '0 0 31.5 20' : '0 0 100 20';
@@ -259,13 +240,13 @@
 
         function getWidth() {
             return Math.max(
-              document.body.scrollWidth,
-              document.documentElement.scrollWidth,
-              document.body.offsetWidth,
-              document.documentElement.offsetWidth,
-              document.documentElement.clientWidth
+                document.body.scrollWidth,
+                document.documentElement.scrollWidth,
+                document.body.offsetWidth,
+                document.documentElement.offsetWidth,
+                document.documentElement.clientWidth
             );
-          }
+        }
 
         function defs(short) {
             let defs = createSvgElement('defs');
@@ -321,8 +302,8 @@
             path.setAttribute('stroke-linecap', 'round');
             path.setAttribute('stroke-linejoin', 'round');
             let data = short ?
-                    'M 0 0 l 31 0 l 0 20 l -100 0 z' :
-                    'M 0 0 l 99 0 l 0 20 l -99 0 z'
+                'M 0 0 l 31 0 l 0 20 l -100 0 z' :
+                'M 0 0 l 99 0 l 0 20 l -99 0 z'
             path.setAttribute('d', data);
             return path;
         }
@@ -347,8 +328,8 @@
             path.setAttribute('stroke-linecap', 'round');
             path.setAttribute('stroke-linejoin', 'round');
             let d = short ?
-                    'M 5.5 15 l -5 5 l 26 0 l 5 -5' :
-                    'M 5.25 15.5 l -5 5 l 95 0 l 5 -5';
+                'M 5.5 15 l -5 5 l 26 0 l 5 -5' :
+                'M 5.25 15.5 l -5 5 l 95 0 l 5 -5';
             path.setAttribute('d', d);
             return path;
         }
