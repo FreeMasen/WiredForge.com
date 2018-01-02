@@ -60,11 +60,27 @@
         line-height: 78px;
         text-align: center;
         display: block;
+        width: 100%;
     }
 }
 
-@media (min-width: 841px) {
-    #binary-calc {
-        flex-flow: column;
+@media (max-width: 841px) {
+    #binary-calc {    
+        .byte {
+            .nibbles {
+                .nibble {
+                    .bit {
+                        .bit-value {
+                            font-size: 14pt;
+                        }
+                    }
+
+                }
+            }
+        }
+        #current-total {
+            font-size: 14pt;
+            line-height: 14pt;
+        }
     }
 }
