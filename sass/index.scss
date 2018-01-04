@@ -36,3 +36,12 @@
         }
     }
 }
+ @media (max-width: 841px) {
+     .page-list {
+         .post-summary {
+            + .post-summary {
+                margin-left: 0;
+            }
+         }
+     }
+ }
