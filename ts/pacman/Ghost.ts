@@ -18,34 +18,32 @@ export default class Ghost extends Sprite {
         startDir: MoveDir = MoveDir.Up,
     ) 
     {
-        super(context, startX, startY, 45, 26, speed, startDir, color);
+        super(context, startX, startY, 40, 30, speed, startDir, color);
         this.eyesX = eyesX;
         this.eyesY = eyesY;
         this.color = color;
         this.direction = startDir;
     }
 
-    render(pacmanX: number, pacmanY: number) {
-        this.updateDirection();
-        this.updatePosition();
-        this.updateEyes(pacmanX, pacmanY);
+    render() {
         this.context.fillStyle = this.color;
         this.context.beginPath();
-        let halfHeight = 7.5;
-        let halfWidth = 7.5;
-        let top = this.currentY - 13;
-        let bottom = this.currentY + 13;
-        let left = this.currentX - 13;
-        let right = this.currentX + 13;
-        this.context.moveTo(left, bottom);
-        let arcStart = bottom - 15
-        this.context.lineTo(left, arcStart);
-        this.context.bezierCurveTo(left - 2, top - 15, right + 2, top - 15, right, arcStart);
+        this.context.moveTo(this.left, this.bottom);
+        let arcStart = this.bottom - (this.height / 2);
+        this.context.lineTo(this.left, arcStart);
+        this.context.bezierCurveTo(this.left - 2, this.top - 2, this.right + 2, this.top - 2, this.right, arcStart);
         this.context.lineTo(this.right, this.bottom);
         this.renderSquiggle();
         this.context.fill();
         this.context.moveTo(this.currentX, this.currentY);
         this.renderEyes();
+    }
+
+    next(pacmanX: number, pacmanY: number) {
+        this.updateDirection();
+        this.updatePosition();
+        this.updateEyes(pacmanX, pacmanY);
+        this.updateSqiggleState();
     }
 
     private updateDirection() {
@@ -61,28 +59,28 @@ export default class Ghost extends Sprite {
  
     updateEyes(pacmanX: number, pacmanY: number) {
         if (pacmanY > this.currentY) {
-            this.eyesY = 1;
+            this.eyesY = 2;
         } else if (pacmanY < this.currentY) {
-            this.eyesY = -1;
+            this.eyesY = -2;
         } else {
             this.eyesY = 0;
         }
         if (pacmanX > this.currentX) {
-            this.eyesX = 1;
+            this.eyesX = 1.5;
         } else if (pacmanX < this.currentX) {
-            this.eyesX = -1;
+            this.eyesX = -1.5;
         } else {
             this.eyesX = 0
         }
     }
 
     private renderEyes() {
-        let pd = 6;
+        let pd = 7;
         let leftCenterX = this.currentX - pd;
-        let centerY = this.currentY - 5;
+        let centerY = this.currentY;
         let rightCenterX = this.currentX + pd;
-        this.renderEye(leftCenterX, centerY);
-        this.renderEye(rightCenterX, centerY);
+        this.renderEye(leftCenterX, this.currentY);
+        this.renderEye(rightCenterX, this.currentY);
     }
 
     private renderEye(centerX: number, centerY: number) {
@@ -91,27 +89,18 @@ export default class Ghost extends Sprite {
         let width = 4;
         let height = 8;
         this.context.moveTo(centerX - width, centerY);
-        this.context.bezierCurveTo(centerX - width, centerY - height, centerX + width, centerY - height, centerX + width, centerY);
-        this.context.bezierCurveTo(centerX + width, centerY + height, centerX - width, centerY + height, centerX - width, centerY);
+        this.context.ellipse(centerX, centerY, 5, 8, 0, 0, 360);
         
         this.context.fill();
         this.context.beginPath();
         this.context.fillStyle = 'black';
         let pupilY = centerY + this.eyesY;
-        this.context.moveTo(centerX + this.eyesX, pupilY);
-        this.context.arc(centerX + this.eyesX, pupilY, 2, 0, DrawingService.degToRads(360), false);
+        let pupilX = centerX + this.eyesX;
+        this.context.ellipse(pupilX, pupilY, 2,2,0,0,360);
         this.context.fill();
     }
 
     private renderSquiggle() {
-        for (var sq of this.squiggleCoordinates) {
-            this.context.lineTo(sq[0], sq[1]);
-        }
-        this.updateSqiggleState();
-    }
-
-    private get squiggleCoordinates() {
-        let ret = [];
         let initialDiff = this.right - this.squiggleState;
         let startUp = true;
         if (initialDiff > 4) {
@@ -119,8 +108,9 @@ export default class Ghost extends Sprite {
             initialDiff = initialDiff + 4;
         }
         let currentX = initialDiff
+        let lineCounter = 0;
         while (currentX > this.left - 4) {
-            let bottomSwitch = ret.length % 2
+            let bottomSwitch = lineCounter % 2
             let bottom: number;
             if (startUp)
                 bottom = bottomSwitch == 0 ? this.bottom : this.bottom - 8;
@@ -130,13 +120,10 @@ export default class Ghost extends Sprite {
                 bottom = this.left - currentX + bottom;
                 currentX = this.left;
             }
-            let point = [];
-            point.push(currentX);
-            point.push(bottom);
-            ret.push(point);
+            this.context.lineTo(currentX, bottom);
             currentX -= 4;
+            lineCounter++;
         }
-        return ret;
     }
 
     private updateSqiggleState() {

@@ -1,15 +1,10 @@
 import { MoveDir } from './enums';
 import DrawingService from './services/drawingService';
-export default class Pacman {
-    currentX: number;
-    currentY: number;
-    private context: CanvasRenderingContext2D
+import Sprite from './Sprite';
+
+export default class Pacman extends Sprite {
     private mouthState: number = 25;
     private opening: boolean = false;
-    private speed: number;
-    private currentDir: MoveDir;
-    private color: string;
-    private width = 13;
     private counter: number = 0;
 
     constructor(
@@ -21,12 +16,7 @@ export default class Pacman {
         color: string = "yellow",
     )
     {
-        this.context = context;
-        this.currentX = startX;
-        this.currentY = startY;
-        this.currentDir = startDirection;
-        this.speed = speed;
-        this.color = color;
+        super(context, startX, startY, 35, 35, speed, startDirection, color);
     }
 
     render() {
@@ -35,23 +25,22 @@ export default class Pacman {
         this.context.fillStyle = this.color;
         this.context.beginPath();
         
-        this.context.arc(this.currentX, this.currentY, this.width, this.startAngle, this.endAngle, true);
+        this.context.arc(this.currentX, this.currentY, this.width / 2, this.startAngle, this.endAngle, true);
         this.context.lineTo(this.currentX, this.currentY);
         this.context.fill();
-        this.next();
     }
 
     turn(newDir: MoveDir) {
-        this.currentDir = newDir;
+        this.direction = newDir;
     }
 
-    private next() {
+    next() {
         this.updateMouth();
         this.updatePosition();
     }
 
     private updateMouth() {
-        let mouthSpeed = this.speed * 1.5;
+        let mouthSpeed = Math.floor(this.speed * 1.5);
         this.updateMouthDirection();
         if (this.opening) {
             this.mouthState += mouthSpeed;
@@ -71,7 +60,7 @@ export default class Pacman {
 
     get startAngle(): number {
         var degrees
-        switch (this.currentDir) {
+        switch (this.direction) {
             case MoveDir.Right:
                 return DrawingService.degToRads(-this.mouthState);
             case MoveDir.Down:
@@ -84,7 +73,7 @@ export default class Pacman {
     }
 
     get endAngle(): number {
-        switch (this.currentDir) {
+        switch (this.direction) {
             case MoveDir.Right:
                 return DrawingService.degToRads(this.mouthState);
             case MoveDir.Down:
@@ -93,39 +82,6 @@ export default class Pacman {
                 return DrawingService.degToRads(100 + this.mouthState);
             case MoveDir.Up:
                 return DrawingService.degToRads(150 + this.mouthState);
-        }
-    }
-
-    private updatePosition() {
-        switch (this.currentDir) {
-            case MoveDir.Up:
-                this.currentY -= this.speed;
-            break;
-            case MoveDir.Right:
-                this.currentX += this.speed;
-            break;
-            case MoveDir.Down:
-                this.currentY += this.speed;
-            break;
-            case MoveDir.Left:
-                this.currentX -= this.speed;
-            break;
-        }
-        this.handleScreen();
-    }
-
-    handleScreen() {
-        if (this.currentX > this.context.canvas.width + this.width) {
-            this.currentX = -this.width;
-        } 
-        if (this.currentY > this.context.canvas.height + this.width) {
-            this.currentY = -this.width;
-        }
-        if (this.currentY < -this.width) {
-            this.currentY = this.context.canvas.height + this.width;
-        }
-        if (this.currentX < -this.width) {
-            this.currentX = this.context.canvas.width + this.width;
         }
     }
 }
