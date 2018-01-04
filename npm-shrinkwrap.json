@@ -1,0 +1,11 @@
+{
+  "name": "gl",
+  "version": "1.0.0",
+  "dependencies": {
+    "gl-matrix": {
+      "version": "2.4.0",
+      "from": "gl-matrix@>=2.4.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/gl-matrix/-/gl-matrix-2.4.0.tgz"
+    }
+  }
+}
