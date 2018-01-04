@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<link type="text/css" rel="stylesheet" href="/index.css" />
 <div class="section-content post-list">
     {% for page in section.pages %}
         <a class="post-summary" href="/{{page.path}}index.html">
