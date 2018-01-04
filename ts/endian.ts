@@ -1,26 +1,33 @@
-let ender
+let en
 
 window.addEventListener('DMContentLoaded', () => {
-    ender = new Ender();
+    en = new Ender();
 })
 
-function Ender() {
-    this.big = true;
-    this.left = 0;
-    this.right = 0;
-    this.registerEvents = function() {
+class Ender {
+    big = true;
+    left = 0;
+    right = 0;
+    constructor() {
+        this.registerEvents();
+        this.updateRadios();
+        this.updateDOM();
+    }    
+    registerEvents() {
         let radios = document.querySelectorAll('.radio');
-        for (let radio of radios) {
+        for (var i = 0; i < radios.length; i++) {
+            let radio = radios[i];
             radio.addEventListener('click', ev => this.switchEnd(ev));
         }
-        let uints = document.querySelectorAll('.uint');
-        for (let uint of uints) {
+        let uints = document.querySelectorAll('.uint') as NodeListOf<HTMLInputElement>;
+        for (var i = 0; i < uints.length; i++) {
+            let uint = uints[i];
             uint.addEventListener('change', ev => this.uintChanged(ev));
-            uint.value = 0;
+            uint.value = `${0}`;
         }
     }
 
-    this.switchEnd = function(ev) {
+    switchEnd(ev) {
         let radio = ev.currentTarget;
         if (radio.id == 'big') {
             this.big = true;
@@ -31,7 +38,7 @@ function Ender() {
         this.updateRadios();
     }
 
-    this.uintChanged = function(ev) {
+    uintChanged(ev) {
         let input = ev.currentTarget;
 
         if (input.id == 'left-uint') {
@@ -52,7 +59,7 @@ function Ender() {
         this.updateDOM();
     }
 
-    this.uintBinary = function(uint) {
+    uintBinary(uint) {
         let ret = [];
         for (var i = 1; i < 256; i = (i * 2)) {
             if ((uint & i) > 0) ret.unshift('1');
@@ -62,11 +69,11 @@ function Ender() {
         return ret.join('');
     }
 
-    this.makeBig = function(uInt) {
+    makeBig(uInt) {
         return uInt << 8;
     }
 
-    this.calculate = function() {
+    calculate() {
         let big = this.big ? this.makeBig(this.left) : this.makeBig(this.right);
         let little = this.big ? this.right : this.left;
         return {
@@ -75,7 +82,7 @@ function Ender() {
         }
     }
 
-    this.updateDOM = function() {
+    updateDOM() {
         let calc = this.calculate();
         let binary = document.querySelector('#binary-representation');
         if (binary) {
@@ -83,11 +90,11 @@ function Ender() {
         }
         let u16 = document.querySelector('#u16-representation');
         if (u16){
-            u16.innerHTML = calc.u16;
+            u16.innerHTML = `${calc.u16}`;
         }        
     }
 
-    this.updateRadios = function() {
+    updateRadios() {
         let selectedClass = 'radio selected';
         let baseClass = 'radio'
         let bigRadio = document.getElementById('big');
@@ -100,12 +107,8 @@ function Ender() {
             littleRadio.setAttribute('class', selectedClass);
         }
     }
-
-    this.registerEvents();
-    this.updateRadios();
-    this.updateDOM();
 }
 
-if (!ender) {
-    ender = new Ender();
+if (!en) {
+    en = new Ender();
 }

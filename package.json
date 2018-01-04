@@ -1,0 +1,21 @@
+{
+  "name": "gl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.4.1",
+    "lite-server": "^2.3.0",
+    "node-sass": "^4.7.2",
+    "typescript": "^2.6.2",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "gl-matrix": "^2.4.0"
+  }
+}

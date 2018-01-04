@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "alwaysStrict": true,
+        "target": "es5",
+        "lib": [
+            "dom",
+            "es2015",
+            "es2016"
+        ]
+    },
+    "files": [
+        "index.ts"
+    ]
+}
