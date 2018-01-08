@@ -1,0 +1,90 @@
+@import 'colors';
+#shifter {
+    border: 1px solid black;
+    box-shadow: 1px 1px 1px 1px $grey;
+    width: 500px;
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: center;
+    .title {
+        background: $grey;
+        color: #fff;
+        width: 100%;
+        font-size: 16pt;
+    }
+    #shifter-wrapper {
+        display: flex;
+        flex-flow: row;
+        padding: 25px 5px;
+        width: 100%;
+        .values {
+            display: flex;
+            flex-flow: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 50%;
+            padding-left: 15px;
+            .input-group {
+                display: flex;
+                flex-flow: column;
+                justify-content: flex-start;
+                align-items: center;
+                width: 100%;
+                label {
+                    width: 100%;
+                    text-align: center;
+                }
+                input {
+                    width: 70px;
+                }
+            }
+            .representation {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+                span {
+                    flex-basis: 40%;
+                }
+            }
+        }
+
+        .adjustments {
+            display: flex;
+            flex-flow: column;
+            justify-content: space-around;
+            align-items: center;
+            width: 50%;
+            .counter {
+                width: 100%;
+                text-align: center;
+            }
+            .shift-buttons {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+                .shift-button {
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: flex-start;
+                    align-items: center;
+                    border-radius: 5px;
+                    border: none;
+                    box-shadow: 1px 1px 1px 1px $grey;
+                    background: $blue;
+                    &:active {
+                        &:not([disabled]) {
+                            box-shadow: 0 0 0 0 $grey;
+                            transform: translate3d(-1, -1);
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+}

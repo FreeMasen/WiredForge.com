@@ -7,6 +7,7 @@ module.exports = function(env) {
             pacman: path.join(__dirname, 'ts','pacman.ts'),
             binary_calc: path.join(__dirname, 'ts', 'binary_calc.ts'),
             endian: path.join(__dirname, 'ts', 'endian.ts'),
+            shifter: path.join(__dirname, 'ts', 'shifter.ts'),
         },
         output: {
             path: path.join(__dirname, 'static', 'js'),
