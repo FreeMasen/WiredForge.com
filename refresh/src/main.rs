@@ -25,6 +25,48 @@ fn main() {
     }
 }
 
+fn check_shrinkwrap() {
+    match try_get_shrinkwrap() {
+        Ok(file) => {
+            let buf: Vec<u8> = vec!();
+            let bufReader = BufReader::new();
+            match bufReader.read_to_end(buf) {
+                Ok(bytes) => {
+
+                },
+                Err()
+            }
+        },
+        Err(e) => {
+            println("{:?}", e);
+        }
+    }
+}
+
+fn try_get_shrinkwrap(): Option<File, String> {
+    let shrinkwrap_path = PathBuf::from("../npm-shrinkwrap.json");
+    match File::open(shrinkwrap_path) {
+        Ok(file) => {
+            file
+        },
+        Err(e) => {
+            Err("Unable to open shrinkwrap")
+        }
+    }
+}
+
+
+fn update_js(shrink: bool) {
+    wait_for_process(String::from("npm i"), Command::new("npm").args(&["install"]));
+    if (shirnk) {
+        shrinkwrap();
+    }
+}
+
+fn shrinkwrap() {
+    wait_for_process(String::from("npm shrinkwrap"), Command::new("npm").args(&["shrinkwrap"]))
+}
+
 fn last_info_exists(file: File) {
     println!("Last info exists");
     let mut reader = BufReader::new(file);
