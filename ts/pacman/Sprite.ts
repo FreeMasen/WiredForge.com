@@ -1,4 +1,8 @@
 import { MoveDir } from './enums';
+import Point from './grid/Point';
+/**
+ * A renderable character
+ */
 export default class Sprite {
     constructor(
         public context: CanvasRenderingContext2D,
@@ -14,22 +18,39 @@ export default class Sprite {
 
     }
 
+    /**
+     * The current position of the center of our sprite
+     */
+    get position(): Point {
+        return new Point(this.currentX, this.currentY);
+    }
+    /**
+     * The bottom of this sprite
+     */
     get bottom() {
         return this.currentY + (this.height / 2);
     }
-
+    /**
+     * The top of this sprite
+     */
     get top() {
         return this.currentY - (this.height / 2);
     }
-
+    /**
+     * The left edge of this sprite
+     */
     get left() {
         return this.currentX - (this.width / 2);
     }
-
+    /**
+     * The right edge of this sprite
+     */
     get right() {
         return this.currentX + (this.width / 2);
     }
-
+    /**
+     * Update this sprites position based on the speed and direction
+     */
     updatePosition() {
         switch(this.direction) {
             case MoveDir.Up:
@@ -47,7 +68,9 @@ export default class Sprite {
         }
         this.handleScreen();
     }
-
+    /**
+     * handle wrapping around the screen
+     */
     handleScreen() {
         if (this.currentX > this.context.canvas.width + this.width) {
             this.currentX = -this.width;
