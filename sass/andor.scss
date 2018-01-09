@@ -1,16 +1,24 @@
 @import 'colors';
 #andor {
-    width: 500px;
+    width: 400px;
     display: flex;
     flex-flow: column;
     justify-content: flex-start;
     align-items: center;
+    box-shadow: 1px 1px 3px 1px $grey;
+    padding-bottom: 5px;
+    * {
+        font-family: 'mono';
+        font-size: 14pt;
+    }
     .title {
         width: 100%;
         background: $grey;
         color: #fff;
+        font-size: 18pt;
     }
     #andor-wrapper {
+        padding-top: 5px;
         display: flex;
         flex-flow: row;
         justify-content: space-between;
@@ -21,11 +29,14 @@
             flex-flow: column;
             justify-content: space-around;
             align-items: center;
+            flex-basis: 50%;
             .inputs {
+                width: 100%;
                 display: flex;
                 flex-flow: row;
-                justify-content: flex-start;
+                justify-content: space-around;
                 align-items: center;
+                padding-bottom: 5px;
                 .input-group {
                     display: flex;
                     flex-flow: column;
@@ -39,7 +50,7 @@
             .representation {
                 display: flex;
                 flex-flow: row;
-                justify-content: space-between;
+                justify-content: space-around;
                 align-items: center;
                 width: 100%;
             }
@@ -49,18 +60,34 @@
             flex-flow: column;
             justify-content: space-around;
             align-items: center;
+            flex-basis: 50%;
             .buttons {
                 display: flex;
                 flex-flow: row;
+                width: 100%;
+                justify-content: space-around;
+                align-items: center;
+                padding-bottom: 5px;
                 .button {
-                    padding: 5px 10px;
-                    box-shadow: 1px 1px 1px 1px $grey;
+                    padding: 5px 20px;
+                    box-shadow: 1px 1px 3px 1px $grey;
                     border: none;
-                    
+                    border-radius: 5px;
+                    background: none;
+                    &:hover {
+                        box-shadow: 1px 1px 3px 1px darken($blue, 20);
+                    }
                     &.selected {
                         background: $blue;
                     }
                 }
+            }
+            .total {
+                display: flex;
+                flex-flow: column;
+                justify-content: flex-start;
+                align-items: center;
+                width: 100%;
             }
         }
     }

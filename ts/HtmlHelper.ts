@@ -20,4 +20,10 @@ export default class HTMLHelper {
             element.removeChild(element.lastChild);
         }
     }
+
+    static swapNode(replacement: HTMLElement, selector: string) {
+        let domElement = document.querySelector(selector);
+        domElement.insertAdjacentElement('beforebegin', replacement);
+        domElement.parentElement.removeChild(domElement);
+    }
 }

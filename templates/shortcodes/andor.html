@@ -7,11 +7,11 @@
         <div class="values">
             <div class="inputs">
                 <div class="input-group">
-                    <label for="left-bits">u8</label>
+                    <label for="left-bits">Left Byte</label>
                     <input class="user-input" id="left-bits" value="0" type="number" min="0" max="255" />
                 </div>
                 <div class="input-group">
-                    <label for="right-bits">u8</label>
+                    <label for="right-bits">Right Byte</label>
                     <input class="user-input" id="right-bits" value="0" type="number" min="0" max="255" />
                 </div>
             </div>
@@ -22,15 +22,16 @@
         </div>
         <div class="adjustments">
             <div class="buttons">
-                <button type="button" class="button" id="left-shift" operation="and">
-                    <span>Binary And (&)</span>
+                <button title="Binary And" type="button" class="button" id="left-shift" operation="and">
+                    <span>&</span>
                 </button>
-                <button type="button" class="button" id="right-shift" operation="or">
-                    <span>Binary Or (|)</span>
+                <button title="Binary Or" type="button" class="button" id="right-shift" operation="or">
+                    <span>|</span>
                 </button>
             </div>
             <div class="total">
-                <span>0</span>
+                <span class="total-value">0</span>
+                <span class="binary-total">0000 0000</span>
             </div>
         </div>
     </div>

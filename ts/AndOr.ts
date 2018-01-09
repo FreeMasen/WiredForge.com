@@ -7,19 +7,19 @@ window.addEventListener('DOMContentLoaded', () => {
 class AndOr {
     public leftBits = [0,0,0,0,0,0,0,0];
     public rightBits = [0,0,0,0,0,0,0,0];
-    private operation = BinaryOperation.None;
+    private operation = BinaryOperation.And;
     constructor(
         public lhs: number = 0,
         public rhs: number = 0
     ) {
-        console.log('new AndOr')
         this.registerEvents();
+        this.updateBits();
+        this.updateButtons();
+        this.updateTotal();
     }
 
     registerEvents() {
-        console.log('registerEvents')
         let inputs = document.querySelectorAll('.user-input');
-        console.log(inputs);
         for (var i = 0; i < inputs.length; i++) {
             let input = inputs[i] as HTMLInputElement;
             input.value = '0';
@@ -33,7 +33,6 @@ class AndOr {
     }
 
     inputChanged() {
-        console.log('inputChanged')
         let lhs = document.getElementById('left-bits') as HTMLInputElement;
         let leftValue = parseInt(lhs.value);
         let rhs = document.getElementById('right-bits') as HTMLInputElement;
@@ -43,10 +42,10 @@ class AndOr {
         this.rhs = rightValue;
         this.rightBits = this.getBits(rightValue);
         this.updateBits();
+        this.updateTotal();
     }
 
     getBits(value: number) {
-        console.log('gitBits', value);
         let ret = [];
         let bit = 1;
         for (var i = 0; i < 8; i++) {
@@ -61,7 +60,6 @@ class AndOr {
     }
 
     updateBits() {
-        console.log('updateBits');
         let bytes = document.querySelector('.representation') as HTMLElement;
         HTMLHelper.clearChildren(bytes);
         let leftSpan = document.createElement('span');
@@ -91,15 +89,53 @@ class AndOr {
 
     buttonClicked(ev) {
         let button = ev.currentTarget as HTMLButtonElement;
-        let operation = button.getAttribute('operation') as BinaryOperation;
-        if (operation == BinaryOperation.And) {
+        this.operation = button.getAttribute('operation') as BinaryOperation;
+        this.updateTotal();
+        this.updateButtons();
+    }
 
-        } else if (operation == BinaryOperation.Or) {
-
+    updateButtons() {
+        let buttons = document.querySelectorAll('.button');
+        for (var i = 0; i < buttons.length; i++) {
+            let button = buttons[i] as HTMLButtonElement;
+            let buttonOperation = button.getAttribute('operation') as BinaryOperation;
+            if (buttonOperation == this.operation) {
+                HTMLHelper.ensureClass(button, 'selected')
+            } else {
+                HTMLHelper.removeClass(button, 'selected');
+            }
         }
     }
 
-    updateTotal(value: number) {
+    updateTotal() {
+        let value: number = 0;
+        let operation = `${this.lhs} `;
+        if (this.operation == BinaryOperation.And) {
+            value = this.lhs & this.rhs;
+            operation += '&';
+            operation += ` ${this.rhs} = ${value}`;
+        } else if (this.operation == BinaryOperation.Or) {
+            value = this.lhs | this.rhs;
+            operation += '|';
+            operation += ` ${this.rhs} = ${value}`;
+        } else {
+            operation = '0';
+        }
+
+        let span = document.createElement('span') as HTMLSpanElement;
+        span.setAttribute('class', 'total-value');
+        let totalText = document.createTextNode(`${operation}`);
+        span.appendChild(totalText);
+
+        let binarySpan = document.createElement('span') as HTMLSpanElement;
+        binarySpan.setAttribute('class', 'binary-total');
+        let binary = this.getBits(value);
+        let binaryText = document.createTextNode(this.byteString(binary));
+        binarySpan.appendChild(binaryText);
+        let total = document.querySelector('.total') as HTMLDivElement;
+        HTMLHelper.clearChildren(total);
+        total.appendChild(span);
+        total.appendChild(binarySpan);
 
     }
 }
