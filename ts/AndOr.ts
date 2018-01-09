@@ -7,6 +7,7 @@ window.addEventListener('DOMContentLoaded', () => {
 class AndOr {
     public leftBits = [0,0,0,0,0,0,0,0];
     public rightBits = [0,0,0,0,0,0,0,0];
+    private operation = BinaryOperation.None;
     constructor(
         public lhs: number = 0,
         public rhs: number = 0
@@ -23,6 +24,11 @@ class AndOr {
             let input = inputs[i] as HTMLInputElement;
             input.value = '0';
             input.addEventListener('change', ev => this.inputChanged())
+        }
+        let buttons = document.querySelectorAll('.button')
+        for (var i = 0; i < buttons.length; i++) {
+            let button = buttons[i];
+            button.addEventListener('click', ev => this.buttonClicked(ev))
         }
     }
 
@@ -82,4 +88,24 @@ class AndOr {
         }
         return ret;
     }
+
+    buttonClicked(ev) {
+        let button = ev.currentTarget as HTMLButtonElement;
+        let operation = button.getAttribute('operation') as BinaryOperation;
+        if (operation == BinaryOperation.And) {
+
+        } else if (operation == BinaryOperation.Or) {
+
+        }
+    }
+
+    updateTotal(value: number) {
+
+    }
+}
+
+enum BinaryOperation {
+    None = 'none',
+    And = 'and',
+    Or = 'or'
 }
