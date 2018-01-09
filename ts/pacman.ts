@@ -60,10 +60,11 @@ class App {
     }
     
     animationLoop() {
-        this.context.restore();
+        this.context.save();
         this.context.fillStyle = 'black';
         this.context.fillRect(0, 0, this.width, this.height);
         this.pacman.render();
+        this.context.restore();
         for (let g of this.ghosts) {
             this.context.save()
             g.render();
@@ -71,7 +72,7 @@ class App {
         }
         this.context.save();
         this.grid.render();
-        this.context.save();
+        this.context.restore();
         if (this.stop) return;
         requestAnimationFrame(() => this.animationLoop());
     }

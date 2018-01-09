@@ -36,12 +36,14 @@ export default class Pacman extends Sprite {
      * Render the sprite
      */
     render() {
+        // this.context.save();
         this.context.moveTo(this.currentX, this.currentY);
         this.context.fillStyle = this.color;
         this.context.beginPath();
         this.context.arc(this.currentX, this.currentY, this.width / 2, this.startAngle, this.endAngle, true);
         this.context.lineTo(this.currentX, this.currentY);
         this.context.fill();
+        // this.context.restore();
     }
     /**
      * Turn this sprite
@@ -73,7 +75,7 @@ export default class Pacman extends Sprite {
      * Switch between opening and closing
      */
     private updateMouthDirection() {
-        if (this.mouthState >= 25) {
+        if (this.mouthState >= 35) {
             this.opening = false;
         } 
         if (this.mouthState <= 1) {
@@ -89,11 +91,11 @@ export default class Pacman extends Sprite {
             case MoveDir.Right:
                 return DrawingService.degToRads(-this.mouthState);
             case MoveDir.Down:
-                return DrawingService.degToRads(50 - this.mouthState);
+                return DrawingService.degToRads(90 - this.mouthState);
             case MoveDir.Left:
-                return DrawingService.degToRads(100 - this.mouthState);
+                return DrawingService.degToRads(180- this.mouthState);
             case MoveDir.Up:
-                return DrawingService.degToRads(150 - this.mouthState);
+                return DrawingService.degToRads(270 - this.mouthState);
         }
     }
     /**
@@ -104,11 +106,11 @@ export default class Pacman extends Sprite {
             case MoveDir.Right:
                 return DrawingService.degToRads(this.mouthState);
             case MoveDir.Down:
-                return DrawingService.degToRads(50 + this.mouthState);
+                return DrawingService.degToRads(90 + this.mouthState);
             case MoveDir.Left:
-                return DrawingService.degToRads(100 + this.mouthState);
+                return DrawingService.degToRads(180 + this.mouthState);
             case MoveDir.Up:
-                return DrawingService.degToRads(150 + this.mouthState);
+                return DrawingService.degToRads(270 + this.mouthState);
         }
     }
 }

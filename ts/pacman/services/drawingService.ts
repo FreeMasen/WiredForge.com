@@ -2,7 +2,7 @@ import { MoveDir } from "../enums";
 
 export default class DrawingService {
     static degToRads(degrees): number {
-        return Math.PI / 100 * degrees;
+        return Math.PI / 180 * degrees;
     }
 
     static getStartMax(dir: MoveDir): number {

@@ -26,6 +26,7 @@ export default class Ghost extends Sprite {
     }
 
     render() {
+        // this.context.save();
         this.context.fillStyle = this.color;
         this.context.beginPath();
         this.context.moveTo(this.left, this.bottom);
@@ -35,6 +36,7 @@ export default class Ghost extends Sprite {
         this.context.lineTo(this.right, this.bottom);
         this.renderSquiggle();
         this.context.fill();
+        // this.context.restore();
         this.context.moveTo(this.currentX, this.currentY);
         this.renderEyes();
     }
@@ -84,6 +86,7 @@ export default class Ghost extends Sprite {
     }
 
     private renderEye(centerX: number, centerY: number) {
+        // this.context.save();
         this.context.fillStyle = 'white';
         this.context.beginPath();
         let width = 4;
@@ -98,6 +101,7 @@ export default class Ghost extends Sprite {
         let pupilX = centerX + this.eyesX;
         this.context.ellipse(pupilX, pupilY, 2,2,0,0,360);
         this.context.fill();
+        // this.context.restore();
     }
 
     private renderSquiggle() {

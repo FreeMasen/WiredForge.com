@@ -244,6 +244,7 @@ export default class Cell {
      * @param wall The wall to draw
      */
     renderWall(wall: CellWall) {
+        this.context.save()
         let adjustment = this.getadjustment(wall);
         this.context.beginPath();
         this.context.strokeStyle = 'purple';
@@ -267,6 +268,7 @@ export default class Cell {
             break;
         }
         this.context.stroke();
+        this.context.restore();
     }
     /**
      * Get the adjustments for rendered corners
@@ -335,6 +337,7 @@ export default class Cell {
      * @param corner The corner to render
      */
     renderCorner(corner: CellCorner) {
+        this.context.save();
         this.context.beginPath();
         this.context.strokeStyle = 'purple';
         this.context.lineWidth = 2.25;
@@ -344,8 +347,8 @@ export default class Cell {
                     this.left + 5,
                     this.top + 5,
                     5,
-                    DrawingService.degToRads(150),
-                    DrawingService.degToRads(280),
+                    DrawingService.degToRads(270),
+                    DrawingService.degToRads(180),
                     true
                 );
             break;
@@ -354,8 +357,8 @@ export default class Cell {
                     this.right - 5,
                     this.top + 5,
                     5,
-                    DrawingService.degToRads(200),
-                    DrawingService.degToRads(135),
+                    DrawingService.degToRads(0),
+                    DrawingService.degToRads(270),
                     true
                 );
             break;
@@ -364,8 +367,8 @@ export default class Cell {
                     this.left + 5,
                     this.bottom - 5,
                     5,
-                    DrawingService.degToRads(100),
-                    DrawingService.degToRads(240),
+                    DrawingService.degToRads(180),
+                    DrawingService.degToRads(90),
                     true
                 );
             break;
@@ -374,12 +377,13 @@ export default class Cell {
                     this.right - 5,
                     this.bottom - 5,
                     5,
-                    DrawingService.degToRads(50),
-                    DrawingService.degToRads(190),
+                    DrawingService.degToRads(90),
+                    DrawingService.degToRads(0),
                     true
                 );
             break;
         }
         this.context.stroke();
+        this.context.restore();
     }
 }
