@@ -1,0 +1,37 @@
+<link type="text/css" rel="stylesheet" href="/andor.css" />
+<div id="andor">
+    <div class="title">
+        <span>Interactive Bit &/| Calculator</span>
+    </div>
+    <div id="andor-wrapper">
+        <div class="values">
+            <div class="inputs">
+                <div class="input-group">
+                    <label for="left-bits">u8</label>
+                    <input class="user-input" id="left-bits" value="0" type="number" min="0" max="255" />
+                </div>
+                <div class="input-group">
+                    <label for="right-bits">u8</label>
+                    <input class="user-input" id="right-bits" value="0" type="number" min="0" max="255" />
+                </div>
+            </div>
+            <div class="representation">
+                <span id="big-bits">0000 0000</span>
+                <span id="little-bits">0000 0000</span>
+            </div>
+        </div>
+        <div class="adjustments">
+            <div class="buttons">
+                <button type="button" class="button" id="left-shift">
+                    <span>Binary And</span>
+                    <span>&</span>
+                </button>
+                <button type="button" class="button" id="right-shift">
+                    <span>Binary Or</span>
+                    <span>|</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/andor.js"></script>

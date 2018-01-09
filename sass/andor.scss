@@ -1,0 +1,67 @@
+@import 'colors';
+#andor {
+    width: 500px;
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: center;
+    .title {
+        width: 100%;
+        background: $grey;
+        color: #fff;
+    }
+    #andor-wrapper {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        .values {
+            display: flex;
+            flex-flow: column;
+            justify-content: space-around;
+            align-items: center;
+            .inputs {
+                display: flex;
+                flex-flow: row;
+                justify-content: flex-start;
+                align-items: center;
+                .input-group {
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: center;
+                    align-items: center;
+                    input {
+                        width: 70px;
+                    }
+                }
+            }
+            .representation {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+        }
+        .adjustments {
+            display: flex;
+            flex-flow: column;
+            justify-content: space-around;
+            align-items: center;
+            .buttons {
+                display: flex;
+                flex-flow: row;
+                .button {
+                    padding: 5px 10px;
+                    box-shadow: 1px 1px 1px 1px $grey;
+                    border: none;
+                    
+                    &.selected {
+                        background: $blue;
+                    }
+                }
+            }
+        }
+    }
+}

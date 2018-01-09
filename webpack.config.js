@@ -8,6 +8,7 @@ module.exports = function(env) {
             binary_calc: path.join(__dirname, 'ts', 'binary_calc.ts'),
             endian: path.join(__dirname, 'ts', 'endian.ts'),
             shifter: path.join(__dirname, 'ts', 'shifter.ts'),
+            andor: path.join(__dirname, 'ts', 'AndOr.ts'),
         },
         output: {
             path: path.join(__dirname, 'static', 'js'),
