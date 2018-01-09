@@ -4,7 +4,7 @@ date = "2017-12-26"
 draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
-snipet = "This is the first in a series of posts describing the process of building a SQLite file parser"
+snippet = "This is the first in a series of posts describing the process of building a SQLite file parser"
 image = "sqlite.gif"
 image_desc = "SQLite Logo"
 series = [
