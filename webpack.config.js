@@ -10,6 +10,7 @@ module.exports = function(env) {
             shifter: path.join(__dirname, 'ts', 'shifter.ts'),
             andor: path.join(__dirname, 'ts', 'AndOr.ts'),
             binaryAnimation: path.join(__dirname, 'ts', 'binaryAnimation.ts'),
+            arc: path.join(__dirname, 'ts', 'arc.ts'),
         },
         output: {
             path: path.join(__dirname, 'static', 'js'),

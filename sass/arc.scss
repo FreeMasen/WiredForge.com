@@ -1,0 +1,43 @@
+@import 'colors';
+.arc {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    .input-form {
+        width: 150px;
+        display: flex;
+        flex-flow: column;
+        justify-content: flex-start;
+        align-items: center;
+        .control-group {
+            display: flex;
+            flex-flow: column;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 5px;
+            width: 100%;
+            .input-group-group {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+                .input-group {
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: flex-start;
+                    align-items: center;
+                    input {
+                        width: 70px;
+                    }
+                }
+            }
+        }
+    }
+    #canvas {
+        box-shadow: 1px 1px 2px 1px $grey;
+        max-height: 100%;
+        margin-left: 15px;
+    }
+}
