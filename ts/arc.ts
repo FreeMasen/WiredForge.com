@@ -135,7 +135,7 @@ class Arcer {
 
 class ArcForm {
     constructor(
-        private listener: (control: string, newValue: string) => void;
+        private listener: (control: string, newValue: string) => void,
     ) {
 
     }
