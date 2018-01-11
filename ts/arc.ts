@@ -1,5 +1,5 @@
 import HTMLHelper from "./HtmlHelper";
-
+import Point from './pacman/grid/Point';
 let arc;
 
 window.addEventListener('DOMContentLoaded',() => {
@@ -10,6 +10,7 @@ class Arcer {
     private context: CanvasRenderingContext2D;
     private parentContainer: HTMLDivElement;
     private form: ArcForm;
+    private draggingPoint: {x: string, y: string};
     constructor(
         public width =500,
         public height = 500,
@@ -44,35 +45,32 @@ class Arcer {
                 this.height = val;
                 this.createCanvas()
             break;
-            case 'start-x-input':
+            case 'startX':
                 this.startX = val;
             break;
-            case 'start-y-input':
+            case 'startY':
                 this.startY = val;
             break;
-            case 'control-point-1-x-input':
+            case 'cx1':
                 this.cx1 = val;
             break;
-            case 'control-point-1-y-input':
+            case 'cy1':
                 this.cy1 = val;
             break;
-            case 'control-point-2-x-input':
+            case 'cx2':
                 this.cx2 = val;
             break;
-            case 'control-point-2-y-input':
+            case 'cy2':
                 this.cy2 = val;
             break;
-            case 'end-x-input':
+            case 'endX':
                 this.endX = val;
             break;
-            case 'end-y-input':
+            case 'endY':
                 this.endY = val;
             break;
         }
-        this.draw();
     }
-
-    
 
     createCanvas() {
         let currentCanvas = document.getElementById('canvas');
@@ -81,8 +79,53 @@ class Arcer {
         canvas.setAttribute('width', `${this.width}px`);
         canvas.setAttribute('height', `${this.height}px`);
         canvas.setAttribute('id', 'canvas');
+        canvas.addEventListener('mousedown', ev => this.canvasDragStart(ev));
+        canvas.addEventListener('mousemove', ev => this.canvasDrag(ev));
+        canvas.addEventListener('mouseup', ev => this.canvasDragEnd(ev));
         this.context = canvas.getContext('2d');
         this.parentContainer.appendChild(canvas);
+    }
+
+    canvasDragStart(ev: MouseEvent) {
+        console.log('canvasDragStart');
+        let position = this.getPointFromMouse(ev);
+        this.draggingPoint = this.findNearestPoint(position.x, position.y);
+    }
+
+    getPointFromMouse(ev: MouseEvent) {
+        let bound = this.context.canvas.getBoundingClientRect()
+        let canvasX = ev.clientX - bound.left;
+        let canvasY = ev.clientY - bound.top;
+        return new Point(canvasX, canvasY);
+    }
+
+    findNearestPoint(x: number, y: number) {
+        if (this.checkPoint(x, y, this.startX, this.startY))
+            return {x: 'startX', y: 'startY'}
+        if (this.checkPoint(x, y, this.cx1, this.cy1))
+            return {x: 'cx1', y: 'cy1'}
+        if (this.checkPoint(x, y, this.cx2, this.cy2))
+            return {x: 'cx2', y: 'cy2'}
+        if (this.checkPoint(x, y, this.endX, this.endY))
+            return {x: 'endX', y: 'endY'}
+    }
+
+    checkPoint(x1: number, y1: number, x2: number, y2: number) {
+        return Math.abs(x1 - x2) < 10 &&
+                Math.abs(y1 - y2) < 10
+    }
+
+    canvasDragEnd(ev) {
+        this.draggingPoint = null;
+    }
+
+    canvasDrag(ev) {
+        if (!this.draggingPoint) return;
+        let point = this.getPointFromMouse(ev);
+        this.form.updateValue(this.draggingPoint.x, point.x);
+        this.form.updateValue(this.draggingPoint.y, point.y);
+        this[this.draggingPoint.x] = point.x;
+        this[this.draggingPoint.y] = point.y;
     }
 
     draw() {
@@ -93,6 +136,7 @@ class Arcer {
         this.drawStartEnd();
         this.drawCPs();
         this.context.restore();
+        requestAnimationFrame(() => this.draw());
     }
 
     drawLine() {
@@ -134,10 +178,17 @@ class Arcer {
 }
 
 class ArcForm {
+    private controls: Map<string, HTMLInputElement> = new Map();
     constructor(
-        private listener: (control: string, newValue: string) => void,
+        private listener: (controlId: string, newValue: string) => void,
     ) {
 
+    }
+
+    updateValue(id: string, value: number) {
+        let input = this.controls.get(id);
+        if (!input) return;
+        input.value = value.toString();
     }
 
     html(): HTMLDivElement {
@@ -147,32 +198,30 @@ class ArcForm {
         let group = this.inputGroupGroup(width, height);
         let widthHeightGroup = this.controlGroup('Canvas Size', group);
         container.appendChild(widthHeightGroup);
-        let start = this.XYControlGroup('Start');
+        let start = this.XYControlGroup('Start', 'startX', 'startY');
         container.appendChild(start);
-        let control1 = this.XYControlGroup('Control Point 1');
+        let control1 = this.XYControlGroup('Control Point 1', 'cx1', 'cy1');
         container.appendChild(control1);
-        let control2 = this.XYControlGroup('Control Point 2');
+        let control2 = this.XYControlGroup('Control Point 2', 'cx2', 'cy2');
         container.appendChild(control2);
-        let end = this.XYControlGroup('End');
+        let end = this.XYControlGroup('End', 'endX', 'endY');
         container.appendChild(end);
         return container;
     }
 
-    XYControlGroup(name: string) {
+    XYControlGroup(name: string, inputIdX: string, inputIdY: string) {
         let initialX = Math.floor(Math.random() * 500);
         let initialY = Math.floor(Math.random() * 500);
-        let idPrefix = name.replace(/\s/g, '-').toLowerCase();
-        let idX = `${idPrefix}-x-input`;
-        let idY = `${idPrefix}-y-input`;
-        let x = this.inputGroup('X', idX, 'number', `${initialX}`);
-        let y = this.inputGroup('Y', idY, 'number', `${initialY}`);
-        this.listener(idX, `${initialX}`);
-        this.listener(idY, `${initialY}`);
+
+        let x = this.inputGroup('X', inputIdX, 'number', `${initialX}`);
+        let y = this.inputGroup('Y', inputIdY, 'number', `${initialY}`);
+        this.listener(inputIdX, `${initialX}`);
+        this.listener(inputIdY, `${initialY}`);
         let group = this.inputGroupGroup(x, y);
         return this.controlGroup(name, group);
     }
 
-    inputGroup(labelText: string, 
+    inputGroup(labelText: string,
                 inputId: string = null,
                 inputType: string = 'text', 
                 initialValue: string = null): HTMLDivElement {
@@ -183,6 +232,7 @@ class ArcForm {
         input.setAttribute('value', initialValue);
         input.setAttribute('type', inputType);
         input.addEventListener('change', ev => this.listener(inputId, (ev.currentTarget as HTMLInputElement).value))
+        this.controls.set(inputId, input);
         container.appendChild(label);
         container.appendChild(input);
         return container;
