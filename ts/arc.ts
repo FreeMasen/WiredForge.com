@@ -94,8 +94,8 @@ class Arcer {
 
     getPointFromMouse(ev: MouseEvent) {
         let bound = this.context.canvas.getBoundingClientRect()
-        let canvasX = ev.clientX - bound.left;
-        let canvasY = ev.clientY - bound.top;
+        let canvasX = Math.floor(ev.clientX - bound.left);
+        let canvasY = Math.floor(ev.clientY - bound.top);
         return new Point(canvasX, canvasY);
     }
 
