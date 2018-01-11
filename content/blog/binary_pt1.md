@@ -1,6 +1,7 @@
 +++
 title = "Understanding Binary, Pt 1"
 draft = true
+date = "1/9/2018"
 [extra]
 snippet = "A guide to understanding binary from a programmer's perspective"
 +++
