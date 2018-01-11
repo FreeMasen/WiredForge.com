@@ -1,9 +1,27 @@
 import HTMLHelper from "./HtmlHelper";
 import Point from './pacman/grid/Point';
+import Style from './style';
 let arc;
 
 window.addEventListener('DOMContentLoaded',() => {
-    arc = new Arcer();
+
+    let infoStr = localStorage.getItem('arcer')
+    if (infoStr && infoStr.length > 0) {
+        try {
+        let info = JSON.parse(infoStr);
+        console.log('info found', info);
+        arc = new Arcer(info.width, info.height,
+                        info.startX, info.startY,
+                        info.cx1, info.cy1,
+                        info.cx2, info.cy2,
+                        info.endX, info.endY);
+        } catch (e) {
+            localStorage.removeItem('arcer');
+            arc = new Arcer();
+        }
+    } else {
+        arc = new Arcer();
+    }
 });
 
 class Arcer {
@@ -29,8 +47,24 @@ class Arcer {
         this.draw();
     }
 
+    asJson(): string {
+        let ret = {} as any;
+        ret.width = this.width;
+        ret.height = this.height;
+        ret.startX = this.startX;
+        ret.startY = this.startY;
+        ret.cx1 = this.cx1;
+        ret.cy1 = this.cy1;
+        ret.cx2 = this.cx2;
+        ret.cy2 = this.cy2;
+        ret.endX = this.endX,
+        ret.endY = this.endY
+        return ret;
+    }
+
     createForm() {
-        this.form = new ArcForm((id, value) => this.formUpdated(id, value));
+        this.form = new ArcForm((id, value) => this.formUpdated(id, value),
+                                this.asJson());
         this.parentContainer.appendChild(this.form.html())
     }
 
@@ -70,6 +104,11 @@ class Arcer {
                 this.endY = val;
             break;
         }
+        this.store();
+    }
+
+    store() {
+        localStorage.setItem('arcer', JSON.stringify(this.asJson()))
     }
 
     createCanvas() {
@@ -126,6 +165,7 @@ class Arcer {
         this.form.updateValue(this.draggingPoint.y, point.y);
         this[this.draggingPoint.x] = point.x;
         this[this.draggingPoint.y] = point.y;
+        this.store();
     }
 
     draw() {
@@ -141,7 +181,7 @@ class Arcer {
 
     drawLine() {
         this.context.beginPath();
-        this.context.strokeStyle = 'black';
+        this.context.strokeStyle = Style.colors.grey;
         this.context.moveTo(this.startX, this.startY);
         this.context.bezierCurveTo(this.cx1, this.cy1, this.cx2, this.cy2, this.endX, this.endY);
         this.context.stroke();
@@ -149,40 +189,43 @@ class Arcer {
     }
 
     drawStartEnd() {
-        this.context.beginPath();
-        this.context.strokeStyle = 'none';
-        this.context.fillStyle = 'green';
-        this.context.ellipse(this.startX, this.startY, 4, 4, 0, 0, 360, false);
-        this.context.fill();
-        this.context.closePath();
-        this.context.beginPath();
-        this.context.fillStyle = 'red';
-        this.context.ellipse(this.endX, this.endY, 4, 4, 0, 0, 260);
-        this.context.fill();
-        this.context.closePath();
+        this.drawDot(this.startX, this.startY, Style.colors.green);
+        this.drawDot(this.endX, this.endY, Style.colors.red);
     }
 
     drawCPs() {
+        this.drawDot(this.cx1, this.cy1, Style.colors.blue);
+        this.drawDot(this.cx2, this.cy2, Style.colors.violet);
+    }
+
+    drawDot(x: number, y: number, color: string) {
         this.context.beginPath();
         this.context.strokeStyle = 'none';
-        this.context.fillStyle = 'blue';
-        this.context.ellipse(this.cx1, this.cy1, 4, 4, 0, 0, 360, false);
+        this.context.fillStyle = Style.colors.white;
+        this.context.ellipse(x, y, 4, 4, 0, 0, 360);
         this.context.fill();
         this.context.closePath();
         this.context.beginPath();
-        this.context.fillStyle = 'purple';
-        this.context.ellipse(this.cx2, this.cy2, 4, 4, 0, 0, 260);
-        this.context.fill();
+        this.context.fillStyle = color;
+        this.context.ellipse(x, y, 4, 4, 0, 0, 360);
         this.context.closePath();
+        this.context.fill();
     }
 }
 
 class ArcForm {
     private controls: Map<string, HTMLInputElement> = new Map();
+    private maxHeight: number = 500;
+    private maxWidth: number = 500;
     constructor(
         private listener: (controlId: string, newValue: string) => void,
-    ) {
 
+        private initialValues: any = null,
+    ) {
+        if (initialValues) {
+            if (initialValues.height) this.maxHeight = initialValues.height;
+            if (initialValues.width) this.maxWidth = initialValues.width;
+        }
     }
 
     updateValue(id: string, value: number) {
@@ -193,8 +236,8 @@ class ArcForm {
 
     html(): HTMLDivElement {
         let container = HTMLHelper.div('input-form');
-        let width = this.inputGroup('Width', 'width-input', 'number', '500');
-        let height = this.inputGroup('Height', 'height-input', 'number', '500');
+        let width = this.inputGroup('Width', 'width-input', 'number', this.getInitialValue('height'));
+        let height = this.inputGroup('Height', 'height-input', 'number', this.getInitialValue('width'));
         let group = this.inputGroupGroup(width, height);
         let widthHeightGroup = this.controlGroup('Canvas Size', group);
         container.appendChild(widthHeightGroup);
@@ -210,8 +253,8 @@ class ArcForm {
     }
 
     XYControlGroup(name: string, inputIdX: string, inputIdY: string) {
-        let initialX = Math.floor(Math.random() * 500);
-        let initialY = Math.floor(Math.random() * 500);
+        let initialX = this.getInitialValue(inputIdX);
+        let initialY = this.getInitialValue(inputIdY);
 
         let x = this.inputGroup('X', inputIdX, 'number', `${initialX}`);
         let y = this.inputGroup('Y', inputIdY, 'number', `${initialY}`);
@@ -219,6 +262,13 @@ class ArcForm {
         this.listener(inputIdY, `${initialY}`);
         let group = this.inputGroupGroup(x, y);
         return this.controlGroup(name, group);
+    }
+
+    getInitialValue(id: string) {
+        if (this.initialValues && this.initialValues[id]) {
+            return this.initialValues[id];
+        }
+        return Math.floor(Math.random() * this.maxHeight);
     }
 
     inputGroup(labelText: string,

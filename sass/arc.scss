@@ -30,6 +30,24 @@
                     align-items: center;
                     input {
                         width: 70px;
+                        border: none;
+                    }
+
+                    #startX,
+                    #startY {
+                        box-shadow: 0.5px 0.5px 1px 0.125px $green;
+                    }
+                    #endX,
+                    #endY {
+                        box-shadow: 0.5px 0.5px 1px 0.125px $red;
+                    }
+                    #cx1,
+                    #cy1 {
+                        box-shadow: 0.5px 0.5px 1px 0.125px $blue;
+                    }
+                    #cx2,
+                    #cy2 {
+                        box-shadow: 0.5px 0.5px 1px 0.125px $purple;
                     }
                 }
             }
