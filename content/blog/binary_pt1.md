@@ -38,5 +38,14 @@ To illustrate how this works, consider this table:
 
 If you click on any of the cells in the second row, it will add the number in the header to the total value. You can also click the `start counting` button to watch how wach number is configured in binary. 
 
-The basic idea here is that each position has a value assigned to it, if the position have a value of 1 it will be included in the total, if 0 it will not be included. An interesting thing to point out is that each value is exactly 1 greater than all of the values to the right of that value, this will become very powerful later on. 
+The basic idea here is that each position has a value assigned to it, if the position have a value of 1 it will be included in the total, if 0 it will not be included. An interesting thing to point out is that each value is exactly 1 greater than all of the values to the right of that value:
+
+
+```1 + 2 = 3 = 4 - 1
+1 + 2 + 4 = 7 = 8 - 1
+1 + 2 + 4 + 8 = 15 = 16 - 1
+...
+```
+
+Even if it doesnt seem valuable yet, it will become one of the most valuable attributes of this number system. 
 
