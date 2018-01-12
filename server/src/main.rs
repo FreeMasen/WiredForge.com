@@ -26,10 +26,36 @@ fn main() {
             "/gh" => {
                 Response::text("")
                 },
+            // "/bday" => {
+            //     match request.method() {
+            //         "GET" => {
+
+            //         },
+            //         "POST" => {
+
+            //         },
+            //         _ => Response::empty_404
+            //     }
+            //     if (method == "GET") {
+
+            //     }
+            //     else if (method == "POST")
+            // },
             _ => Response::empty_404()
         }
     });
 }
+
+// struct RSVP {
+//     name: string,
+//     mustard: string
+// }
+
+// fn getAllRSVPs(): Vec<RSVP> {
+//     let ret: Vec<RSVP> = vec!();
+
+//     ret
+// }
 
 fn contact(name: String, email: String, message: String) {
     let body = format!("name: {:?}\n\nemail: {:?}\n\nmessage\n----------\n{:?}", name, email, message);
