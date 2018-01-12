@@ -1,6 +1,8 @@
+///<reference path="./index.d.ts" />
 import HTMLHelper from "./HtmlHelper";
 import Point from './pacman/grid/Point';
 import Style from './style';
+import DrawingService from './pacman/services/drawingService';
 let arc;
 
 window.addEventListener('DOMContentLoaded',() => {
@@ -27,8 +29,10 @@ window.addEventListener('DOMContentLoaded',() => {
 class Arcer {
     private context: CanvasRenderingContext2D;
     private parentContainer: HTMLDivElement;
-    private form: ArcForm;
+    private form: BezForm;
     private draggingPoint: {x: string, y: string};
+    private arcParams: ArcParams;
+    private arcToParams: ArcToParams;
     constructor(
         public width =500,
         public height = 500,
@@ -42,28 +46,31 @@ class Arcer {
         public endY = 0
     ) {
         this.parentContainer = document.querySelector('.arc');
+        this.arcParams = new ArcParams(500, 500, 250, 250, 50, 0, 270, false);
+        this.arcToParams = new ArcToParams(500, 500, 250, 10, 250, 250, 100, 100, 20);
         this.createForm();
         this.createCanvas();
         this.draw();
     }
 
-    asJson(): string {
-        let ret = {} as any;
-        ret.width = this.width;
-        ret.height = this.height;
-        ret.startX = this.startX;
-        ret.startY = this.startY;
-        ret.cx1 = this.cx1;
-        ret.cy1 = this.cy1;
-        ret.cx2 = this.cx2;
-        ret.cy2 = this.cy2;
-        ret.endX = this.endX,
-        ret.endY = this.endY
+    asJson(): BezParams {
+        let ret = new BezParams(
+            this.width,
+            this.height,
+            this.startX,
+            this.startY,
+            this.cx1,
+            this.cy1,
+            this.cx2,
+            this.cy2,
+            this.endX,
+            this.endY,
+        );
         return ret;
     }
 
     createForm() {
-        this.form = new ArcForm((id, value) => this.formUpdated(id, value),
+        this.form = new BezForm((id, value) => this.formUpdated(id, value),
                                 this.asJson());
         this.parentContainer.appendChild(this.form.html())
     }
@@ -172,20 +179,67 @@ class Arcer {
         if (!this.context) return;
         this.context.clearRect(0, 0, this.width, this.height);
         this.context.save();
-        this.drawLine();
+        this.drawBezCurve();
         this.drawStartEnd();
         this.drawCPs();
+        // this.drawArcTo();
+        // this.drawArc();
+        // let horizonatal = this.checkPoint(
+        //                     this.arcParams.startPoint.x, 
+        //                     this.arcParams.startPoint.y, 
+        //                     this.arcParams.x + this.arcParams.radius, 
+        //                     this.arcParams.y) &&
+        //                     this.checkPoint(
+        //                         this.arcParams.startPoint.x, 
+        //                         this.arcParams.startPoint.y, 
+        //                         this.arcParams.x, 
+        //                         this.arcParams.y + this.arcParams.radius
+        //                     );
+        // this.drawRadius(this.arcParams.x, this.arcParams.y, this.arcParams.radius, horizonatal);
+        // this.drawDot(this.arcParams.startPoint.x, this.arcParams.startPoint.y, Style.colors.indigo);
+        // this.drawDot(this.arcParams.endPoint.x, this.arcParams.endPoint.y, Style.colors.black);
         this.context.restore();
         requestAnimationFrame(() => this.draw());
     }
 
-    drawLine() {
+    drawBezCurve() {
         this.context.beginPath();
         this.context.strokeStyle = Style.colors.grey;
         this.context.moveTo(this.startX, this.startY);
         this.context.bezierCurveTo(this.cx1, this.cy1, this.cx2, this.cy2, this.endX, this.endY);
         this.context.stroke();
         this.context.closePath();
+    }
+
+    drawArc() {
+        this.context.beginPath();
+        this.context.strokeStyle = Style.colors.grey;
+        this.context.arc(this.arcParams.x, this.arcParams.y, this.arcParams.radius,
+                        DrawingService.degToRads(this.arcParams.startDegrees),
+                        DrawingService.degToRads(this.arcParams.endDegrees), 
+                        this.arcParams.counterClockwise);
+        this.context.stroke();
+        this.context.closePath()
+    }
+
+    drawArcTo() {
+        this.context.beginPath();
+        this.context.strokeStyle = Style.colors.grey;
+        this.context.moveTo(this.arcToParams.startX, this.arcToParams.startY);
+        this.context.arcTo(this.arcToParams.x1,
+                        this.arcToParams.y1,
+                        this.arcToParams.x2,
+                        this.arcToParams.y2,
+                    this.arcToParams.radius)
+        this.context.stroke();
+        this.context.closePath();
+        this.drawDot(this.arcToParams.startX, this.arcToParams.startY, Style.colors.green);
+        this.drawDot(this.arcToParams.x1, this.arcToParams.y1, Style.colors.black);
+        this.drawDot(this.arcToParams.x2, this.arcToParams.y2, Style.colors.orange);
+        let radiusStartX = this.arcToParams.x1 - this.arcToParams.radius;
+        let radiusStartY = this.arcToParams.y2 + this.arcToParams.radius;
+        this.drawRadius(radiusStartX, radiusStartY, this.arcToParams.radius)
+        
     }
 
     drawStartEnd() {
@@ -196,6 +250,19 @@ class Arcer {
     drawCPs() {
         this.drawDot(this.cx1, this.cy1, Style.colors.blue);
         this.drawDot(this.cx2, this.cy2, Style.colors.violet);
+    }
+
+    drawRadius(centerX: number, centerY: number, radius: number, horizontal = true) {
+        this.context.beginPath();
+        this.context.strokeStyle = Style.colors.green;
+        this.context.moveTo(centerX, centerY);
+        let x = horizontal ? centerX + radius : centerX;
+        let y = horizontal ? centerY : centerY + radius;
+        this.context.lineTo(x, y);
+        this.context.stroke();
+        this.context.closePath();
+        this.drawDot(x, y, Style.colors.green);
+        
     }
 
     drawDot(x: number, y: number, color: string) {
@@ -213,14 +280,75 @@ class Arcer {
     }
 }
 
-class ArcForm {
-    private controls: Map<string, HTMLInputElement> = new Map();
+class ArcToParams {
+    constructor(
+        public height: number,
+        public width: number,
+        public startX: number,
+        public startY: number,
+        public x1: number,
+        public y1: number,
+        public x2: number,
+        public y2: number,
+        public radius
+    ) {
+
+    }
+}
+
+class ArcParams {
+    constructor(
+        public height: number = null,
+        public width: number = null,
+        public x: number = null,
+        public y: number = null,
+        public radius: number = null,
+        public startDegrees: number = null,
+        public endDegrees: number = null,
+        public counterClockwise: boolean = false,
+    ) {
+        
+    }
+
+    get startPoint(): Point {
+        return new Point(
+            this.x + this.radius * Math.cos(DrawingService.degToRads(this.startDegrees)),
+            this.y + this.radius * Math.sin(DrawingService.degToRads(this.startDegrees))
+        );
+    }
+
+    get endPoint(): Point {
+        return new Point(
+            this.x + this.radius * Math.cos(DrawingService.degToRads(this.endDegrees)),
+            this.y + this.radius * Math.sin(DrawingService.degToRads(this.endDegrees)),
+        )
+    }
+}
+
+class BezParams {
+    constructor(
+        public height: number,
+        public width: number,
+        public startX: number,
+        public startY: number,
+        public cx1: number,
+        public cy1: number,
+        public cx2: number,
+        public cy2: number,
+        public endX: number,
+        public endY: number
+    ) {
+
+    }
+}
+
+class BezForm implements ArcerForm {
+    public controls: Map<string, HTMLInputElement> = new Map();
     private maxHeight: number = 500;
     private maxWidth: number = 500;
     constructor(
-        private listener: (controlId: string, newValue: string) => void,
-
-        private initialValues: any = null,
+        public listener: (controlId: string, newValue: string) => void,
+        private initialValues: BezParams = null,
     ) {
         if (initialValues) {
             if (initialValues.height) this.maxHeight = initialValues.height;
@@ -275,6 +403,91 @@ class ArcForm {
                 inputId: string = null,
                 inputType: string = 'text', 
                 initialValue: string = null): HTMLDivElement {
+        let container = HTMLHelper.div('input-group');
+        let label = HTMLHelper.label(labelText, inputId);
+        label.setAttribute('for', inputId);
+        let input = HTMLHelper.textBox('input', inputId);
+        input.setAttribute('value', initialValue);
+        input.setAttribute('type', inputType);
+        input.addEventListener('change', ev => this.listener(inputId, (ev.currentTarget as HTMLInputElement).value))
+        this.controls.set(inputId, input);
+        container.appendChild(label);
+        container.appendChild(input);
+        return container;
+    }
+
+    inputGroupGroup(...groups: Array<HTMLDivElement>): HTMLDivElement {
+        let container = HTMLHelper.div('input-group-group');
+        for (var i = 0; i < groups.length; i++) {
+            container.appendChild(groups[i]);
+        }
+        return container;
+    }
+
+    controlGroup(name: string, group: HTMLDivElement): HTMLDivElement {
+        let container = HTMLHelper.div('control-group');
+        let span = HTMLHelper.span(name, 'control-group-title');
+        container.appendChild(span);
+        container.appendChild(group);
+        return container;
+    }
+}
+
+class ArcForm implements ArcerForm {
+    controls = new Map<string, HTMLInputElement>();
+    public maxHeight: number = 500;
+    public maxWidth: number = 500;
+    constructor(
+        private initialValues: ArcParams = new ArcParams(),
+        public listener: ListenerCallback
+    ) {
+        if (initialValues.height) this.maxHeight = initialValues.height;
+        if (initialValues.width) this.maxWidth = initialValues.width
+    }
+    html(): HTMLDivElement {
+        let container = HTMLHelper.div('input-form');
+        let width = this.inputGroup('Width', 'width-input', 'number', this.getInitialValue('height'));
+        let height = this.inputGroup('Height', 'height-input', 'number', this.getInitialValue('width'));
+        let group = this.inputGroupGroup(width, height);
+        let widthHeightGroup = this.controlGroup('Canvas Size', group);
+        container.appendChild(widthHeightGroup);
+        let center = this.XYControlGroup('Center', 'x', 'x');
+        // let radius = this.controlGroup('Radius')
+        
+        return container;
+    }
+
+    getInitialValue(id, maxRandom?: number) {
+        if (this.initialValues && this.initialValues[id]) {
+            return this.initialValues[id];
+        }
+        return Math.floor(Math.random() * (maxRandom || this.maxHeight));
+    }
+
+    updateValue(id: string, value: number): void {
+        let input = this.controls.get(id);
+        if (!input) return;
+        input.value = value.toString();
+    }
+
+    DegreesControlGroup(name: string, inputIdStart: string, inputIdEnd: string) {
+        let initialStart = this.getInitialValue('startDegrees', 360);
+        let initailEnd = this.getInitialValue('endDegrees', 360)
+    }
+
+    XYControlGroup(name: string, inputIdX: string, inputIdY: string) {
+        let initialX = this.getInitialValue(inputIdX);
+        let initialY = this.getInitialValue(inputIdY);
+        let x = this.inputGroup('X', inputIdX, 'number', `${initialX}`);
+        let y = this.inputGroup('Y', inputIdY, 'number', `${initialY}`);
+        this.listener(inputIdX, `${initialX}`);
+        this.listener(inputIdY, `${initialY}`);
+        let group = this.inputGroupGroup(x, y);
+        return this.controlGroup(name, group);
+    }
+
+    inputGroup(labelText: string, inputId: string,
+                inputType: string,  initialValue: string): HTMLDivElement {
         let container = HTMLHelper.div('input-group');
         let label = HTMLHelper.label(labelText, inputId);
         label.setAttribute('for', inputId);
