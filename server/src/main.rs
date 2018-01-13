@@ -1,12 +1,15 @@
 extern crate rouille;
 #[macro_use]
-use rouille::{Request, Response, ResponseBody};
+use rouille::{Request, Response, ResponseBody, RequestBody};
 
 extern crate lettre;
 use std::io::Read;
 use lettre::{SimpleSendableEmail, EmailTransport, EmailAddress, SmtpTransport};
 
 use std::time::{SystemTime, UNIX_EPOCH};
+use std::io::{BufReader, Lines, BufWriter};
+use std::fs::{File};
+use std::path::{PathBuf};
 
 fn main() {
     rouille::start_server("localhost:1111", move |request| {
@@ -26,36 +29,71 @@ fn main() {
             "/gh" => {
                 Response::text("")
                 },
-            // "/bday" => {
-            //     match request.method() {
-            //         "GET" => {
+            "/bday" => {
+                match request.method() {
+                    "GET" => {
+                        Response::text(getAllRSVPs())
+                    },
+                    "POST" => {
+                        match request.data() {
+                            Ok(body) => {
+                                saveRsvp(body);
+                            },
+                            Err(_) => Response::empty_404()
+                        }
+                    },
+                    _ => Response::empty_404
+                }
+                if (method == "GET") {
 
-            //         },
-            //         "POST" => {
-
-            //         },
-            //         _ => Response::empty_404
-            //     }
-            //     if (method == "GET") {
-
-            //     }
-            //     else if (method == "POST")
-            // },
+                }
+                else if (method == "POST")
+            },
             _ => Response::empty_404()
         }
     });
 }
 
-// struct RSVP {
-//     name: string,
-//     mustard: string
-// }
+struct RSVP {
+    name: string,
+    mustard: string
+}
 
-// fn getAllRSVPs(): Vec<RSVP> {
-//     let ret: Vec<RSVP> = vec!();
+fn getAllRSVPs() -> String {
+    let ret = String::new();
+    let path = PathBuf::from("rsvps.csv");
+    let file = File::open(path);
+    let content = BufReader::new(file);
+    ret.push("[");
+    for line in content.lines {
+        ret.push('{');
+        ret.push('"');
+        let quoted = line.replace(",", "\",\"")
+                        .replace(":", "\":\"");
+        ret.push(quoted);
+        ret.push("\"");
+        ret.push("}");
+        ret.push(",");
+    }
+    let _ = ret.pop();
+    ret.push("]");
+    ret
+}
 
-//     ret
-// }
+fn saveRsvp(body: RequestBody) {
+    match body.read_to_string() {
+        Ok(text) => {
+            let path = PathBuf::from("rsvps.csv");
+            let file = File::open(path);
+            let writer = BufWriter::new(file);
+            let params = text.split(",");
+            let name = params[0].split(":")[1];
+            let mustard = params[1].split(":")[1];
+            let _ = writer.write("{:?},{:?}", name, mustard).expect("things");
+        },
+        _ => ;
+    }
+}
 
 fn contact(name: String, email: String, message: String) {
     let body = format!("name: {:?}\n\nemail: {:?}\n\nmessage\n----------\n{:?}", name, email, message);
