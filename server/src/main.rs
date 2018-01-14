@@ -20,7 +20,7 @@ use hyper::server::NewService;
 use server::{WiredForgeBuilder};
 
 fn main() {
-    let addr = "127.0.0.1:3000".parse().unwrap();
+    let addr = "127.0.0.1:1111".parse().unwrap();
     let mut wf = WiredForgeBuilder::new();
     wf.post(String::from("/contact"), routes::contact);
     wf.post(String::from("/rsvp"), routes::rsvp);
