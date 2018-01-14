@@ -36,21 +36,22 @@
             background: $green;
         }
 
-        #response-list {
-            margin-top: 5px;
-            box-shadow: 1px 1px 2px 1px $grey;
-            #list-title {
-                font-size: 20pt;
-            }
+    }
+    #response-list {
+        margin-top: 5px;
+        box-shadow: 1px 1px 2px 1px $grey;
+        width: 100%;
+        #list-title {
+            font-size: 20pt;
+        }
 
-            #rsvp-list {
-                border-top: 1px solid $grey;
-                .list-entry {
-                    display: flex;
-                    flex-flow: row;
-                    justify-content: space-around;
-                    align-items: center;
-                }
+        #rsvp-list {
+            border-top: 1px solid $grey;
+            .list-entry {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-around;
+                align-items: center;
             }
         }
     }
