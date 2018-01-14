@@ -6,3 +6,4 @@
 /public/
 **/target
 rf
+**/*.sqlite
