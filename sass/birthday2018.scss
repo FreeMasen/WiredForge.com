@@ -5,6 +5,7 @@
     flex-flow: column;
     width: 250px;
     padding: 5px;
+    margin-top: 5px auto;
     .from-title {
         font-size: 18pt;
     }
@@ -53,6 +54,10 @@
             flex-flow: row;
             justify-content: space-around;
             align-items: center;
+        }
+        .list-entry +
+        .list-entry {
+            border-top: 1px solid $grey;
         }
     }
 }
