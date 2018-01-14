@@ -3,9 +3,55 @@
     box-shadow: 1px 1px 2px 1px $grey;
     display: flex;
     flex-flow: column;
-    .input-group {
+    width: 250px;
+    padding: 5px;
+    .from-title {
+        font-size: 18pt;
+    }
+    .inputs {
         display: flex;
         flex-flow: column;
-        
+        .input-group {
+            display: flex;
+            flex-flow: column;
+        }
+    }
+    .button-group {
+        width: 100%;
+        display: flex;
+        flex-flow: row;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 5px;
+        .form-button {
+            border: none;
+            padding: 5px;
+            box-shadow: 1px 1px 2px 1px $grey;
+        }
+        #cancel {
+            background: $red;
+        }
+
+        #submit-rsvp {
+            background: $green;
+        }
+
+        #response-list {
+            margin-top: 5px;
+            box-shadow: 1px 1px 2px 1px $grey;
+            #list-title {
+                font-size: 20pt;
+            }
+
+            #rsvp-list {
+                border-top: 1px solid $grey;
+                .list-entry {
+                    display: flex;
+                    flex-flow: row;
+                    justify-content: space-around;
+                    align-items: center;
+                }
+            }
+        }
     }
 }

@@ -31,6 +31,8 @@ export default class Http {
                     }
                 }
             }
+            if (url.substr(url.indexOf('?')).length > 0)
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send(body);
         });
     }
