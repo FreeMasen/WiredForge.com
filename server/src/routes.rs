@@ -41,6 +41,7 @@ pub fn contact(req: Request) -> Box<Future<Item = Response, Error = Error>> {
 }
 
 pub fn rsvp(req: Request) -> Box<Future<Item = Response, Error = Error>> {
+    println!("rsvp");
     Box::new(
             req.body().concat2().map(|b| {
                 let params = form_urlencoded::parse(b.as_ref()).into_owned().collect::<HashMap<String, String>>();
@@ -55,10 +56,35 @@ pub fn rsvp(req: Request) -> Box<Future<Item = Response, Error = Error>> {
                 } else {
                     return bad_params(String::from("No email included in request"));
                 };
-                let rsvps = Data::save_rsvp(
+
+                let rsvps: String;
+                if params.contains_key("id") {
+                    println!("Found ID");
+                    let id_str = params.get("id").unwrap();
+                    if let Ok(i) = id_str.parse::<i32>() {
+                        println!("Parsed ID");
+                        rsvps = Data::update_rsvp(
+                                    i,
+                                    name.to_string(),
+                                    mustard.to_string()
+                            );
+                        println!("Updated ID");
+                    } else {
+                        println!("Unable to parse ID");
+                        rsvps = Data::save_rsvp(
                             name.to_string(),
                             mustard.to_string()
-                            );
+                        );
+                    };
+                } else {
+                    println!("Did not find ID");
+                    rsvps = Data::save_rsvp(
+                        name.to_string(),
+                        mustard.to_string()
+                    );
+                    println!("Inserted rsvp");
+                }
+
                 Response::new()
                     .with_status(StatusCode::Ok)
                     .with_header(ContentLength(rsvps.len() as u64))

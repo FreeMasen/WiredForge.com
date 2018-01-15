@@ -8,10 +8,28 @@ impl Data {
     pub fn save_rsvp(name: String, mustard: String) -> String {
         Data::ensure_tables();
         let conn = Data::get_connection();
-        let _ = conn.execute("INSERT INTO rsvp (name, mustard) VALUES (?1, ?2)",
+        let _ = conn.execute("INSERT INTO rsvp (name, mustard)
+                            VALUES (?1, ?2)",
                     &[&name, &mustard]);
         let _ = conn.close();
         Data::get_all_rsvps()
+    }
+
+    pub fn update_rsvp(id: i32, name: String, mustard: String) -> String {
+        Data::ensure_tables();
+        let conn = Data::get_connection();
+        let mut test = conn.prepare("SELECT id FROM rsvp WHERE id = (?1)")
+                        .expect("Unable to prepare test");
+        if let Ok(_) = test.exists(&[&id]) {
+            let _ = conn.execute("UPDATE rsvp
+                                SET id = (?1),
+                                name = (?2),
+                                mustard = (?3)",
+                                &[&id, &name, &mustard]);
+            Data::get_all_rsvps()
+        } else {
+            Data::save_rsvp(name, mustard)
+        }
     }
 
     pub fn get_all_rsvps() -> String {
