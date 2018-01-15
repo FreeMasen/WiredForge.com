@@ -103,12 +103,16 @@ class Birthday2018 {
         if (this.mustard.id)
             url += `&id=${this.mustard.id}`
         let mustards = await Http.post(url);
-
+        this.displayList(mustards);
     }
 
     async getRsvpList() {
         let rsvpList = await Http.get<Array<Mustard>>('/rsvp');
-        if (!rsvpList) return;
+        this.displayList(rsvpList);
+    }
+
+    displayList(rsvpList: Array<Mustard>) {
+        if (!rsvpList) return console.error('displayList: No mustards provided');
         let htmlList = this.getList();
         HTMLHelper.clearChildren(htmlList);
         for (var i = 0; i < rsvpList.length; i++) {
