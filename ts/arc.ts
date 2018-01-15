@@ -6,12 +6,10 @@ import DrawingService from './pacman/services/drawingService';
 let arc;
 
 window.addEventListener('DOMContentLoaded',() => {
-
     let infoStr = localStorage.getItem('arcer')
     if (infoStr && infoStr.length > 0) {
         try {
         let info = JSON.parse(infoStr);
-        console.log('info found', info);
         arc = new Arcer(info.width, info.height,
                         info.startX, info.startY,
                         info.cx1, info.cy1,
@@ -29,12 +27,14 @@ window.addEventListener('DOMContentLoaded',() => {
 class Arcer {
     private context: CanvasRenderingContext2D;
     private parentContainer: HTMLDivElement;
-    private form: BezForm;
     private draggingPoint: {x: string, y: string};
+    private form: BezForm;
     private arcParams: ArcParams;
     private arcToParams: ArcToParams;
+    private formType: arcType = arcType.Bez;
+
     constructor(
-        public width =500,
+        public width = 500,
         public height = 500,
         public startX = 0,
         public startY = 0,
@@ -54,18 +54,25 @@ class Arcer {
     }
 
     asJson(): BezParams {
-        let ret = new BezParams(
-            this.width,
-            this.height,
-            this.startX,
-            this.startY,
-            this.cx1,
-            this.cy1,
-            this.cx2,
-            this.cy2,
-            this.endX,
-            this.endY,
-        );
+        let ret: any;
+        switch (this.formType) {
+            case arcType.Bez:
+                ret = new BezParams(
+                    this.width, this.height, this.startX,
+                    this.startY, this.cx1, this.cy1,
+                    this.cx2, this.cy2, this.endX,
+                    this.endY,
+                ) as any;
+
+            break;
+            case arcType.ArcTo:
+
+            break;
+            case arcType.Arc:
+
+            break;
+        }
+        ret.type = this.formType;
         return ret;
     }
 
@@ -278,6 +285,12 @@ class Arcer {
         this.context.closePath();
         this.context.fill();
     }
+}
+
+enum arcType {
+    Bez,
+    Arc,
+    ArcTo
 }
 
 class ArcToParams {
