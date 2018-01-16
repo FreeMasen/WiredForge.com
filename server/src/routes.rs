@@ -6,6 +6,7 @@ use hyper::{StatusCode, Error};
 use hyper::header::ContentLength;
 use hyper::header::ContentType;
 use url::form_urlencoded;
+use serde_json;
 use mailer::{send};
 use models::Email;
 use data::Data;
@@ -45,7 +46,11 @@ pub fn rsvp(req: Request) -> Box<Future<Item = Response, Error = Error>> {
     println!("rsvp");
     Box::new(
             req.body().concat2().map(|b| {
-                let params = form_urlencoded::parse(b.as_ref()).into_owned().collect::<HashMap<String, String>>();
+                let params = if let Ok(p) = serde_json::from_slice::<HashMap<String, String>>(b.as_ref()) {
+                    p
+                } else {
+                    return bad_params(String::from("unable to parse params"));
+                };
                 println!("{:?}", params);
                 let name = if let Some(n) = params.get("name") {
                     n

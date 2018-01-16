@@ -108,7 +108,7 @@ class Birthday2018 {
     async sendRsvp(ev) {
         console.log('sendRsvp', this.mustard);
         let url = `/rsvp?name=${this.mustard.name}&mustard=${this.mustard.mustard}`;
-        if (this.mustard.id)
+        if (this.mustard.id && this.mustard.id != 0)
             url += `&id=${this.mustard.id}`
         let mustards = await Http.post(url);
         this.displayList(mustards);
