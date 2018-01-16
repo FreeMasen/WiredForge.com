@@ -137,7 +137,7 @@ class Birthday2018 {
     async save() {
         let m = {} as any;
         m.name = this.mustard.name;
-        m.mustard = this.mustard.name;
+        m.mustard = this.mustard.mustard;
         if (this.mustard.id != null && this.mustard.id != 0) {
             m.id = this.mustard.id;
         }
