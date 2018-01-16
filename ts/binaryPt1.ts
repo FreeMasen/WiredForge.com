@@ -39,7 +39,9 @@ class BinaryPt1 {
         this.updateTotal();
         this.countingState++;
         if (this.countingState <= 255) {
-            this.countingTimeout = setTimeout(() => this.count(), 250);
+            let percentComplete = this.countingState / 255;
+            let timeout = 400 * (1 - percentComplete); 
+            this.countingTimeout = setTimeout(() => this.count(), timeout);
         } else {
             this.countingState = 0;
             this.countRunning = false;
@@ -90,7 +92,7 @@ class BinaryPt1 {
 
     digitClicked(ev) {
         let cell = ev.currentTarget;
-        if (cell.innerHTML = '1') {
+        if (cell.innerHTML == '1') {
             cell.innerHTML = '0';
         } else {
             cell.innerHTML = '1';
