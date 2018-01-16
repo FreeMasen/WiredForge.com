@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 class Birthday2018 {
-    private mustard: Mustard;
+    private mustard: Mustard = new Mustard();
 
     constructor() {
         let response = localStorage.getItem('bday2018');
