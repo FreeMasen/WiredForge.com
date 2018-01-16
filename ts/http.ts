@@ -5,6 +5,7 @@ export default class Http {
             xhr.open('GET', url);
             xhr.onreadystatechange = () => {
                 if (xhr.readyState == xhr.DONE) {
+                    console.log('got response', xhr.responseText)
                     try {
                         let res = JSON.parse(xhr.responseText);
                         resolve(res);
