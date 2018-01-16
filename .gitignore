@@ -1,1 +1,7 @@
+.vscode/*
+**/target/*
+node_modules/*
 **/*.log
+public/*
+**/*.sqlite
+static/js/*
