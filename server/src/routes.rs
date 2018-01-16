@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use hyper::server::{Request, Response};
 use hyper::{StatusCode, Error};
 use hyper::header::ContentLength;
+use hyper::header::ContentType;
 use url::form_urlencoded;
 use mailer::{send};
 use models::Email;
@@ -88,6 +89,7 @@ pub fn rsvp(req: Request) -> Box<Future<Item = Response, Error = Error>> {
                 Response::new()
                     .with_status(StatusCode::Ok)
                     .with_header(ContentLength(rsvps.len() as u64))
+                    .with_header(ContentType::json())
                     .with_body(rsvps)
             })
     )
@@ -99,6 +101,7 @@ pub fn rsvps(_req: Request) -> Box<Future<Item = Response, Error = Error>> {
         Response::new()
             .with_status(StatusCode::Ok)
             .with_header(ContentLength(rsvps.len() as u64))
+            .with_header(ContentType::json())
             .with_body(rsvps)
     ))
 }
