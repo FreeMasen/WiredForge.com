@@ -141,8 +141,9 @@ class Birthday2018 {
         }
         let values = JSON.stringify(m);
         localStorage.setItem('bday2018', values);
-        let rsvps = await Http.post('/rsvp', values, 'application/json');
-        this.displayList(rsvps);
+        let rsvp = await Http.post('/rsvp', values, 'application/json');
+        this.mustard = rsvp;
+        this.getRsvpList();
     }
 }
 
