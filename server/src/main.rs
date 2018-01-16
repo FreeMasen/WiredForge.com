@@ -14,6 +14,8 @@ mod mailer;
 mod models;
 mod data;
 
+use std::path::{PathBuf};
+
 use hyper::server::Http;
 use hyper::server::NewService;
 
@@ -25,6 +27,10 @@ fn main() {
     wf.post(String::from("/contact"), routes::contact);
     wf.post(String::from("/rsvp"), routes::rsvp);
     wf.get(String::from("/rsvp"), routes::rsvps);
+    wf.set_static(String::from("../public/"));
     let handler = Http::new().bind(&addr, move || wf.new_service()).unwrap();
-    handler.run().unwrap();
+    match handler.run() {
+        Ok(_) => println!("Listening on 1111"),
+        Err(e) => println!("Error starting server\n{:?}", e),
+    };
 }
