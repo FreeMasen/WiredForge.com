@@ -105,14 +105,14 @@ class Birthday2018 {
         }
     }
 
-    async sendRsvp(ev) {
-        console.log('sendRsvp', this.mustard);
-        let url = `/rsvp?name=${this.mustard.name}&mustard=${this.mustard.mustard}`;
-        if (this.mustard.id && this.mustard.id != 0)
-            url += `&id=${this.mustard.id}`
-        let mustards = await Http.post(url);
-        this.displayList(mustards);
-    }
+    // async sendRsvp(ev) {
+    //     console.log('sendRsvp', this.mustard);
+    //     let url = `/rsvp?name=${this.mustard.name}&mustard=${this.mustard.mustard}`;
+    //     if (this.mustard.id && this.mustard.id != 0)
+    //         url += `&id=${this.mustard.id}`
+    //     let mustards = await Http.post(url);
+    //     this.displayList(mustards);
+    // }
 
     async getRsvpList() {
         let rsvpList = await Http.get<Array<Mustard>>('/rsvp');
@@ -135,9 +135,15 @@ class Birthday2018 {
     }
 
     async save() {
-        let values = JSON.stringify(this.mustard);
+        let m = {} as any;
+        m.name = this.mustard.name;
+        m.mustard = this.mustard.name;
+        if (this.mustard.id != null && this.mustard.id != 0) {
+            m.id = this.mustard.id;
+        }
+        let values = JSON.stringify(m);
         localStorage.setItem('bday2018', values);
-        await Http.post(url + '/rsvp', values);
+        await Http.post(url + '/rsvp', values, 'application/json');
     }
 }
 

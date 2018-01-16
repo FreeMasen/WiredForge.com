@@ -18,7 +18,7 @@ export default class Http {
         });
     }
 
-    static async post<T = any>(url: string, body: string = ''): Promise<T> {
+    static async post<T = any>(url: string, body: string = '', contentType: string = null): Promise<T> {
         console.log('http.post', url, body);
         return new Promise<T>((resolve, reject) => {
             var xhr = new XMLHttpRequest();
@@ -37,10 +37,9 @@ export default class Http {
                     }
                 }
             }
-            if (url.substr(url.indexOf('?')).length > 0)
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            else if (body != '')
-                xhr.setRequestHeader('Content-Type', 'application/json');
+           if (contentType) {
+               xhr.setRequestHeader('Content-Type', contentType);
+           }
             console.log('sending request');
             xhr.send(body);
         });
