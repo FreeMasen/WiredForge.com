@@ -9,12 +9,18 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 class Birthday2018 {
-    private mustard: Mustard = new Mustard();
+    private mustard: Mustard;
 
     constructor() {
         let response = localStorage.getItem('bday2018');
         if (response) {
-            this.mustard = JSON.parse(response);
+            try {
+                this.mustard = JSON.parse(response);
+            } catch (e) {
+                console.error('Clearing local stroage, parsing failed');
+                localStorage.removeItem('bday2018');
+                this.mustard = new Mustard();
+            }
         }
         this.getRsvpList();
         if (location.search.indexOf('9fxpv110h0mBbhAVWz8zJw%3d%3d') < 0) {
