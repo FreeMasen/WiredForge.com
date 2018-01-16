@@ -24,8 +24,9 @@ export default class Http {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url);
             xhr.onreadystatechange = () => {
+                
                 if (xhr.readyState == xhr.DONE) {
-                    console.log('Response received')
+                    console.log('Response received', xhr.responseText)
                     try {
                         let res = JSON.parse(xhr.responseText);
                         console.log('parsed to json');
