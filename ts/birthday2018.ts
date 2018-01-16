@@ -135,7 +135,7 @@ class Birthday2018 {
     async save() {
         let values = JSON.stringify(this.mustard);
         localStorage.setItem('bday2018', values);
-        await Http.post('/bday', values);
+        await Http.post('/rsvp', values);
     }
 }
 
