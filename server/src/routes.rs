@@ -55,7 +55,7 @@ pub fn rsvp(req: Request) -> Box<Future<Item = Response, Error = Error>> {
                 let mustard = if let Some(m) = params.get("mustard") {
                     m
                 } else {
-                    return bad_params(String::from("No email included in request"));
+                    return bad_params(String::from("No mustard included in request"));
                 };
 
                 let rsvps: String;

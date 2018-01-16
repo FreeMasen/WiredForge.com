@@ -8,8 +8,10 @@ window.addEventListener('DOMContentLoaded', () => {
     component = new Birthday2018();
 });
 
+const url = 'https://wiredforge.com'
+
 class Birthday2018 {
-    private mustard: Mustard;
+    private mustard: Mustard = new Mustard();
 
     constructor() {
         let response = localStorage.getItem('bday2018');
@@ -19,7 +21,6 @@ class Birthday2018 {
             } catch (e) {
                 console.error('Clearing local stroage, parsing failed');
                 localStorage.removeItem('bday2018');
-                this.mustard = new Mustard();
             }
         }
         this.getRsvpList();
@@ -136,7 +137,7 @@ class Birthday2018 {
     async save() {
         let values = JSON.stringify(this.mustard);
         localStorage.setItem('bday2018', values);
-        await Http.post('/rsvp', values);
+        await Http.post(url + '/rsvp', values);
     }
 }
 
