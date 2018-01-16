@@ -46,7 +46,7 @@ pub fn rsvp(req: Request) -> Box<Future<Item = Response, Error = Error>> {
     Box::new(
             req.body().concat2().map(|b| {
                 let params = form_urlencoded::parse(b.as_ref()).into_owned().collect::<HashMap<String, String>>();
-
+                println!(":?", params);
                 let name = if let Some(n) = params.get("name") {
                     n
                 } else {
