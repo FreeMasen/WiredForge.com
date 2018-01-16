@@ -8,8 +8,6 @@ window.addEventListener('DOMContentLoaded', () => {
     component = new Birthday2018();
 });
 
-const url = 'https://wiredforge.com'
-
 class Birthday2018 {
     private mustard: Mustard = new Mustard();
 
@@ -143,7 +141,8 @@ class Birthday2018 {
         }
         let values = JSON.stringify(m);
         localStorage.setItem('bday2018', values);
-        await Http.post(url + '/rsvp', values, 'application/json');
+        let rsvps = await Http.post('/rsvp', values, 'application/json');
+        this.displayList(rsvps);
     }
 }
 
