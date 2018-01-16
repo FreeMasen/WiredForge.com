@@ -1,9 +1,1 @@
-**/node_modules/
-**/.DS_Store
-**/*.js.map
-/static/js/
-**/.vscode
-/public/
-**/target
-rf
-**/*.sqlite
+**/*.log
