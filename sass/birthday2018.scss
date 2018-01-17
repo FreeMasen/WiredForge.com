@@ -54,6 +54,11 @@
             flex-flow: row;
             justify-content: space-around;
             align-items: center;
+            width: 100%;
+            span {
+                flex-basis: 50%;
+                text-align: center;
+            }
         }
         .list-entry +
         .list-entry {
