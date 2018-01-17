@@ -2,7 +2,7 @@ use lettre::{SimpleSendableEmail, EmailTransport, EmailAddress, SmtpTransport};
 use std::time::{SystemTime, UNIX_EPOCH};
 use models::Email;
 
-pub fn send(email: Email) {
+pub fn send(email: Email) -> Result<String, String>{
     let body = format!("name: {:?}\n\nemail: {:?}\n\nmessage\n----------\n{:?}",
                 email.name,
                 email.address,
@@ -23,7 +23,10 @@ pub fn send(email: Email) {
     // Send the email
     let result = mailer.send(&msg);
     match result {
-        Ok(_) => println!("send mail"),
-        Err(e) => println!("Error sending mail: {:?}", e),
+        Ok(_) => Ok(String::from("Sent message successfully")),
+        Err(e) => {
+            println!("{:?}", e);
+            Err(String::from("Error sending mail"))
+        },
     }
 }

@@ -34,10 +34,20 @@ pub fn contact(req: Request) -> Box<Future<Item = Response, Error = Error>> {
                 name: name.clone(),
                 message: msg.clone(),
             };
-            send(e);
-            Response::new()
-                .with_status(StatusCode::Ok)
-                .with_header(Location::new("/"))
+            match send(e) {
+                Ok(msg) => {
+                    println!("{:?}", msg);
+                    Response::new()
+                        .with_status(StatusCode::SeeOther)
+                        .with_header(Location::new("/contact/success/"))
+                },
+                Err(msg) => {
+                    println!("{:?}", msg);
+                    Response::new()
+                        .with_status(StatusCode::SeeOther)
+                        .with_header(Location::new("/contact/failure/"))
+                }
+            }
         })
     )
 }
