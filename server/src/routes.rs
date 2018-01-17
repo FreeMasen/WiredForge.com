@@ -3,8 +3,7 @@ use futures::future::ok;
 use std::collections::HashMap;
 use hyper::server::{Request, Response};
 use hyper::{StatusCode, Error};
-use hyper::header::ContentLength;
-use hyper::header::ContentType;
+use hyper::header::{ContentLength, ContentType, Location};
 use url::form_urlencoded;
 use serde_json;
 use mailer::{send};
@@ -38,6 +37,7 @@ pub fn contact(req: Request) -> Box<Future<Item = Response, Error = Error>> {
             send(e);
             Response::new()
                 .with_status(StatusCode::Ok)
+                .with_header(Location::new("/"))
         })
     )
 }
