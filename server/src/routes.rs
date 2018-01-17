@@ -117,7 +117,7 @@ fn bad_params(msg: String) -> Response {
         .with_header(ContentLength(msg.len() as u64))
         .with_body(msg)
 }
-
+#[allow(dead_code)]
 fn r500() -> Response {
     Response::new().with_status(StatusCode::BadRequest)
 }
