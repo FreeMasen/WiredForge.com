@@ -27,9 +27,11 @@ impl WiredForge {
         let mut incoming = String::from(path);
         if incoming.ends_with('/') {
             incoming += "index.html";
+        } else if !WiredForge::has_know_extention(&incoming) {
+            incoming += "/index.html";
         }
-        let prefix = self.static_path.clone();
-        if prefix.ends_with('/') && incoming.starts_with('/') {
+        
+        if self.static_path.ends_with('/') && incoming.starts_with('/') {
             incoming.remove(0);
         }
         let static_path = self.static_path.clone() + &incoming;
@@ -57,6 +59,27 @@ impl WiredForge {
             println!("Failed to read file as bytes");
             WiredForge::not_found()
         }
+    }
+
+    fn has_know_extention(path: &String) -> bool {
+        let know_files: Vec<&str> = vec![
+            ".html",
+            ".js",
+            ".css",
+            ".ico",
+            ".jpg",
+            ".png",
+            ".woff2",
+            ".ttf",
+            ".txt",
+            ".xml"
+        ];
+        for ext in know_files {
+            if path.ends_with(ext) {
+                return true;
+            }
+        }
+        false
     }
 }
 
