@@ -5,3 +5,6 @@ node_modules/*
 public/*
 **/*.sqlite
 static/js/*
+wiredforge
+**/.DS_Store
+rf
