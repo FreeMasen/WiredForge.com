@@ -11,5 +11,4 @@ echo 'moving new bin'
 cp ~/projects/wiredforge.com/server/target/release/server ~/projects/wiredforge.com/wiredforge
 cd ~/projects/wiredforge.com
 echo 'starting server'
-nohup ./wiredforge > server.log &
-
+nohup ./wiredforge prod > server.log &
