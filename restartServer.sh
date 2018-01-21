@@ -4,7 +4,7 @@ git pull
 echo 'finding pid'
 ID=`ps ax -o pid,args | egrep "[w]iredforge" | head -1 | sed -e 's/^[ \t]*//' | cut -d ' ' -f 1`
 echo 'Killing pid '$ID
-sudo kill $ID
+kill $ID
 echo 'buiilding project'
 cd ~/projects/wiredforge.com/server && cargo build --release
 echo 'moving new bin'
