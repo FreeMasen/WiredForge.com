@@ -51,7 +51,6 @@ export default class Grid {
     }
 
     createWalls() {
-        console.log('creatWalls');
         let currentCell = this.cells.get(0, 0);
         for (var i = 0; i < 4; i++) {
             let dir = i == 0 ? MoveDir.Right
@@ -75,7 +74,6 @@ export default class Grid {
                 topCell.removeWall(15);
             }
         }
-        console.log('~createWalls')
     }
 
     private getRandomCell() {
