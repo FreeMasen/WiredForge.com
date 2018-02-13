@@ -1,24 +1,31 @@
 const path = require('path');
 const wp = require('webpack');
-
+const entries = [
+    'pacman',
+    'binary_calc',
+    'endian',
+    'shifter',
+    'AndOr',
+    'binaryAnimation',
+    'arc',
+    'binaryPt1',
+    'birthday2018',
+    'voice',
+]
+function entry() {
+    let ret = {};
+    for (let entry of entries) {
+        ret[entry] = path.join(__dirname, 'ts', `${entry}.ts`);
+    }
+    return ret;
+}
 module.exports = function(env) {
     let opts = {
-        entry: {
-            pacman: path.join(__dirname, 'ts','pacman.ts'),
-            binary_calc: path.join(__dirname, 'ts', 'binary_calc.ts'),
-            endian: path.join(__dirname, 'ts', 'endian.ts'),
-            shifter: path.join(__dirname, 'ts', 'shifter.ts'),
-            andor: path.join(__dirname, 'ts', 'AndOr.ts'),
-            binaryAnimation: path.join(__dirname, 'ts', 'binaryAnimation.ts'),
-            arc: path.join(__dirname, 'ts', 'arc.ts'),
-            binaryPt1: path.join(__dirname, 'ts', 'binaryPt1.ts'),
-            birthday2018: path.join(__dirname, 'ts', 'birthday2018.ts'),
-        },
+        entry: entry(),
         output: {
             path: path.join(__dirname, 'static', 'js'),
             filename: '[name].js'
         },
-        devtool: 'sourcemap',
         resolve: {
             extensions: ['.ts', '.tsx', '.js', '.jsx']
         },

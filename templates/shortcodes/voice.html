@@ -1,0 +1,39 @@
+<div id="voice">
+    <div class="top-group">
+        <button type="button" id="pause"></button>
+        <button type="button" id="stop">■</button>
+        <button type="button" id="play">►</button>
+    </div>
+    <div class="input-group">
+        <label for="next-utter">Next Statement</label>
+        <textarea id="next-utter">
+            
+        </textarea>
+    </div>
+    <div class="bottom-group">
+        <div class="input-group">
+            <label for="voice-selection">Voice</label>
+            <select id="voice-selection">
+
+            </select>
+        </div>
+        <div class="button-group">
+            <button type="reset" id="clear">Clear</button>
+            <button type="submit" id="submit">Say</button>
+        </div>
+    </div>
+    <div id="statements">
+        <div id="queued">
+            <span class="list-title">Next up</span>
+            <div class="statement-list" id="queued-statements">
+                
+            </div>
+        </div>
+        <div id="completed">
+            <span class="list-title">Completed</span>
+            <div class="statement-list" id="completed-statements">
+
+            </div>
+        </div>
+    </div>
+</div>
