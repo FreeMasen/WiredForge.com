@@ -34,10 +34,9 @@ export default class Data extends Dexie {
         .sort((l, r) => l.id - r.id);
     }
 
-    async upsertStatement(s: Statement): Promise<Statement> {
+    async upsertStatement(s: Statement) {
         let json = s.toJson();
-        s.id = await this.statements.put(json, json.id);
-        return s;
+        s.id = await this.statements.put(json);
     }
 
     async deleteStatement(s: Statement) {

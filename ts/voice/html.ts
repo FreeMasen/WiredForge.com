@@ -2,7 +2,7 @@ import { Statement } from './models';
 export default class Html {
 
     static clearElement(el: HTMLElement) {
-        while (el.hasChildNodes()) {
+        while (el.firstElementChild) {
             el.removeChild(el.firstElementChild);
         }
     }
@@ -10,6 +10,7 @@ export default class Html {
     static queuedStatement(s: Statement, 
                             deleteHandler: (s: Statement) => void): HTMLDivElement {
         let ret = document.createElement('div') as HTMLDivElement;
+        ret.setAttribute('class', 'queued-statement');
         let del = document.createElement('button') as HTMLButtonElement;
         del.setAttribute('type', 'button');
         del.setAttribute('class', 'statement-button');
@@ -35,6 +36,7 @@ export default class Html {
                             deleteHandler: (s: Statement) => void,
                             replayHandler: (s: Statement) => void): HTMLDivElement {
         let ret = Html.queuedStatement(s, deleteHandler);
+        ret.setAttribute('class', 'completed-statement');
         let lowerDiv = document.createElement('div') as HTMLDivElement;
         lowerDiv.setAttribute('class', 'completed-statement-data');
         let lastPlayedDiv = document.createElement('div') as HTMLDivElement;

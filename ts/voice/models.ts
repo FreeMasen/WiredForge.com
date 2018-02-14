@@ -29,13 +29,18 @@ export class Statement implements IStatement {
     }
 
     toJson(): IStatement {
-        return {
-            id: this.id > -1 ? this.id : undefined,
+        let json: IStatement = {
             text: this.text,
             voiceName: this.voiceName,
             voiceLang: this.voiceLang,
-            lastSpokenEpoch: this.lastSpoken.valueOf()
+            lastSpokenEpoch: this.lastSpoken ?
+                        this.lastSpoken.valueOf() :
+                        -1
         }
+
+        if (this.id > -1)
+            json.id = this.id;
+        return json;
     }
 
     toUtterance(): SpeechSynthesisUtterance {

@@ -1,0 +1,112 @@
+@import 'colors';
+
+#voice {
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 500px;
+    border: 1px solid $grey;
+    .top-group {
+        display: flex;
+        flex-flow: row;
+        justify-content: flex-end;
+        align-content: center;
+        padding-top: 15px;
+        padding-bottom: 5px;
+        width: 100%;
+        button {
+            padding: 5px 10px;
+            border: none;
+            box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+            margin-right: 5px;
+        }
+        #pause {
+            background: $orange;
+        }
+        #stop {
+            background: $red;
+        }
+        #play {
+            background: $green;
+        }
+    }
+    .input-group {
+        display: flex;
+        flex-flow: column;
+        width: calc(100% - 10px);
+        label {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        textarea {
+            border: none;
+            box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+            resize: none;
+            height: 200px;
+        }
+    }
+    .bottom-group {
+        width: calc(100% - 10px);
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-items: center;
+
+        .input-group {
+            display: flex;
+            flex-flow: column;
+            margin-top: 10px;
+
+            label {
+                font-size: 12pt;
+            }
+
+            select {
+                border: none;
+                font-size: 14pt;
+                width: 250px;
+                box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+            }
+        }
+        .button-group {
+            display: flex;
+            flex-flow: row;
+            align-items: flex-end;
+            height: 100%;
+            button {
+                padding: 5px 10px;
+                border: none;
+                box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+                margin-right: 5px;
+                font-size: 14pt;
+            }
+        }
+    }
+
+    #statements {
+        display: flex;
+        flex-flow: row;
+        width: 100%;
+        margin-top: 10px;
+        min-width: 300px;
+        justify-content: space-around;
+        div {
+            width: calc(50% - 2px);
+            span {
+                text-align: center;
+                width: 100%;
+                display: block;
+                border-bottom: 1px solid $grey;
+            }
+            .statement-list {
+                display: flex;
+                flex-flow: column;
+                min-height: 100px;
+                overflow: auto;
+            }
+
+        }
+
+    }
+}

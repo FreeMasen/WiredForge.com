@@ -2,8 +2,19 @@ import Data from './voice/data';
 import {Statement} from './voice/models';
 import Html from './voice/html';
 let voice: Voice;
-window.addEventListener('DOMContentLoaded', () => {
+function createVoice() {
+    console.log('createVoice');
+    speechSynthesis.removeEventListener('voiceschanged', createVoice);
     voice = new Voice();
+}
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded');
+    speechSynthesis.addEventListener('voiceschanged', createVoice)
+    if (speechSynthesis.getVoices().length > 0) {
+        createVoice();
+    } else {
+        speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+    }
 });
 
 class Voice {
@@ -21,12 +32,15 @@ class Voice {
 
     //Setup the select list options
     setVoiceOptions() {
+        console.log('setVoiceOptions')
         let select = this.getSelect();
         //clear out any existing options
         while (select.options.length > 0) {
             select.options.remove(0);
         }
         let voices = this.speaker.getVoices();
+        if (voices.length < 1) setTimeout(() => this.setVoiceOptions(), 0);
+        console.log('voices', voices);
         for (let i = 0; i < voices.length; i++) {
             let opt = document.createElement('option') as HTMLOptionElement;
             opt.value = i.toString();
@@ -35,6 +49,7 @@ class Voice {
             if (voice.default) {
                 select.value = i.toString();
             }
+            select.options.add(opt);
         }
     }
 
@@ -50,26 +65,44 @@ class Voice {
         ev.preventDefault();
         let textArea = this.getBox();
         let text = textArea.value;
+        this.clearBox(ev);
         let statement = new Statement(
             -1,
             text,
             this.selectedVoice.name,
             this.selectedVoice.lang,
         )
-        this.data.upsertStatement(statement);
-        this.refreshQueues();
+        this.data.upsertStatement(statement)
+        .then(_ => {
+            console.log('statement upserted');
+            this.refreshQueues().then(_ => {
+                console.log('queues refreshed');
+            })
+            .catch(e => {
+                console.error('error refreshing queues', e);
+            });
+        })
+        .catch(e => {
+            console.error('error upserting statement', e);
+        });
         if (!this.stopped) this.clearQueue();
     }
 
     /**Refresh the data in the queue and discard arrays */
     async refreshQueues() {
-        this.queue = await this.data.getUnspoken();
-        this.discard = await this.data.getSpoken();
-        this.refreshLists();
+        this.data.getUnspoken()
+                    .then(list => {
+                        this.queue = list
+                        this.data.getSpoken().then(list => {
+                            this.discard = list;
+                            requestAnimationFrame(ev => this.refreshLists());
+                        });
+        });
     }
 
     /** Refresh the two lists of statements*/
     refreshLists() {
+        console.log('refreshLists', this.queue, this.discard);
         let discarded = document.getElementById('completed-statements');
         Html.clearElement(discarded);
         for (let statement of this.discard) {

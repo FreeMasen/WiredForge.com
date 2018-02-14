@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -13,5 +12,6 @@
     "webpack": "^3.10.0"
   },
   "dependencies": {
+    "dexie": "^2.0.1"
   }
 }
