@@ -54,3 +54,21 @@ export class Statement implements IStatement {
         return ret;
     }
 }
+
+
+export interface IDbMessage {
+    queued: Array<Statement>;
+    completed: Array<Statement>;
+}
+
+export interface IVoiceMessage {
+    messageType: MessageType;
+    statements?: Array<Statement>;
+}
+
+export enum MessageType {
+    Add = 'Add',
+    Remove = 'Remove',
+    Update = 'Update',
+    Request = 'Request',
+}

@@ -1,5 +1,6 @@
 import Dexie from 'dexie';
 import { Statement, IStatement } from './models'
+
 export default class Data extends Dexie {
     private statements: Dexie.Table<IStatement, number>;
     constructor() {

@@ -11,6 +11,7 @@ const entries = [
     'binaryPt1',
     'birthday2018',
     'voice',
+    'voiceWorker',
 ]
 function entry() {
     let ret = {};
