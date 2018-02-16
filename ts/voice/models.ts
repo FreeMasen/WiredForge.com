@@ -57,13 +57,13 @@ export class Statement implements IStatement {
 
 
 export interface IDbMessage {
-    queued: Array<Statement>;
-    completed: Array<Statement>;
+    queued: Array<IStatement>;
+    completed: Array<IStatement>;
 }
 
 export interface IVoiceMessage {
     messageType: MessageType;
-    statements?: Array<Statement>;
+    statements?: Array<IStatement>;
 }
 
 export enum MessageType {

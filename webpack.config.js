@@ -40,7 +40,7 @@ module.exports = function(env) {
         },
     };
     if (env != 'prod'){
-        opts.devtool = 'sourcemap';
+        opts.devtool = 'source-map';
     } else {
         opts.plugins = [
             new wp.optimize.UglifyJsPlugin()

@@ -1,116 +1,14 @@
-import Data from './voice/data';
 import {Statement, IDbMessage, IVoiceMessage, MessageType} from './voice/models';
 import Html from './voice/html';
+import Speaker from './voice/speaker';
 let voice: Voice;
-function createVoice() {
-    console.log('createVoice');
-    speechSynthesis.removeEventListener('voiceschanged', createVoice);
-    voice = new Voice();
-}
+
 window.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded');
-    speechSynthesis.addEventListener('voiceschanged', createVoice)
-    if (speechSynthesis.getVoices().length > 0) {
-        createVoice();
-    } else {
-        speechSynthesis.speak(new SpeechSynthesisUtterance(''));
-    }
+    voice = new Voice();
 });
 
-type EventHandler = (ev: Event) => void;
 
-class Speaker {
-    private _speaker: SpeechSynthesis = window.speechSynthesis;
-    private handlers = new Map<string, Array<EventHandler>>();
-    constructor() {
-        this._speaker.addEventListener('voiceschanged', ev => this.dispatchEvent(ev))
-        this.watchVoices();
-    }
-
-    private watchVoices() {
-        let voices = this._speaker.getVoices();
-        if (voices.length > 0) return this.dispatchEvent(new Event('ready'));
-        setTimeout(() => this.watchVoices());
-    }
-    public addEventListener(event: string, handler: EventHandler) {
-        let existingList = this.handlers.get(event);
-        if (!existingList) {
-            existingList = [];
-        }
-        existingList.push(handler);
-        this.handlers.set(event, existingList);
-    }
-
-    public removeEventListener(event: 'ready' | 'voiceschanged' | 'speaking' | 'stoppedSpeaking' | 'paused' | 'resumed' | 'cancelled', handler: EventHandler) {
-        let existingList = this.handlers.get(event);
-        if (!existingList) return;
-        let index = existingList.findIndex(f => f == handler);
-        if (index < 0) return;
-        existingList.splice(index, 1);
-        this.handlers.set(event, existingList);
-    }
-
-    public dispatchEvent(ev: Event): boolean {
-        let handlers = this.handlers.get(ev.type);
-        if (!handlers || handlers.length < 1) return true;
-        for (let h of this.handlers.get(ev.type)) {
-            h(ev);
-            if (ev.defaultPrevented) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public speak(utterance: SpeechSynthesisUtterance) {
-        this.dispatchEvent(new Event('speaking'));
-        this._speaker.speak(utterance);
-        this.watchSpeaker();
-    }
-
-    private watchSpeaker() {
-        if (this._speaker.speaking || this._speaker.pending)
-            return setTimeout(() => this.watchSpeaker(), 0);
-        this.dispatchEvent(new Event('stoppedSpeaking'));
-    }
-
-    public pause() {
-        this.dispatchEvent(new Event('paused'));
-        this._speaker.pause();
-    }
-
-    public resume() {
-        this.dispatchEvent(new Event('resumed'));
-        this._speaker.resume();
-    }
-    public cancel() {
-        this.dispatchEvent(new Event('cancelled'));
-        this._speaker.cancel();
-    }
-
-    public getVoices(): Array<SpeechSynthesisVoice> {
-        return this._speaker.getVoices();
-    }
-
-    get paused(): boolean {
-        return this._speaker.paused;
-    }
-
-    get speaking(): boolean {
-        return this._speaker.speaking;
-    }
-
-    get pending(): boolean {
-        return this._speaker.pending;
-    }
-
-    get free(): boolean {
-        return !this._speaker.pending &&
-                !this._speaker.paused &&
-                !this._speaker.speaking;
-    }
-
-}
 
 class Voice {
     private queue: Array<Statement> = [];
@@ -120,7 +18,10 @@ class Voice {
     private worker: Worker = new Worker('/js/voiceWorker.js');
 
     constructor() {
+        this.worker.addEventListener('message', ev => console.log('worker.message', ev));
+        this.worker.addEventListener('error', ev => console.error('worker.error', ev));
         this.registerEvents();
+        this.requestUpdate();
     }
 
     requestUpdate() {
@@ -152,7 +53,7 @@ class Voice {
 
     registerEvents() {
         this.speaker.addEventListener('ready', () => this.setVoiceOptions());
-        this.worker.addEventListener('message', ev => this.refreshQueues(ev.data as IDbMessage));
+        //this.worker.onmessage = ev => console.log('this.worker.onmessage', ev)//this.refreshQueues(ev.data as IDbMessage);
         let clear = document.getElementById('clear') as HTMLButtonElement;
         clear.addEventListener('click', ev => this.clearBox(ev));
         let submit = document.getElementById('submit') as HTMLButtonElement;
@@ -189,8 +90,9 @@ class Voice {
 
     /**Refresh the data in the queue and discard arrays */
     refreshQueues(data: IDbMessage) {
-        this.discard = data.completed;
-        this.queue = data.queued;
+        console.log('got update', data);
+        this.discard = data.completed.map(s => Statement.fromJson(s));
+        this.queue = data.queued.map(s => Statement.fromJson(s));
         this.refreshLists();
     }
 
@@ -236,15 +138,13 @@ class Voice {
         if (this.queue.length < 1) return;
         let s = this.queue.shift();
         this.speaker.speak(s.toUtterance());
+        let forStorage = new Statement(
+            s.id, s.text, s.voiceName, s.voiceLang, new Date()
+        ).toJson();
+        
         let msg: IVoiceMessage = {
             messageType: MessageType.Update,
-            statements: [new Statement(
-                s.id,
-                s.text,
-                s.voiceName,
-                s.voiceLang,
-                new Date(),
-            )]
+            statements: [forStorage]
         }
         this.worker.postMessage(msg)
     }
