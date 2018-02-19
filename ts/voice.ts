@@ -4,11 +4,8 @@ import Speaker from './voice/speaker';
 let voice: Voice;
 
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded');
     voice = new Voice();
 });
-
-
 
 class Voice {
     private queue: Array<Statement> = [];
@@ -18,8 +15,6 @@ class Voice {
     private worker: Worker = new Worker('/js/voiceWorker.js');
 
     constructor() {
-        this.worker.addEventListener('message', ev => console.log('worker.message', ev));
-        this.worker.addEventListener('error', ev => console.error('worker.error', ev));
         this.registerEvents();
         this.requestUpdate();
     }
@@ -53,16 +48,12 @@ class Voice {
 
     registerEvents() {
         this.speaker.addEventListener('ready', () => this.setVoiceOptions());
-        //this.worker.onmessage = ev => console.log('this.worker.onmessage', ev)//this.refreshQueues(ev.data as IDbMessage);
+        this.worker.addEventListener('message', ev => this.refreshQueues(ev.data as IDbMessage));
         let clear = document.getElementById('clear') as HTMLButtonElement;
         clear.addEventListener('click', ev => this.clearBox(ev));
         let submit = document.getElementById('submit') as HTMLButtonElement;
         submit.addEventListener('click', ev => this.addUtterance(ev))
-        this.speaker.addEventListener('speaking', ev => console.log('speaking', ev));
-        this.speaker.addEventListener('stoppedSpeaking', ev => this.sayNext(ev));
-        this.speaker.addEventListener('paused', ev => console.log('paused', ev));
-        this.speaker.addEventListener('cancelled', ev => console.log('cancelled', ev));
-        this.speaker.addEventListener('resumed', ev => console.log('resumed', ev));
+        this.speaker.addEventListener('stoppedSpeaking', ev => this.doneSpeaking(ev));
         let pause = document.getElementById('pause');
         pause.addEventListener('click', ev => this.pauseSpeaker());
         let stop = document.getElementById('stop');
@@ -90,7 +81,6 @@ class Voice {
 
     /**Refresh the data in the queue and discard arrays */
     refreshQueues(data: IDbMessage) {
-        console.log('got update', data);
         this.discard = data.completed.map(s => Statement.fromJson(s));
         this.queue = data.queued.map(s => Statement.fromJson(s));
         this.refreshLists();
@@ -134,19 +124,25 @@ class Voice {
         this.worker.postMessage(msg);
     }
     /**Attempt to say the next item in the queue */
-    sayNext(ev: Event = null) {
+    sayNext() {
         if (this.queue.length < 1) return;
         let s = this.queue.shift();
         this.speaker.speak(s.toUtterance());
-        let forStorage = new Statement(
-            s.id, s.text, s.voiceName, s.voiceLang, new Date()
-        ).toJson();
-        
+    }
+
+    /** */
+    doneSpeaking(ev: Event) {
+        if (this.queue.length < 1) return;
+        let s = this.queue.shift();
+        s.lastSpoken = new Date();
         let msg: IVoiceMessage = {
             messageType: MessageType.Update,
-            statements: [forStorage]
+            statements: [s.toJson()]
         }
-        this.worker.postMessage(msg)
+        this.discard.push(s);
+        this.worker.postMessage(msg);
+        this.refreshLists();
+        if (this.queue.length > 0) this.sayNext()
     }
 
     /**Get the voice based on the user's selection */

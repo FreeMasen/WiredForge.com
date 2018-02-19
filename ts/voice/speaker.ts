@@ -10,14 +10,12 @@ export default class Speaker {
     }
 
     private watchVoices() {
-        console.log('watchVoices');
         if (this.ready) return this.dispatchEvent(new Event('ready'));
         setTimeout(() => this.watchVoices(), 0);
     }
 
     private get ready(): boolean {
         let voices = this._speaker.getVoices();
-        console.log('ready', voices);
         return voices.length > 0;
     }
 
@@ -41,7 +39,6 @@ export default class Speaker {
     }
 
     public dispatchEvent(ev: Event): boolean {
-        console.log('dispatchEvent', ev, this.handlers.size);
         let handlers = this.handlers.get(ev.type);
         if (!handlers || handlers.length < 1) return true;
         for (let h of this.handlers.get(ev.type)) {
