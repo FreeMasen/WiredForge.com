@@ -13,7 +13,7 @@ export default class Html {
         ret.setAttribute('class', 'queued statement');
         let del = document.createElement('button') as HTMLButtonElement;
         del.setAttribute('type', 'button');
-        del.setAttribute('class', 'statement-button');
+        del.setAttribute('class', 'delete statement-button');
         let x = document.createTextNode('X');
         del.appendChild(x);
         del.addEventListener('click', ev => deleteHandler(s))
@@ -23,11 +23,16 @@ export default class Html {
         let voiceInfo = document.createElement('span') as HTMLSpanElement;
         let voiceText = document.createTextNode(`${s.voiceName} (${s.voiceLang})`);
         voiceInfo.appendChild(voiceText);
-        let topContainer = document.createElement('div') as HTMLDivElement;
-        topContainer.setAttribute('class', 'queued-statement-top')
-        topContainer.appendChild(voiceInfo);
-        topContainer.appendChild(del);
-        ret.appendChild(topContainer);
+        let voiceContainer = document.createElement('div') as HTMLDivElement;
+        voiceContainer.setAttribute('class', 'voice-info')
+        let voiceTitle = document.createElement('span') as HTMLSpanElement;
+        voiceTitle.setAttribute('class', 'voice-title');
+        let vTitleText = document.createTextNode('Voice');
+        voiceTitle.appendChild(vTitleText);
+        voiceContainer.appendChild(voiceTitle);
+        voiceContainer.appendChild(voiceInfo);
+        ret.appendChild(del);
+        ret.appendChild(voiceContainer);
         ret.appendChild(span);
         return ret;
     }

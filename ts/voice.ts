@@ -19,13 +19,14 @@ class Voice {
         this.requestUpdate();
     }
 
+    /** Request an update from the WebWorker */
     requestUpdate() {
         this.worker.postMessage({
             messageType: MessageType.Request
         });
     }
 
-    //Setup the select list options
+    /**Setup the select list options */
     setVoiceOptions() {
         let select = this.getSelect();
         //clear out any existing options

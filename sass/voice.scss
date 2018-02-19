@@ -93,7 +93,7 @@
         justify-content: space-around;
         div {
             width: calc(50% - 2px);
-            span {
+            .list-title {
                 text-align: center;
                 width: 100%;
                 display: block;
@@ -104,14 +104,45 @@
                 flex-flow: column;
                 min-height: 100px;
                 overflow: auto;
+                width: 100%;
+                .statement {
+                    width: 99%;
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    position: relative;
+                    padding: 5px 0;
+                    box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+                    &.completed {
+                        background: $blue;
+                    }
+                    .delete {
+                        position: absolute;
+                        right: 0;
+                        top: 0;
+                        width: 20px;
+                        height: 20px;
+                        padding: 0;
+                        text-align: center;
+                        line-height: 1;
+                    }
+                    .voice-info {
+                        display: flex;
+                        flex-flow: column;
+                        justify-content: flex-start;
+                        align-items: flex-start;
+                        align-content: flex-start;
+                        width: 100%;
+                        .voice-title {
+                            width: 100%;
+                            border-bottom: 1px solid $grey;
+                        }
+                    }
+                }
             }
 
         }
 
     }
-}
-
-.statement {
-    width: 100%;
-    
 }
