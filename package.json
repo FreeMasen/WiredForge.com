@@ -8,6 +8,10 @@
   "license": "ISC",
   "devDependencies": {
     "awesome-typescript-loader": "^3.4.1",
+    "chalk": "^2.3.1",
+    "hard-source-webpack-plugin": "^0.5.18",
+    "thread-loader": "^1.1.2",
+    "ts-loader": "^3.5.0",
     "typescript": "^2.6.2",
     "webpack": "^3.10.0"
   },

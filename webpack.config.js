@@ -1,5 +1,6 @@
 const path = require('path');
 const wp = require('webpack');
+const Hard = require('hard-source-webpack-plugin');
 const entries = [
     'pacman',
     'binary_calc',
@@ -31,20 +32,31 @@ module.exports = function(env) {
             extensions: ['.ts', '.tsx', '.js', '.jsx']
         },
         module: {
-            loaders: [
-                {
-                    test: /\.tsx?$/,
-                    use: 'awesome-typescript-loader'
-                }
+            rules: [
+                    {
+                        test: /\.tsx?$/,
+                        use: [
+                            'thread-loader',
+                            {
+                                loader: "ts-loader",
+                                options: {
+                                    happyPackMode: true
+                                }
+                            }
+                        ]
+                    }
             ]
         },
     };
+    opts.plugins = [
+        new Hard(),
+    ]
     if (env != 'prod'){
         opts.devtool = 'source-map';
     } else {
-        opts.plugins = [
+        opts.plugins.push(
             new wp.optimize.UglifyJsPlugin()
-        ]
+        )
     }
     return opts;
 }
