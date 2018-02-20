@@ -82,4 +82,27 @@ export default class Html {
 
         return `${month}/${day}/${year.toString().substr(2)} ${hour}:${minute} ${t}`;
     }
+
+    static addClass(selector: string, className: string) {
+        let el = Html.getElement(selector);
+        if (!el) return;
+        let classList = (el.getAttribute('class') || '').split(' ');
+        classList.push(className);
+        el.setAttribute('class', classList.join(' ')); 
+    }
+
+    static removeClass(selector: string, className) {
+        let el = Html.getElement(selector);
+        if (!el) return;
+        let classList = (el.getAttribute('class') || '').split(' ');
+        let index = classList.indexOf('className');
+        if (index < 0) return;
+        classList.splice(index, 1);
+        el.setAttribute('class', classList.join(' '));
+    }
+
+    static getElement(selector: string) {
+        return document.querySelector(selector);
+    }
+
 }
