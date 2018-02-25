@@ -33,8 +33,10 @@ fn main() {
     wf.get("/rsvp", routes::rsvps);
     wf.use_static(static_path);
     let handler = Http::new().bind(&addr, move || wf.new_service()).unwrap();
+    println!("Listening on 1111");
     match handler.run() {
-        Ok(_) => println!("Listening on 1111"),
-        Err(e) => println!("Error starting server\n{:?}", e),
+        Ok(_) => (),
+        Err(_e) => (),
     };
+    println!("Server closing");
 }
