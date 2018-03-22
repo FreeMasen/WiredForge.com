@@ -5,4 +5,4 @@ npm set progress=false
 npm i
 npm set progress=true
 webpack --env prod
-gutenberg build --base-url https://wiredforge.com
+gutenberg --config=config.prod.toml build
