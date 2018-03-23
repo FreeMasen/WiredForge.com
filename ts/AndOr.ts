@@ -1,4 +1,5 @@
 import HTMLHelper from './HtmlHelper';
+import Converter from './services/convert';
 let andOr;
 window.addEventListener('DOMContentLoaded', () => {
     andOr = new AndOr();
@@ -46,17 +47,7 @@ class AndOr {
     }
 
     getBits(value: number) {
-        let ret = [];
-        let bit = 1;
-        for (var i = 0; i < 8; i++) {
-            if ((value & bit) > 0) {
-                ret.unshift(1);
-            } else {
-                ret.unshift(0);
-            }
-            bit *= 2;
-        }
-        return ret;
+        return Converter.to_bits(value);
     }
 
     updateBits() {
@@ -77,14 +68,7 @@ class AndOr {
     }
 
     byteString(bits: Array<number>): string {
-        console.log('byteString', bits);
-        let ret = '';
-        for (var i = 0; i < bits.length; i++) {
-            let bit = bits[i];
-            ret += `${bit}`;
-            if (ret.length == 4) ret += ' ';
-        }
-        return ret;
+        return Converter.to_string(bits);
     }
 
     buttonClicked(ev) {

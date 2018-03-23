@@ -1,0 +1,36 @@
+<link type="text/css" rel="stylesheet" href="xor.css" />
+<div id="xor">
+    <div class="title">
+        <span>
+            Interactive Binary Xor Utility
+        </span>
+    </div>
+    <div id="xor-wrapper">
+        <div class="values">
+            <div class="inputs">
+                <div class="input-group">
+                    <label for="lhs">Left Byte</label>
+                    <input class="user-input" id="lhs" type="number" max="255" min="0" value="0" />
+                </div>
+                <div class="input-group">
+                    <label for="rhs">Right Byte</label>
+                    <input class="user-input" id="rhs" type="number" max="255" min="0" value="0" />
+                </div>
+            </div>
+            <div class="representation">
+                <span id="big-bits">0000 0000</span>
+                <span id="little-bits">0000 0000</span>
+            </div>
+        </div>
+        <div class="adjustments">
+            <div class="buttons">
+                <button class="button" type="button" id="compute-xor">^</button>
+            </div>
+            <div class="total">
+                <span id="total-value">0</span>
+                <span id="binary-total">0000 0000</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/xor.js"></script>
