@@ -220,6 +220,8 @@ enum JobState {
 }
 ```
 
+Which could be use like this.
+
 ```
 if (job.State & JobState.Complete > 0) {
     //deal with a complete job
