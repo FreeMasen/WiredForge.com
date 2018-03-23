@@ -25,7 +25,6 @@ An interesting thing to point out is that each value is exactly 1 greater than a
 1 + 2         =  3 =  4 - 1
 1 + 2 + 4     =  7 =  8 - 1
 1 + 2 + 4 + 8 = 15 = 16 - 1
-...
 ```
  It is also true that each number is twice the size of its right hand neighbor (baring the first position).
 
@@ -33,7 +32,6 @@ An interesting thing to point out is that each value is exactly 1 greater than a
 2 = 1 * 2
 4 = 2 * 2
 8 = 4 * 2
-...
 ```
 
 So, now that we have a working understanding of how to count in binary, Let's see how to use this information in a more useful manner.
@@ -42,9 +40,9 @@ Far before my time, the computer community decided that 8 was a good number to u
 
 ## Making this useful
 
-So now that we all understand how binary numbers are constructed, lets make this new knowledge useful. My favorite use of this information is creating `Bit Flags`, that is when you assign meaning to each of the numbers in the headers of the table above. Because each of the numbers represents one of the bit positions, we now can use any combination of these numbers and get a unique value. Let's use this example.
+So now that we all understand how binary numbers are constructed, let's make this new knowledge useful. My favorite use of this information is creating `Bit Flags`, which is when you assign meaning to each of the numbers in the headers of the table above. Because each of the numbers represents one of the bit positions, we now can use any combination of these numbers and get a unique value. Let's use this example.
 
-```
+```rust
 //JobState Big Flags
 const new_job = 1;
 const assigned_job = 2;
@@ -54,9 +52,9 @@ const reopened_job = 16;
 const archived_job = 32;
 ```
 
-Since we used these special values to represent our `JobState` these values are no longer mutually exclusive. We could have a state that is a `complete_job` and also an `reopened_job` with the value 24 (0001 1000) or a state that is both an `assigned_job` and also `in_progress_job` with the value 6 (0000 0110).
+Since we used these special values to represent our `JobState` these values are no longer mutually exclusive. We could have a state that is a `complete_job` and also a `reopened_job` by using the value 24 (0001 1000) or a state that is both an `assigned_job` and an `in_progress_job` by using the value 6 (0000 0110). We are essentially representing a collection of things with a single number. 
 
-The ability access this information is going to come with some special binary operations. In the below examples we are going to assume that there is a Job object defined and one of the properties of this will be state which is an unsigned integer.
+The ability leverage this information is going to come with some special binary operations.
 
 ## Binary Operators
 
@@ -79,16 +77,16 @@ Bit shifting is when we take all of the bits for a number and move them either l
 
 To use our `JobState` bigflag example, we can use this operator to move this job from one state to the next.
 
-```
-job.state = new_job;
-job.state = job.state << 1;
-//job.state == assigned_job
-job.state = job.state << 1;
-//job.state == in_progress_job
-job.state = job.state << 1;
-//job.state == complete_job
-job.state = job.state >> 3;
-//job.state == new_job
+```rust
+job_state = new_job;
+job_state = job_state << 1;
+//job_state == assigned_job
+job_state = job_state << 1;
+//job_state == in_progress_job
+job_state = job_state << 1;
+//job_state == complete_job
+job_state = job_state >> 3;
+//job_state == new_job
 ```
 
 I put together this little tool to illustrate this a little more interactively, it is setup for 16 bit numbers but the concept is the same.
@@ -112,13 +110,13 @@ Up next, we have the `Bitwise or` operation. When we use this operation what we 
    192    |    136    =    200
 ```
 
-At first, it almost looks like we are just always doing the same that that `+` would do, but look at the last example. The left most bit is 1 for both numbers but it can only be included in the result once, while 192 plus 136 is 328 the same values `|`ed together is 200.
+At first, it almost looks like we are the same result that `+` would but look at the last example. The left most bit is 1 for both numbers but 128 will only be included in the result once for our `|` while a `+` would include 128 twice (resulting in 328).
 
-We can use this to combine two of our job states.
+We can use this to combine two of our job_states.
 
-```
-job.state = reopened_job | assigned_job;
-//job.state == 18
+```rust
+job_state = reopened_job | assigned_job;
+//job_state == 18
 ```
 
 Now we can represent jobs that are reopened and assigned without defining these specific case like `reopened_assigned`.
@@ -138,14 +136,14 @@ Close friend of the `bitwise or` is `bitwise and`, two similar concepts but one 
 
 This allows us to check if a job is in a paticular state.
 
-```
-job.state = reopened_job | assigned_job;
-if job.state & assigned_job > 0 {
+```rust
+job_state = reopened_job | assigned_job;
+if job_state & assigned_job > 0 {
     //put this job in the assignee's queue
 }
 ```
 
-In the above example we are trying to combine the job state with our `assigned_job` constant using a `bitwise and` and then testing if that value is greater than 0. Since the result will only include 1 bits where both sides have a 1 bit we would get 0 if `job.state` did not include `assigned_job` otherwise we would get `assigned_job`.
+In the above example we are trying to combine the job_state with our `assigned_job` constant using a `bitwise and` and then testing if that value is greater than 0. Since the result will only include 1 bits where both sides have a 1 bit we would get 0 if `job_state` did not include `assigned_job` otherwise we would get `assigned_job`.
 
 Here is a little tool to illustrate how both And and Or work.
 
@@ -153,7 +151,7 @@ Here is a little tool to illustrate how both And and Or work.
 
 ### Binary Not
 
-Another powerful tool is the ability to reverse any binary representation this is done through the `binary not` operation, typically noted with teh `~` operator.
+Another powerful tool is the ability to reverse any binary representation this is done through the `binary not` operation, typically noted with the `~` operator.
 
 ```
 8    = 0000 1000
@@ -164,14 +162,14 @@ Another powerful tool is the ability to reverse any binary representation this i
 
 This makes it easy to check if a job is not in a specific state.
 
-```
-job.state = archived_job | complete_job;
-if job.state & ~new_job > 0 {
+```rust
+job_state = archived_job | complete_job;
+if job_state & ~new_job > 0 {
     //deal with this old job
 }
 ```
 
-In all honesty, this isn't as useful since we could just check if `job.state | new_job == 0` and get the same result but it is another option.
+In all honesty, this isn't as useful since we could just check if `job_state | new_job == 0` and get the same result but it is another option.
 
 ### Binary Xor
 
@@ -188,12 +186,12 @@ This last operation we are going to cover is `Xor` which is typically noted with
 
 We can use flip a bit to the oposite of its current value.
 
-```
-job.state = complete_job
-job.state = job.state ^ complete_job;
-//job.state & complete_job == 0
-job.state = job.state ^ complete_job;
-//job.state & complete_job == complete_job
+```rust
+job_state = complete_job
+job_state = job_state ^ complete_job;
+//job_state & complete_job == 0
+job_state = job_state ^ complete_job;
+//job_state & complete_job == complete_job
 ```
 
 While not the most useful thing, it for sure has its place. Here is an interactive tool to go along with this one.
@@ -206,9 +204,9 @@ Now I want to go over some things that might be language dependant. Make sure yo
 
 ### Bitflag Enum
 
-A good number of languages allow you to create an `enum` variant that offer the same benefits as a plain old unsigned int. Often this variant can be created by using some sort of annotation, for example in c# allows you to do the following.
+A good number of languages allow you to create an `enum` variant that offer the same benefits we just went over. Often this variant can be created by using some sort of annotation, for example in c# allows you to do the following.
 
-```
+```c#
 [Flags]
 enum JobState {
     New = 1,
@@ -222,8 +220,8 @@ enum JobState {
 
 Which could be use like this.
 
-```
-if (job.State & JobState.Complete > 0) {
+```c#
+if (job_state & JobState.Complete > 0) {
     //deal with a complete job
 }
 ```
@@ -235,11 +233,11 @@ This can go a long way to making your code more readable.
 Most languages allow any operator to be combined with a trailing `=` to allow for performing an operation with a value and also assigning it to that value, think of `+=`. If we look at our `xor` example from above we can see it makes things nice a concise.
 
 ```
-job.state = complete_job
-job.state ^= complete_job;
-//job.state & complete_job == 0
-job.state ^= complete_job;
-//job.state & complete_job == complete_job
+job_state = complete_job
+job_state ^= complete_job;
+//job_state & complete_job == 0
+job_state ^= complete_job;
+//job_state & complete_job == complete_job
 ```
 
 ## Conclusion
