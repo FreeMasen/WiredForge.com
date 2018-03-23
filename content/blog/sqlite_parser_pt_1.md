@@ -1,6 +1,6 @@
 +++
 title = "SQLite Parser Pt. 1: The Header"
-date = "2017-12-26"
+date = 2017-12-26
 draft = true
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]

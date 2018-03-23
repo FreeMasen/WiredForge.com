@@ -1,7 +1,7 @@
 +++
 title = "Understanding Binary, Pt 1"
 draft = true
-date = "2018-1-10"
+date = 2018-01-10
 [extra]
 snippet = "A guide to understanding binary from a programmer's perspective"
 +++
@@ -173,7 +173,7 @@ if job.state & ~new_job > 0 {
 
 In all honesty, this isn't as useful since we could just check if `job.state | new_job == 0` and get the same result but it is another option.
 
-### Xor
+### Binary Xor
 
 This last operation we are going to cover is `Xor` which is typically noted with the `^` operator. This operation wer are going to take two numbers and create a new number where the 1 bits are only on one side or the other but not both. 
 

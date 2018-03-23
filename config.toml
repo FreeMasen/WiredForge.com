@@ -17,4 +17,3 @@ language_code = "en"
 
 [extra]
 # Put all your custom variables here
-prod = false
