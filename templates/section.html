@@ -7,14 +7,15 @@
             {% if page.draft %}
                 class="post-summary draft"
                 title="This post is a work in progress"
+                {% if config.base_url == "https://wiredforge.com" %}
+                    href=""
+                {% else %}
+                    href="/{{page.path}}index.html"
+                {% endif %}
             {% else %}
                 class="post-summary"
-            {% endif %}
-            {% if config.base_url == "https://wiredforge.com" %}
-                href=""
-            {% else %}
                 href="/{{page.path}}index.html"
-            {%endif%}
+            {% endif %}
             >
             
             <h3>{{ page.title }}</h3>
