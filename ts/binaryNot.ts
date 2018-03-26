@@ -10,24 +10,24 @@ class BinaryNot {
         this.valueChanged();
     }
     registerEvents() {
-        let input = document.getElementById('value');
+        let input = document.querySelector('#not-wrapper > .values > .inputs > .input-group > #value');
         if (input) input.addEventListener('change', ev => this.valueChanged());
-        let button = document.getElementById('compute-not');
+        let button = document.querySelector('#not-wrapper > .adjustments > .buttons > #compute-not');
         if (button) button.addEventListener('click', ev => this.computeNot());
     }
 
     valueChanged() {
         let val = this.getValue();
-        let bits = document.getElementById('bits');
+        let bits = document.querySelector('#not-wrapper > .values > .representation . bits');
         if (!bits) return console.error('unable to find input bits');
         bits.innerHTML = Converter.bit_string(val);
     }
 
     computeNot() {
         let val = this.getValue();
-        let bits = document.getElementById('binary-total');
+        let bits = document.querySelector('#not-wrapper > .adjustments > .total > #binary-total');
         if (!bits) return console.error('unable to find total bits');
-        let total = document.getElementById('total-value');
+        let total = document.querySelector('#not-wrapper > .adjustments > .total > #total-value');
         if (!total) return console.error('unable to find total value');
         let not = this.getNot(val);
         total.innerHTML = not.toString();
@@ -47,7 +47,7 @@ class BinaryNot {
     }
 
     getValue() {
-        let input = document.getElementById('value') as HTMLInputElement;
+        let input = document.querySelector('#not-wrapper > .values > .inputs > .input-group > #value') as HTMLInputElement;
         if (!input) {
             console.error('unable to find input'); 
             return 0;

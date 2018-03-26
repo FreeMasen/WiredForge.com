@@ -16,18 +16,18 @@ class Shifter {
     }
 
     registerEventListeners() {
-        let buttons = document.querySelectorAll('.shift-button');
+        let buttons = document.querySelectorAll('#shifter-wrapper > .adjustments > .shift-buttons > .shift-button');
         for (var i = 0; i < buttons.length; i++) {
             let button = buttons[i];
             button.addEventListener('click', ev => this.shiftBits(ev))
         }
-        let input = document.getElementById('u16');
+        let input = document.querySelector('#shifter-wrapper > .values > .input-group > #u16');
         input.addEventListener('change', ev => this.inputChanged());
     }
 
     inputChanged() {
         console.log('inputChanged');
-        let input = document.getElementById('u16') as HTMLInputElement;
+        let input = document.querySelector('#shifter-wrapper > .values > .input-group > #u16') as HTMLInputElement;
         let value = parseInt(input.value);
         this.bits = this.getBits(value);
         this.currentMovement = 0;
@@ -58,8 +58,8 @@ class Shifter {
     }
 
     updateButtons() {
-        let leftShift = document.getElementById('left-shift');
-        let rightShift = document.getElementById('right-shift');
+        let leftShift = document.querySelector('#shifter-wrapper > .adjustments > .shift-buttons > #left-shift');
+        let rightShift = document.querySelector('#shifter-wrapper > .adjustments > .shift-buttons > #right-shift');
         let zeroCount = this.bits.filter(v => v > 0).length;
         if (this.bits[0] == 1 || zeroCount < 1) {
             leftShift.setAttribute('disabled', 'true');
@@ -74,10 +74,9 @@ class Shifter {
     }
     
     updateCounter() {
-        let counter = document.getElementById('counter-value');
+        let counter = document.querySelector('#shifter-wrapper .adjustments > .counter') as HTMLSpanElement;
         HTMLHelper.clearChildren(counter);
         let title = document.createElement('span') as HTMLSpanElement;
-        // <span id="shift-counter">Current Shift:</span>
         title.setAttribute('id', 'shift-counter');
         let titleText = document.createTextNode('Current Movement: ');
         title.appendChild(titleText);
@@ -98,7 +97,7 @@ class Shifter {
 
     updateInput() {
         console.log('updateInput');
-        let input = document.getElementById('u16') as HTMLInputElement;
+        let input = document.querySelector('#shifter-wrapper > .values > .input-group > #u16') as HTMLInputElement;
         input.value = `${this.getValue()}`;
     }
 
@@ -106,7 +105,7 @@ class Shifter {
         console.log('updateBits', this.value);
         let bits = document.querySelector('.representation') as HTMLElement;
         HTMLHelper.clearChildren(bits);
-        let leftBits = document.getElementById('big-bits');
+        let leftBits = document.querySelector('#shifter-wrapper > .values > .representation > #little-bits');
         let bigBits = this.bits.slice(0, 8);
         let bigStr = '';
         for (var i = 0; i < bigBits.length; i++) {
@@ -122,7 +121,7 @@ class Shifter {
         bigSpan.appendChild(bigText);
         bits.appendChild(bigSpan);
 
-        let rightBits = document.getElementById('little-bits');
+        let rightBits = document.querySelector('#shifter-wrapper > .values > .representation > #little-bits');
         let littleBits = this.bits.slice(8);
         let littleStr = '';
         for (var i = 0; i < littleBits.length; i++) {

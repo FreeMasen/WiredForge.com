@@ -14,11 +14,11 @@ class Xor {
     }
     registerEvents() {
         console.log('registerEvents')
-        let btn = document.getElementById('compute-xor') as HTMLButtonElement;
+        let btn = document.querySelector('#xor-wrapper > .adjustments > .buttons > #compute-xor') as HTMLButtonElement;
         if (btn) btn.addEventListener('click',ev => this.updateTotal(ev));
-        let lhs = document.getElementById('lhs') as HTMLInputElement;
+        let lhs = document.querySelector('#xor-wrapper > .values > .inputs > .input-group > #lhs') as HTMLInputElement;
         if (lhs) lhs.addEventListener('change', ev => this.updateLeftSpan());
-        let rhs = document.getElementById('rhs') as HTMLInputElement;
+        let rhs = document.querySelector('#xor-wrapper > .values > .inputs > .input-group > #rhs') as HTMLInputElement;
         if (rhs) rhs.addEventListener('change', ev => this.updateRightSpan());
     }
 
@@ -26,15 +26,15 @@ class Xor {
         console.log('updateTotal', ev);
         let newVal = this.calculate();
         let valText = Converter.bit_string(newVal);
-        let intSpan = document.getElementById('total-value') as HTMLSpanElement;
+        let intSpan = document.querySelector('#xor-wrapper > .adjustments > .total > #total-value') as HTMLSpanElement;
         if (intSpan) intSpan.innerHTML = newVal.toString();
-        let binSpan = document.getElementById('binary-total') as HTMLSpanElement;
+        let binSpan = document.querySelector('#xor-wrapper > .adjustments > .total > #binary-total') as HTMLSpanElement;
         if (binSpan) binSpan.innerHTML = valText;
     }
 
     updateLeftSpan() {
         console.log('updateLeftSpan');
-        let span = document.getElementById('big-bits') as HTMLSpanElement
+        let span = document.querySelector('#xor-wrapper > .values > .representation > #big-bits') as HTMLSpanElement
         let val = this.getLhs();
         let valText = Converter.bit_string(val);
         span.innerHTML = valText;
@@ -42,7 +42,7 @@ class Xor {
 
     updateRightSpan() {
         console.log('updateRightSpan');
-        let span = document.getElementById('little-bits') as HTMLSpanElement
+        let span = document.querySelector('#xor-wrapper > .values > .representation > #little-bits') as HTMLSpanElement
         let val = this.getRhs();
         let valText = Converter.bit_string(val);
         span.innerHTML = valText;
@@ -56,7 +56,7 @@ class Xor {
     }
 
     getLhs(): number {
-        let input = document.getElementById('lhs') as HTMLInputElement;
+        let input = document.querySelector('#xor-wrapper > .values > .inputs > .input-group > #lhs') as HTMLInputElement;
         try {
             return parseInt(input.value);
         } catch (e) {
@@ -66,7 +66,7 @@ class Xor {
     }
 
     getRhs(): number {
-        let input = document.getElementById('rhs') as HTMLInputElement;
+        let input = document.querySelector('#xor-wrapper > .values > .inputs > .input-group > #rhs') as HTMLInputElement;
         try {
             return parseInt(input.value);
         } catch (e) {

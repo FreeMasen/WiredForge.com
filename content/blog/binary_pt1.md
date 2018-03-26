@@ -173,6 +173,7 @@ In all honesty, this isn't as useful since we could just check if `job_state | n
 
 {{ binaryNot() }}
 
+
 ### Binary Xor
 
 This last operation we are going to cover is `Xor` which is typically noted with the `^` operator. This operation wer are going to take two numbers and create a new number where the 1 bits are only on one side or the other but not both. 
