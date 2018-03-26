@@ -9,6 +9,8 @@ class Xor {
     constructor() {
         console.log('new Xor()')
         this.registerEvents();
+        this.updateLeftSpan();
+        this.updateRightSpan();
     }
     registerEvents() {
         console.log('registerEvents')

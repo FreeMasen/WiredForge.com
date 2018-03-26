@@ -5,4 +5,5 @@ draft = true
 [extra]
 snippet = "A tool for illustrating how binary not works"
 +++
-{{ binary_not() }}
+
+{{ binaryNot() }}

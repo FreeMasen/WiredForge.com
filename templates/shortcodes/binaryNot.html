@@ -1,0 +1,31 @@
+<link type="text/css" rel="stylesheet" href="/binaryNot.css" />
+<div id="binary-not">
+    <div class="title">
+        <span>
+            Interactive Binary Not Utility
+        </span>
+    </div>
+    <div id="not-wrapper">
+        <div class="values">
+            <div class="inputs">
+                <div class="input-group">
+                    <label for="value">Right Byte</label>
+                    <input class="user-input" id="value" type="number" max="255" min="0" value="0" />
+                </div>
+            </div>
+            <div class="representation">
+                <span id="bits">0000 0000</span>
+            </div>
+        </div>
+        <div class="adjustments">
+            <div class="buttons">
+                <button class="button" type="button" id="compute-not">~</button>
+            </div>
+            <div class="total">
+                <span id="total-value">0</span>
+                <span id="binary-total">0000 0000</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/binaryNot.js"></script>

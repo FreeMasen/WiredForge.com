@@ -13,7 +13,8 @@ const entries = [
     'birthday2018',
     'voice',
     'voiceWorker',
-    'xor'
+    'xor',
+    'binaryNot',
 ]
 function entry() {
     let ret = {};
