@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
 class Shifter {
     public bits: Array<number> = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1];
     constructor(
-        public value: number = 0,
+        public value: number = 1,
         public currentMovement: number = 0
     ) {
         this.registerEventListeners();
@@ -151,7 +151,6 @@ class Shifter {
             }
             bitValue *= 2;
         }
-        console.log('~getBits', ret);
         return ret;
     }
 
@@ -167,6 +166,7 @@ class Shifter {
             }
             bitValue *= 2;
         }
+        console.log('getValue', ret);
         return ret;
     }
 }
