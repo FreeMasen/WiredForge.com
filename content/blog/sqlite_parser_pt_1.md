@@ -30,7 +30,7 @@ For those who don't know, SQLite is a relational database engine that utilizes a
 To dig deeper, their [website](http://sqlite.org) has quite a bit of information.
 
 ---
-Databases are fascinating. Just about every application I have built has amounted to a user interface for a database. While I have been able to leverage their power, like any tool knowledge of how they work makes them more powerful in the user's hands. So, I thought I would dig into how SQLite works as a way to build up that knowledge.
+Databases are fascinating. Just about every application I have built has amounted to a user interface for a database. While I have been able to leverage their power, knowledge of how they work makes them more powerful in the user's hands. So, I thought I would dig into how SQLite works as a way to build up that knowledge.
 
 As I started to read the documentation for SQLite I was hopeful it would start to demystify the magic part of data warehousing, however it quickly became clear that it was going to take some serious effort to understand. SQLite.org provides detailed specifications for just about every part of its system, all of them have been written from a technical perspective, so I thought it might be a good idea to start with the file format documentation. At about the 4th paragraph I started to doubt that I would be able to make sense of any of it:
 > The main database file consists of one or more pages. The size of a page is a power of two between 512 and 65536 inclusive. All pages within the same database are the same size. The page size for a database file is determined by the 2-byte integer located at an offset of 16 bytes from the beginning of the database file.
@@ -64,7 +64,7 @@ Oh my!
 
 At this point, my head is swimming but when the going gets tough, the tough bang their brain against it until something clicks. Thankfully shortly after that mess, a table is included that starts to help make some more sense. This table dictates where in the file specific header information lives. At this point, I thought, I am going to need to write some code to be able to understand any of this.
 
-According to the doc the first 100 bytes of the fill will be the file's header which is explicitly sectioned into 23 pieces. So lets start writing some code.
+According to the doc the first 100 bytes of the file will be the header which is explicitly sectioned into 23 pieces. So lets start writing some code.
 
 First, we need to create a database file. There are many methods to do this but I used the [DB Browser for SQLite](http://sqlitebrowser.org/) to create mine. 
 
@@ -80,6 +80,7 @@ $ cargo new ./sqlite --bin && cd ./sqlite
 Now that we have an Executable rust project created, open it up in your editor of choice. 
 The code block below is going to first open up our `.sqlite` file then try and read in the first
 100 bytes.
+
 ```rust
 use std::io::*;
 use std::path::{PathBuf};
