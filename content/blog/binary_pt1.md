@@ -1,7 +1,6 @@
 +++
 title = "Understanding Binary, Pt 1"
-draft = true
-date = 2018-01-10
+date = 2018-03-27
 [extra]
 snippet = "A guide to understanding binary from a programmer's perspective"
 +++
@@ -26,7 +25,7 @@ An interesting thing to point out is that each value is exactly 1 greater than a
 1 + 2 + 4     =  7 =  8 - 1
 1 + 2 + 4 + 8 = 15 = 16 - 1
 ```
- It is also true that each number is twice the size of its right hand neighbor (baring the first position).
+ It is also true that as you move left, the number always doubles.
 
 ```
 2 = 1 * 2
@@ -95,7 +94,7 @@ I put together this little tool to illustrate this a little more interactively, 
 
 ### Bitwise Or
 
-Up next, we have the `Bitwise or` operation. When we use this operation what we are doing is taking all of the 1 bits from two numbers to create a new number. This operation is typically noted with the `|` operator, it might look familiar from writing if statements. Here are a few examples, again the binary is on top, the base 10 is below it.
+Up next, we have the `Bitwise or` operation. When we use this operation what we are doing is taking all of the 1 bits from two numbers to create a new number. This operation is typically noted with the `|` operator, commonly refered to as a pipe character. Here are a few examples, again the binary is on top, the base 10 is below it.
 
 ```
 0000 0001 | 0000 0010 = 0000 0011
@@ -110,7 +109,7 @@ Up next, we have the `Bitwise or` operation. When we use this operation what we 
    192    |    136    =    200
 ```
 
-At first, it almost looks like we are the same result that `+` would but look at the last example. The left most bit is 1 for both numbers but 128 will only be included in the result once for our `|` while a `+` would include 128 twice (resulting in 328).
+At first, it almost looks like we are getting the same result that `+` would but look at the last example. The left most bit is 1 for both numbers but 128 will only be included in the result once for our `|` while a `+` would include 128 twice (resulting in 328).
 
 We can use this to combine two of our job_states.
 
@@ -119,7 +118,32 @@ job_state = reopened_job | assigned_job;
 //job_state == 18
 ```
 
-Now we can represent jobs that are reopened and assigned without defining these specific case like `reopened_assigned`.
+Now we can easily represent jobs that are in multiple states without having to define new states for the combination which could get out of hand. Look at how much larger our list of states becomes when we do this explicitly.
+
+```rust
+const new_job = 1;
+const assigned_job = 2;
+const new_assigned_job = 3;
+const in_progress_job = 4;
+const new_inprogress_job = 5
+const assigned_in_progress_job = 6
+const new_assigned_in_progress_job = 7
+const complete_job = 8;
+const new_complete_job = 9;
+const assigned_complete_job = 10;
+const new_assigned_complete_job = 11;
+const in_progress_complete_job = 12;
+const new_in_progress_complete_job = 13;
+const assigned_in_progress_complete_job = 14;
+const new_assigned_in_progress_complete_job = 15;
+const reopened_job = 16;
+const new_reopened_job = 17;
+const assigned_reopened_job = 18;
+const new_assigned_reopened_job = 19;
+...
+```
+
+That is significantly more complicated, and the effort to some extent is wasted since it wouldn't make sense to have a new job that is also in progress or a job that is in progress and complete.
 
 ### Bitwise And
 
@@ -169,14 +193,26 @@ if job_state & ~new_job > 0 {
 }
 ```
 
-In all honesty, this isn't as useful since we could just check if `job_state | new_job == 0` and get the same result but it is another option.
+In all honesty, this isn't as useful since we could just check if `job_state | new_job == 0` and get the same result but it is another option. It could also be useful if we needed to invert a flag entirely, our job state example might not be the best practical use but consider the following.
+
+```rust
+const step1 = 1;
+const step2 = 2;
+const done = 4;
+//start the activity
+let mut activity = step1; //1
+//move to the next step but keep the step1 bit for audit purposes
+activity = activity | step2; //3
+//complete activity and clear audit trail
+activity = ~activity; //4
+```
 
 {{ binaryNot() }}
 
 
 ### Binary Xor
 
-This last operation we are going to cover is `Xor` which is typically noted with the `^` operator. This operation wer are going to take two numbers and create a new number where the 1 bits are only on one side or the other but not both. 
+This last operation we are going to cover is `Xor` which is typically noted with the `^` operator. This operation is going to take two numbers and create a new number where the 1 bits are only on one side or the other but not both. 
 
 ```
 1010 1010 ^ 0101 0101 = 1111 1111
