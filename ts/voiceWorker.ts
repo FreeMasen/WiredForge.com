@@ -3,29 +3,25 @@ import Data from './voice/data';
 
 let data = new Data();
 addEventListener('message', async ev => {
+    console.log('worker.message', ev.data);
     let message: IVoiceMessage = ev.data;
     switch (message.messageType) {
         case MessageType.Add:
         case MessageType.Update:
+            console.log('Add/Update message');
             for (let s of message.statements) {
-                await data.upsertStatement(s).then(() => {
-                    sendUpdate();
-                }).catch(e => {
-                    console.error('error upserting', e);
-                });
+                await data.upsertStatement(s);
             }
+            sendUpdate(message.messageType);
         break;
         case MessageType.Remove:
             for (let s of message.statements) {
-                await data.deleteStatement(s).then(() => {
-                    sendUpdate();
-                }).catch(e => {
-                    console.error('error removing', e);
-                });
+                await data.deleteStatement(s)
+                sendUpdate(message.messageType);
             }
         break;
         case MessageType.Request:
-            sendUpdate();
+            sendUpdate(message.messageType);
         break;
     }
 });
@@ -33,8 +29,10 @@ addEventListener('messageerror', ev => {
     console.error('messageerror', ev);
 });
 
-async function sendUpdate() {
+async function sendUpdate(messageType: MessageType) {
+    console.log('worker.sendUpdate');
     let update: IDbMessage = {
+        messageType,
         queued: [],
         completed: []
     };
@@ -43,4 +41,4 @@ async function sendUpdate() {
     postMessage(update);
 }
 
-sendUpdate();
+sendUpdate(MessageType.Request);

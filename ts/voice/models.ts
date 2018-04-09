@@ -57,6 +57,7 @@ export class Statement implements IStatement {
 
 
 export interface IDbMessage {
+    messageType: MessageType;
     queued: Array<IStatement>;
     completed: Array<IStatement>;
 }

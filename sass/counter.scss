@@ -1,0 +1,35 @@
+@import 'colors';
+#binary-counting-table {
+    box-shadow: 1px 1px 3px 1px $grey;
+    border-collapse: collapse;
+    font-size: 18pt;
+    margin-bottom: 10px;
+    .title {
+        background: $grey;
+        color: #fff;
+        font-size: 18pt;
+    }
+    tr {
+        * {
+            font-family: 'mono';
+            text-align: center;
+        }
+        th {
+            background: $blue;
+            color: #fff;
+            padding: 5px;
+            min-width: 40px;
+            border: #fff;
+        }
+        td {
+            border: $grey;
+            cursor: pointer;
+            &:hover {
+                transform: translate(-1px, -1px)
+            }
+        }
+        #total {
+            background: $grey;
+        }
+    }
+}

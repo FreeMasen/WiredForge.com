@@ -20,6 +20,9 @@
             border: none;
             box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
             margin-right: 5px;
+            &.pressed {
+                transform: translate(2px,2px);
+            }
         }
         #pause {
             background: $orange;
@@ -106,7 +109,7 @@
                 overflow: auto;
                 width: 100%;
                 .statement {
-                    width: 99%;
+                    width: 98%;
                     display: flex;
                     flex-flow: column;
                     justify-content: flex-start;
@@ -114,8 +117,14 @@
                     position: relative;
                     padding: 5px 0;
                     box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+                    margin-bottom: 5px;
                     &.completed {
                         background: $blue;
+                        color: #fff;
+                    }
+                    &.queued {
+                        background: $orange;
+                        color: #fff;
                     }
                     .delete {
                         position: absolute;
@@ -137,6 +146,7 @@
                         .voice-title {
                             width: 100%;
                             border-bottom: 1px solid $grey;
+                            font-weight: bold;
                         }
                     }
                 }

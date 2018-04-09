@@ -1,4 +1,5 @@
 import HTMLHelper from './HtmlHelper';
+import Converter from './services/convert';
 let andOr;
 window.addEventListener('DOMContentLoaded', () => {
     andOr = new AndOr();
@@ -19,13 +20,12 @@ class AndOr {
     }
 
     registerEvents() {
-        let inputs = document.querySelectorAll('.user-input');
+        let inputs = document.querySelectorAll('#andor-wrapper > .values > .inputs > .input-group > .user-input');
         for (var i = 0; i < inputs.length; i++) {
             let input = inputs[i] as HTMLInputElement;
-            input.value = '0';
             input.addEventListener('change', ev => this.inputChanged())
         }
-        let buttons = document.querySelectorAll('.button')
+        let buttons = document.querySelectorAll('#andor-wrapper > .adjustments > .buttons > .button')
         for (var i = 0; i < buttons.length; i++) {
             let button = buttons[i];
             button.addEventListener('click', ev => this.buttonClicked(ev))
@@ -33,9 +33,9 @@ class AndOr {
     }
 
     inputChanged() {
-        let lhs = document.getElementById('left-bits') as HTMLInputElement;
+        let lhs = document.querySelector('#andor-wrapper > .values > .inputs > .input-group > #left-bits') as HTMLInputElement;
         let leftValue = parseInt(lhs.value);
-        let rhs = document.getElementById('right-bits') as HTMLInputElement;
+        let rhs = document.querySelector('#andor-wrapper > .values > .inputs > .input-group > #right-bits') as HTMLInputElement;
         let rightValue = parseInt(rhs.value);
         this.lhs = leftValue;
         this.leftBits = this.getBits(leftValue);
@@ -46,21 +46,11 @@ class AndOr {
     }
 
     getBits(value: number) {
-        let ret = [];
-        let bit = 1;
-        for (var i = 0; i < 8; i++) {
-            if ((value & bit) > 0) {
-                ret.unshift(1);
-            } else {
-                ret.unshift(0);
-            }
-            bit *= 2;
-        }
-        return ret;
+        return Converter.to_bits(value);
     }
 
     updateBits() {
-        let bytes = document.querySelector('.representation') as HTMLElement;
+        let bytes = document.querySelector('#andor-wrapper > .values > .representation') as HTMLElement;
         HTMLHelper.clearChildren(bytes);
         let leftSpan = document.createElement('span');
         leftSpan.setAttribute('id', 'big-bits');
@@ -77,14 +67,7 @@ class AndOr {
     }
 
     byteString(bits: Array<number>): string {
-        console.log('byteString', bits);
-        let ret = '';
-        for (var i = 0; i < bits.length; i++) {
-            let bit = bits[i];
-            ret += `${bit}`;
-            if (ret.length == 4) ret += ' ';
-        }
-        return ret;
+        return Converter.to_string(bits);
     }
 
     buttonClicked(ev) {
@@ -95,7 +78,7 @@ class AndOr {
     }
 
     updateButtons() {
-        let buttons = document.querySelectorAll('.button');
+        let buttons = document.querySelectorAll('#andor-wrapper > .adjustments > .buttons > .button');
         for (var i = 0; i < buttons.length; i++) {
             let button = buttons[i] as HTMLButtonElement;
             let buttonOperation = button.getAttribute('operation') as BinaryOperation;
@@ -132,7 +115,7 @@ class AndOr {
         let binary = this.getBits(value);
         let binaryText = document.createTextNode(this.byteString(binary));
         binarySpan.appendChild(binaryText);
-        let total = document.querySelector('.total') as HTMLDivElement;
+        let total = document.querySelector('#andor-wrapper > .adjustments > .total') as HTMLDivElement;
         HTMLHelper.clearChildren(total);
         total.appendChild(span);
         total.appendChild(binarySpan);

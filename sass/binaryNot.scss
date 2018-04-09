@@ -1,0 +1,92 @@
+@import 'colors';
+
+div#binary-not {
+    width: 400px;
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 1px 1px 3px 1px $grey;
+    padding-bottom: 5px;
+    * {
+        font-family: 'mono';
+        font-size: 14pt;
+    }
+    .title {
+        width: 100%;
+        background: $grey;
+        color: #fff;
+        font-size: 18pt;
+    }
+    #not-wrapper {
+        padding-top: 5px;
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        .values {
+            display: flex;
+            flex-flow: column;
+            justify-content: space-around;
+            align-items: center;
+            flex-basis: 50%;
+            .inputs {
+                width: 100%;
+                display: flex;
+                flex-flow: row;
+                justify-content: space-around;
+                align-items: center;
+                padding-bottom: 5px;
+                .input-group {
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: center;
+                    align-items: center;
+                    input {
+                        width: 70px;
+                    }
+                }
+            }
+            .representation {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+            }
+        }
+        .adjustments {
+            display: flex;
+            flex-flow: column;
+            justify-content: space-around;
+            align-items: center;
+            flex-basis: 50%;
+            .buttons {
+                display: flex;
+                flex-flow: row;
+                width: 100%;
+                justify-content: space-around;
+                align-items: center;
+                padding-bottom: 5px;
+                .button {
+                    padding: 5px 20px;
+                    box-shadow: 1px 1px 3px 1px $grey;
+                    border: none;
+                    border-radius: 5px;
+                    background: none;
+                    &:hover {
+                        box-shadow: 1px 1px 3px 1px darken($blue, 20);
+                    }
+                }
+            }
+            .total {
+                display: flex;
+                flex-flow: column;
+                justify-content: flex-start;
+                align-items: center;
+                width: 100%;
+            }
+        }
+    }
+}
