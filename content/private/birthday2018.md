@@ -1,5 +1,7 @@
 +++
 title = "Rob's Birthday 2018"
+[extra]
+snippet = ""
 +++
 This year for my birthday, I thought it would be a fun to host a mustard party.
 

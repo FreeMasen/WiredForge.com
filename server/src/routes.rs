@@ -1,14 +1,17 @@
+use std::collections::HashMap;
+
 use futures::{Future, Stream};
 use futures::future::ok;
-use std::collections::HashMap;
 use hyper::server::{Request, Response};
 use hyper::{StatusCode, Error};
 use hyper::header::{ContentLength, ContentType, Location};
-use url::form_urlencoded;
-use serde_json;
 use mailer::{send};
+use serde_json;
+use url::form_urlencoded;
+
 use models::Email;
 use data::Data;
+use wasm_ser_test::get_res_vec;
 
 pub fn contact(req: Request) -> Box<Future<Item = Response, Error = Error>> {
         Box::new(req.body().concat2().map(|b| {
@@ -119,6 +122,26 @@ pub fn rsvps(_req: Request) -> Box<Future<Item = Response, Error = Error>> {
             .with_header(ContentType::json())
             .with_body(rsvps)
     ))
+}
+
+pub fn get_wasm_results(_req: Request) -> Box<Future<Item = Response, Error = Error>> {
+    let resluts = get_res_vec(Box::new(now), "ns");
+    let body = serde_json::to_vec(&resluts);
+    match body {
+        Ok(b) => Box::new(
+            ok(
+                Response::new()
+                    .with_header(ContentLength(b.len() as u64))
+                    .with_body(b)
+            )
+        ),
+        Err(_) => Box::new(ok(r500()))
+    }
+}
+
+fn now() -> u32 {
+    let start = ::std::time::SystemTime::now().duration_since(::std::time::UNIX_EPOCH);
+    start.unwrap().subsec_nanos()
 }
 
 fn bad_params(msg: String) -> Response {

@@ -1,18 +1,21 @@
-extern crate hyper;
+extern crate bincode;
 extern crate futures;
+extern crate hyper;
 extern crate lettre;
 extern crate url;
+extern crate pony;
+extern crate rmp_serde;
 extern crate rusqlite;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
-extern crate pony;
 
 mod routes;
 mod mailer;
 mod models;
 mod data;
+mod wasm_ser_test;
 
 use std::env;
 
@@ -31,7 +34,9 @@ fn main() {
     wf.post("/send", routes::contact);
     wf.post("/rsvp", routes::rsvp);
     wf.get("/rsvp", routes::rsvps);
+    wf.get("/sertest/native", routes::get_wasm_results);
     wf.use_static(static_path);
+    wf.add_known_extension(&[".wasm"]);
     let handler = Http::new().bind(&addr, move || wf.new_service()).unwrap();
     println!("Listening on 1111");
     match handler.run() {
