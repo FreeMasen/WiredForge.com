@@ -1,6 +1,5 @@
 const path = require('path');
 const wp = require('webpack');
-const Hard = require('hard-source-webpack-plugin');
 const entries = [
     'pacman',
     'binary_calc',
@@ -21,6 +20,7 @@ function entry() {
     for (let entry of entries) {
         ret[entry] = path.join(__dirname, 'ts', `${entry}.ts`);
     }
+    ret['wasm_ser'] = path.join(__dirname, 'js', 'wasm_ser.js');
     return ret;
 }
 module.exports = function(env) {
@@ -31,7 +31,7 @@ module.exports = function(env) {
             filename: '[name].js'
         },
         resolve: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx']
+            extensions: ['.ts', '.tsx', '.js', '.jsx', '.wasm']
         },
         module: {
             rules: [
@@ -51,11 +51,12 @@ module.exports = function(env) {
         },
     };
     opts.plugins = [
-        new Hard(),
     ]
     if (env != 'prod'){
+        opts.mode = 'development';
         opts.devtool = 'source-map';
     } else {
+        opts.mode = 'production';
         opts.plugins.push(
             new wp.optimize.UglifyJsPlugin()
         )
