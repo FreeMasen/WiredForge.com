@@ -28,7 +28,9 @@ module.exports = function(env) {
         entry: entry(),
         output: {
             path: path.join(__dirname, 'static', 'js'),
-            filename: '[name].js'
+            filename: '[name].js',
+            publicPath: '/js/',
+            chunkFilename: "[id].chunk.js"
         },
         resolve: {
             extensions: ['.ts', '.tsx', '.js', '.jsx', '.wasm']
