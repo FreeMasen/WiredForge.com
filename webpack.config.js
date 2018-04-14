@@ -59,9 +59,6 @@ module.exports = function(env) {
         opts.devtool = 'source-map';
     } else {
         opts.mode = 'production';
-        opts.plugins.push(
-            new wp.optimize.UglifyJsPlugin()
-        )
     }
     return opts;
 }
