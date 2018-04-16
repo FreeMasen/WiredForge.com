@@ -404,6 +404,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "pony"
 version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "futures 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.11.17 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -595,7 +596,7 @@ dependencies = [
  "futures 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.11.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "lettre 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pony 0.1.8",
+ "pony 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusqlite 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ser_test 0.1.0",
  "serde 1.0.27 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -847,6 +848,7 @@ dependencies = [
 "checksum openssl-sys 0.9.24 (registry+https://github.com/rust-lang/crates.io-index)" = "14ba54ac7d5a4eabd1d5f2c1fdeb7e7c14debfa669d94b983d01b465e767ba9e"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
 "checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
+"checksum pony 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "5f3c8f8c720f989ef0333c7c7dea371c92060e41b2b646701619a983381b4b8f"
 "checksum quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "7a6e920b65c65f10b2ae65c831a81a073a89edd28c7cce89475bff467ab4167a"
 "checksum rand 0.3.22 (registry+https://github.com/rust-lang/crates.io-index)" = "15a732abf9d20f0ad8eeb6f909bf6868722d9a06e1e50802b6a70351f40b4eb1"
 "checksum rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "eba5f8cb59cc50ed56be8880a5c7b496bfd9bd26394e176bc67884094145c2c5"
