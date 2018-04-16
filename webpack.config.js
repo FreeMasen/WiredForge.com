@@ -54,7 +54,7 @@ module.exports = function(env) {
         },
     };
     opts.plugins = [
-        new pl({crateRoots: [path.join(__dirname, 'server', 'wasm')]}),
+        // new pl({crateRoots: [path.join(__dirname, 'server', 'wasm')]}),
     ]
     if (env != 'prod'){
         opts.mode = 'development';
