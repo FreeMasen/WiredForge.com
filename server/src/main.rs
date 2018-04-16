@@ -33,7 +33,6 @@ fn main() {
     wf.post("/rsvp", routes::rsvp);
     wf.get("/rsvp", routes::rsvps);
     wf.get("/sertest/native", routes::get_wasm_results);
-    wf.post("/parrot", routes::parrot);
     wf.use_static(static_path);
     wf.add_known_extension(&["wasm"]);
     wf.use_static_logging();
