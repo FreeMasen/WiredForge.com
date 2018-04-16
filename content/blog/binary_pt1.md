@@ -3,6 +3,8 @@ title = "Understanding Binary, Pt 1"
 date = 2018-03-27
 [extra]
 snippet = "A guide to understanding binary from a programmer's perspective"
+image = "bin.png"
+image_desc = "binary series logo"
 +++
 
 If you have been interested in computers for any length of time, someone has probably told you that computers “think” in binary. I am going to try and explain what that means and why you should care. 
