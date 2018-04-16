@@ -53,22 +53,31 @@ function updateResults(id, result) {
 function generateList(name, test) {
     let list = document.createElement('ul');
     list.setAttribute('id', name.toLowerCase());
-    list.appendChild(generateItem(name));
-    list.appendChild(generateItem(`Largest serialized: ${test.largest}`));
-    list.appendChild(generateItem(`Total serialized: ${test.total}`));
-    list.appendChild(generateItem(`Duration: ${(test.end - test.start).toFixed(4)}${test.unit}`));
+    list.appendChild(generateItem(name, ''));
+    list.appendChild(generateItem(`Largest serialized:`, `${test.largest}`));
+    list.appendChild(generateItem(`Total serialized:`, `${test.total}`));
+    list.appendChild(generateItem(`Duration:`, `${(test.end - test.start)}${test.unit}`));
     return list;
 }
 /**
  * Generate a <li> with a specific text inside
- * @param {string} text - Inner text for the <li>
+ * @param {string} name - First span text for the <li>
+ * @param {string?} value - Second span text for the <li> (optional)
  * @returns {HTMLLIElement}
  */
-function generateItem(text) {
+function generateItem(name, value) {
     let item = document.createElement('li');
     item.setAttribute('class', 'test-entry');
-    let inner = document.createTextNode(text);
-    item.appendChild(inner);
+    let nameSpan = document.createElement('span');
+    nameSpan.setAttribute('class', 'entry-name');
+    nameSpan.appendChild(document.createTextNode(name));
+    item.appendChild(nameSpan);
+    if (value) {
+        let valueSpan = document.createElement('span');
+        valueSpan.setAttribute('class', 'entry-value');
+        valueSpan.appendChild(document.createTextNode(value));
+        item.appendChild(valueSpan);
+    }
     return item;
 }
 /**

@@ -1,5 +1,6 @@
 const path = require('path');
 const wp = require('webpack');
+const pl = require('./plugin.js')
 const entries = [
     'pacman',
     'binary_calc',
@@ -53,6 +54,7 @@ module.exports = function(env) {
         },
     };
     opts.plugins = [
+        new pl({crateRoots: [path.join(__dirname, 'server', 'wasm')]}),
     ]
     if (env != 'prod'){
         opts.mode = 'development';

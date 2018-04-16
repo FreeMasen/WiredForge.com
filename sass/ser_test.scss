@@ -6,16 +6,34 @@
     align-content: flex-start;
     align-items: center;
     .result-list {
+        background: #ffffff;
+        filter: invert(5%);
+        box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+        border-radius: 5px;
+        padding: 0 5px 5px;
         h1 {
             text-align: center;
+            margin: 2px 0;
         }
         ul {
             list-style: none;
+            margin: auto;
+            padding: 0;
+            * {
+                font-family: mono;
+            }
             li {
                 &:first-child {
                     font-weight: bold;
                     border-bottom: 1px solid $grey;
                     text-align: center;
+                    display: block;
+                }
+                display: flex;
+                flex-flow: row;
+                justify-content: space-between;
+                .entry-name {
+                    color: #a71d5d;
                 }
             }
         }
