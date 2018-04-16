@@ -4,13 +4,13 @@ draft = false
 [extra]
 snippet = "A simple test of the RMP and Bincode serializated"
 +++
-
+<link type="text/css" rel="stylesheet" href="ser_test.css">
 # Results
 <div id="tests">
-    <ul id="native" class="result-list">
-    </ul>
-    <ul id="wasm"class="result-list">
-    </ul>
+    <div id="native" class="result-list">
+    </div>
+    <div id="wasm"class="result-list">
+    </div>
 </div>
 <script src="js/wasm_ser.js" type="text/javascript"></script>
 
@@ -25,6 +25,7 @@ extern crate rmp_serde;
 extern crate bincode;
 
 use std::ops::Sub;
+use std::fmt::Debug;
 
 use rmp_serde::{to_vec as rmp_ser, from_slice as rmp_de};
 use bincode::{serialize as bin_ser, deserialize as bin_de};
@@ -34,31 +35,49 @@ enum Message {
     Ping, Pong, Chat(String), Nick(String), Me(String)
 }
 
-pub fn get_res_vec<T:Sub<T>>(now: Box<Fn() -> T>, time_unit: &str) -> Vec<String> 
-where <T as std::ops::Sub>::Output: std::fmt::Debug
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TestResult<T> {
+    rmp: Test<T>,
+    bin: Test<T>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Test<T> {
+    start_timestamp: T,
+    end_timestamp: T,
+    time_unit: String,
+    largest: usize,
+    total_size: usize,
+}
+
+pub fn get_res<T:Sub<T>>(now: Box<Fn() -> T>, time_unit: &str) -> TestResult<T>
+where <T as Sub>::Output: Debug
 {
-    let mut data: Vec<String> = vec!();
     let rmp_msgs = msgs();
     let rmp_start = (now)();
     let rmp_res = rmp_test(rmp_msgs);
     let rmp_end = (now)();
-    let rmp_dur = rmp_end - rmp_start;
+    let rmp_test = Test {
+        start_timestamp: rmp_start,
+        end_timestamp: rmp_end,
+        time_unit: String::from(time_unit),
+        largest: rmp_res.0,
+        total_size: rmp_res.1,
+    };
     let bin_msgs = msgs();
     let bin_start = (now)();
     let bin_res = bin_test(bin_msgs);
     let bin_end = (now)();
-    let bin_dur = bin_end - bin_start;
-    data.push(String::from("RMP"));
-    data.push(String::from("----------"));
-    data.push(format!("Largest serialized: {}", &rmp_res.0));
-    data.push(format!("Total serialized: {}", &rmp_res.1));
-    data.push(format!("Duration: {:?}{}", rmp_dur, &time_unit));
-    data.push(String::from("Bincode"));
-    data.push(String::from("----------"));
-    data.push(format!("Largest serialized: {}", &bin_res.0));
-    data.push(format!("Total serialized: {}", &bin_res.1));
-    data.push(format!("Duration: {:?}{}", bin_dur, &time_unit));
-    data
+    let bin_test = Test {
+        start_timestamp: bin_start,
+        end_timestamp: bin_end,
+        time_unit: String::from(time_unit),
+        largest: bin_res.0,
+        total_size: bin_res.1
+    };
+    TestResult {
+        rmp: rmp_test,
+        bin: bin_test,
+    }
 }
 
 fn rmp_test(x: Vec<Message>) -> (usize, usize) {
@@ -110,11 +129,20 @@ fn msgs() -> Vec<Message> {
 ## Native Code
 
 ```rust
-extern crate ser_test;
-use ser_test::run_test;
 
-fn run_test() -> Vec<String> {
-    get_res_vec(Box::new(now), "ns")
+pub fn get_wasm_results(_req: Request) -> Box<Future<Item = Response, Error = Error>> {
+    let resluts = get_res(Box::new(now), "ns");
+    let body = serde_json::to_vec(&resluts);
+    match body {
+        Ok(b) => Box::new(
+            ok(
+                Response::new()
+                    .with_header(ContentLength(b.len() as u64))
+                    .with_body(b)
+            )
+        ),
+        Err(_) => Box::new(ok(r500()))
+    }
 }
 
 fn now() -> u32 {
@@ -126,6 +154,14 @@ fn now() -> u32 {
 ## WASM Code
 
 ```rust
+#![feature(proc_macro, wasm_custom_section, wasm_import_module)]
+extern crate wasm_bindgen;
+extern crate ser_test;
+extern crate serde_json;
+use wasm_bindgen::prelude::*;
+use ser_test::get_res;
+use serde_json::to_string;
+
 #[wasm_bindgen]
 extern {
     type Performance;
@@ -136,8 +172,11 @@ extern {
 
 #[wasm_bindgen]
 pub fn run_test() -> JsValue {
-    let data: Vec<String> = get_res_vec(Box::new(now), "ms");
-    JsValue::from_str(&data.join("\n,"))
+    let data = get_res(Box::new(now), "ms");
+    match to_string(&data) {
+        Ok(data) => JsValue::from_str(&data),
+        Err(_) => JsValue::from_str("Unable to serialize tests")
+    }
 }
 
 fn now() -> f64 {

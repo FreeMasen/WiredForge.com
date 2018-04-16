@@ -1,0 +1,23 @@
+@import 'colors';
+#tests {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+    align-content: flex-start;
+    align-items: center;
+    .result-list {
+        h1 {
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            li {
+                &:first-child {
+                    font-weight: bold;
+                    border-bottom: 1px solid $grey;
+                    text-align: center;
+                }
+            }
+        }
+    }
+}

@@ -1,3 +1,9 @@
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate rmp_serde;
+extern crate bincode;
+
 use std::ops::Sub;
 use std::fmt::Debug;
 
@@ -9,31 +15,49 @@ enum Message {
     Ping, Pong, Chat(String), Nick(String), Me(String)
 }
 
-pub fn get_res_vec<T:Sub<T>>(now: Box<Fn() -> T>, time_unit: &str) -> Vec<String> 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TestResult<T> {
+    rmp: Test<T>,
+    bin: Test<T>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Test<T> {
+    start_timestamp: T,
+    end_timestamp: T,
+    time_unit: String,
+    largest: usize,
+    total_size: usize,
+}
+
+pub fn get_res<T:Sub<T>>(now: Box<Fn() -> T>, time_unit: &str) -> TestResult<T>
 where <T as Sub>::Output: Debug
 {
-    let mut data: Vec<String> = vec!();
     let rmp_msgs = msgs();
     let rmp_start = (now)();
     let rmp_res = rmp_test(rmp_msgs);
     let rmp_end = (now)();
-    let rmp_dur = rmp_end - rmp_start;
+    let rmp_test = Test {
+        start_timestamp: rmp_start,
+        end_timestamp: rmp_end,
+        time_unit: String::from(time_unit),
+        largest: rmp_res.0,
+        total_size: rmp_res.1,
+    };
     let bin_msgs = msgs();
     let bin_start = (now)();
     let bin_res = bin_test(bin_msgs);
     let bin_end = (now)();
-    let bin_dur = bin_end - bin_start;
-    data.push(String::from("RMP"));
-    data.push(String::from("----------"));
-    data.push(format!("Largest serialized: {}", &rmp_res.0));
-    data.push(format!("Total serialized: {}", &rmp_res.1));
-    data.push(format!("Duration: {:?}{}", rmp_dur, &time_unit));
-    data.push(String::from("Bincode"));
-    data.push(String::from("----------"));
-    data.push(format!("Largest serialized: {}", &bin_res.0));
-    data.push(format!("Total serialized: {}", &bin_res.1));
-    data.push(format!("Duration: {:?}{}", bin_dur, &time_unit));
-    data
+    let bin_test = Test {
+        start_timestamp: bin_start,
+        end_timestamp: bin_end,
+        time_unit: String::from(time_unit),
+        largest: bin_res.0,
+        total_size: bin_res.1
+    };
+    TestResult {
+        rmp: rmp_test,
+        bin: bin_test,
+    }
 }
 
 fn rmp_test(x: Vec<Message>) -> (usize, usize) {

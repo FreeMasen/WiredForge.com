@@ -11,12 +11,12 @@ url = "^1.6"
 serde = "^1.0"
 serde_derive = "^1.0"
 serde_json = "^1.0"
-bincode = "1"
-rmp-serde = "0.13.7"
+ser_test = {path = "./ser_test"}
 
 [dependencies.rusqlite]
 version = "0.13.0"
 features = ["bundled"]
 
 [dependencies.pony]
-version = "0.1.7"
+path = "../../pony"
+
