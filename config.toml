@@ -13,7 +13,8 @@ highlight_theme = "inspired-github"
 title = "Wired Forge"
 description = "A blog about software development"
 language_code = "en"
-
+build_search_index = true
+generate_rss = true
 
 [extra]
 # Put all your custom variables here
