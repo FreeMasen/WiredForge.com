@@ -4,7 +4,6 @@
 <div class="page-list">
     {% for page in section.pages %} {% if not page.draft %}
     <a class="post-summary" href="/{{page.path}}index.html">
-
         <h3>{{ page.title }}</h3>
         <span class="sub-title">
             {{ page.date }}
@@ -17,5 +16,27 @@
         </span>
     </a>
     {% endif %} {% endfor %}
+    {% for sub in section.subsections %}
+    <a class="subsection" href={{sub.permalink}}>{{ sub.title }}</a>
+        {% for page in sub.pages %} 
+        {% if not page.draft %}
+        <a class="post-summary" href="/{{page.path}}index.html">
+            <h3>{{ page.title }}</h3>
+            <span class="sub-title">
+                {{ page.date }}
+            </span>
+            {% if page.extra.image %}
+            <img src="/images/{{page.extra.image}}" {% if page.extra.image_desc %} alt="{{page.extra.image_desc}}" {% endif %} height="100"
+            /> {% endif %}
+            <span class="summary">
+                {{page.extra.snippet}}
+            </span>
+        </a>
+        {% endif %} 
+        {% endfor %}
+    {% endfor %}
+    <pre>
+        {{__tera_context}}
+    </pre>
 </div>
 {% endblock content %}

@@ -1,5 +1,5 @@
 +++
-draft = true
+draft = false
 title = "Understanding Binary, Pt 2 number formats"
 date = 2018-08-01
 [extra]
