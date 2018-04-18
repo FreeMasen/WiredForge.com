@@ -1,6 +1,11 @@
 const js = import('./wasm.js');
 
-js.then(getWasmResults);
+js.then(mod => {
+    mod.booted()
+        .then(() => {
+            getWasmResults(mod)
+        });
+});
 
 window.addEventListener('DOMContentLoaded', () => {
     getNativeResults();

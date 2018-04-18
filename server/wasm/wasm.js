@@ -2,9 +2,6 @@
 /* tslint:disable */
 import * as wasm from './wasm_bg';
 
-export function booted() {
-    return wasm.booted;
-}
 
 let slab = [];
 let slab_next = 0;
