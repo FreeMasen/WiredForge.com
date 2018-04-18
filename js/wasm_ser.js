@@ -1,9 +1,10 @@
 const js = import('./wasm.js');
-
+let wasm;
 js.then(mod => {
-    mod.booted()
-        .then(() => {
-            getWasmResults(mod)
+    mod.booted        
+    .then(() => {
+            wasm = mod;
+            getWasmResults()
         });
 });
 
@@ -15,8 +16,10 @@ window.addEventListener('DOMContentLoaded', () => {
  * Execute the tests using the downloaded wasm module
  * @param {WebAssembly.Module} mod - Run the WASM tet and update the dom
  */
-function getWasmResults(mod) {
-    let results = mod.run_test();
+function getWasmResults() {
+    //this should be fine becuse it will rerun right after assignment
+    if (!wasm) return; 
+    let results = wasm.run_test();
     updateResults('wasm', TestResult.fromJson(JSON.parse(results)));
 }
 /**
@@ -38,14 +41,20 @@ function getNativeResults() {
  */
 function updateResults(id, result) {
     let container = ensureListState(id);
+    let refresh = document.createElement('button');
+    refresh.setAttribute('class', 'refresh-button');
     let title = document.createElement('h1');
     title.setAttribute('class', 'test-title');
     if (id == 'native') {
         title.appendChild(document.createTextNode(id.replace('n', 'N')));
+        refresh.addEventListener('click', () => getNativeResults());
+        
     } else if (id == 'wasm') {
+        refresh.addEventListener('click', () => getWasmResults());
         title.appendChild(document.createTextNode(id.toUpperCase()));
     }
     container.appendChild(title);
+    container.appendChild(refresh);
     container.appendChild(generateList('Bincode', result.bin));
     container.appendChild(generateList('RMP', result.rmp));
 }
