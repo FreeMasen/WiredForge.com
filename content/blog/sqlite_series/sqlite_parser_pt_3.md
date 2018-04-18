@@ -1,7 +1,7 @@
 +++
 title = "SQLite Parser Pt. 3: The Header... reorganized"
 date = 2018-01-02
-draft = false
+draft = true
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
 snippet = "This is the second in a series of posts describing the process of building a SQLite file parser"
