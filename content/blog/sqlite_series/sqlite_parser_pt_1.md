@@ -7,11 +7,15 @@ tags = ["sqlite", "integer-storage", "decoding"]
 snippet = "This is the first in a series of posts describing the process of building a SQLite file parser"
 image = "sqlite.gif"
 image_desc = "SQLite Logo"
-series = [
-{title = "SQLite Parser Pt. 1: The Header", link = "/blog/sqlite1/index.html"},
-{title = "SQLite Parser Pt. 2: The Header... continues",link = "/blog/sqlite2/index.html"},
-{title = "SQLite Parser Pt. 3: The Header... reorganized",link = "/blog/sqlite3/index.html"}
-]
+[[series]]
+title = "SQLite Parser Pt. 1: The Header" 
+link = "/blog/sqlite_series/sqlite-parser-pt-1/index.html"
+#[[series]]
+#title = "SQLite Parser Pt. 2: The Header... continues" 
+#link = "/blog/sqlite_series/sqlite-parser-pt-2/index.html"
+#[[series]]
+#title = "SQLite Parser Pt. 3: The Header... reorganized"
+#link = "/blog/sqlite_series/sqlite-parser-pt-3/index.html"
 +++
 
 This is the first in a series of posts describing the process of building a SQLite file parser. A GitHub repo of the finished code can be found [here](https://github.com/FreeMasen/sqlite_parser/tree/wired_forge_pt1)
