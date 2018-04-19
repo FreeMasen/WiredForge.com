@@ -1,5 +1,31 @@
+let wasm;
+let import_obj = {
+    './wasm':     {
+        __wbg_static_accessor_performance_performance: __wbg_static_accessor_performance_performance,
+                __wbg_f_now_now_Performance: __wbg_f_now_now_Performance,
+                run_test: run_test,
+                __wbindgen_object_drop_ref: __wbindgen_object_drop_ref,
+                __wbindgen_string_new: __wbindgen_string_new,
+                __wbindgen_throw: __wbindgen_throw,
+            },
+    __wbindgen_placeholder__:     {
+        __wbg_static_accessor_performance_performance: function() { },
+        __wbg_f_now_now_Performance: function() { },
+        run_test: function() { },
+        __wbindgen_object_drop_ref: function() { },
+        __wbindgen_string_new: function() { },
+        __wbindgen_throw: function() { },
+    },
+};
+export const booted = fetch('./wasm_bg')
+    .then(res => arrayBuffer())
+    .then(bytes => {
+        return WebAssembly.instantiate(bytes, import_obj)
+            .then(obj => {
+            wasm = obj.instance.exports;
+        });
+    });
 /* tslint:disable */
-import * as wasm from './wasm_bg';
 
 let slab = [];
 
@@ -90,4 +116,3 @@ export function __wbindgen_string_new(p, l) {
 export function __wbindgen_throw(ptr, len) {
     throw new Error(getStringFromWasm(ptr, len));
 }
-
