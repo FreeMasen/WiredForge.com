@@ -23,12 +23,14 @@ With that out of the way, now we can start to complicate things.
 The first thing that I want to cover is the concept of larger unsigned integers which means we need to talk about `endianness`. Since the byte is a convient little package, most programming languages interpret arbitrary data as a collection of u8s. So if we wanted to represent 256 we would need 2 bytes, but what order do we put those bytes in? If we just extended the examples from before it might look like this.
 
 ```
+   256        0
 0000 0001 0000 0000
 ```
 
 However, this isn't always the case, the above example would be referred to as a big-endian 16bit unsigned integer since the larger valued u8 is to the left of the smaller valued u8, though the same value can be represented as little-endian which would just flip the position of each u8.
 
 ```
+    0        256
 0000 0000 0000 0001
 ```
 
@@ -38,3 +40,8 @@ The tool below is an interactive example of how the same set of 2 u8s would be r
 
 {{ endian() }}
 
+The main take away here is how to interpret this when you see it in documentation. If you were reading the [SQLite File format document](https://sqlite.org/fileformat2.html#the_database_header) you would see that they store multi-byte integers in the file's header as big endian.
+
+## A tale of two's complement
+
+The other major question that was posed was how to represent negative numbers, for this I am going to cover one method which is referred to as `two's complement`. 
