@@ -1,7 +1,0 @@
-[package]
-name = "wasm-chrome-hack"
-version = "0.1.0"
-authors = ["robert masen <r@robertmasen.pizza>"]
-
-[dependencies]
-clap = "^2"

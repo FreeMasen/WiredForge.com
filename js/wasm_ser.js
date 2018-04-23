@@ -1,11 +1,7 @@
-const js = import('./wasm.js');
-let wasm;
-js.then(mod => {
-    mod.booted        
-    .then(() => {
-            wasm = mod;
-            getWasmResults()
-        });
+import * as wasm from './wasm';
+import * as init from './wasm_bg';
+init.booted.then(() => {
+    getWasmResults();
 });
 
 window.addEventListener('DOMContentLoaded', () => {
