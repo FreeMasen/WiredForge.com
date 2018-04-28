@@ -16,7 +16,6 @@
     </a>
     {% endif %} {% endfor %}
     {% for sub in section.subsections %}
-    <a class="subsection" href={{sub.permalink}}>{{ sub.title }}</a>
         {% for page in sub.pages %} 
         {% if not page.draft %}
         <a class="post-summary" href="/{{page.path}}index.html">
