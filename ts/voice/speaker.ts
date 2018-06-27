@@ -106,7 +106,7 @@ export default class Speaker {
     }
 
     private getEvent(eventType: string): Event {
-        return new CustomEvent<Statement>(eventType, {detail: this.statement});
+        return new CustomEvent(eventType, {detail: this.statement});
     }
 
 }

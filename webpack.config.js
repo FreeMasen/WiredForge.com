@@ -40,15 +40,7 @@ module.exports = function(env) {
             rules: [
                     {
                         test: /\.tsx?$/,
-                        use: [
-                            'thread-loader',
-                            {
-                                loader: "ts-loader",
-                                options: {
-                                    happyPackMode: true
-                                }
-                            }
-                        ]
+                        use: 'awesome-typescript-loader'
                     }
             ]
         },

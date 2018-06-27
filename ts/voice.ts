@@ -164,7 +164,7 @@ class Voice {
     /** */
     doneSpeaking(ev: Event) {
         console.log('doneSpeaking', ev);
-        let s = (ev as CustomEvent<Statement>).detail
+        let s = (ev as CustomEvent).detail as Statement
         if (!s) return;
         s.lastSpoken = new Date();
         let msg: IVoiceMessage = {

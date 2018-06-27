@@ -16,9 +16,13 @@
     </a>
     {% endif %} {% endfor %}
     {% for sub in section.subsections %}
-        {% for page in sub.pages %} 
+        {% for page in sub.pages %}
         {% if not page.draft %}
-        <a class="post-summary" href="/{{page.path}}index.html">
+
+        <a class="post-summary"
+            href="{% if page.extra.extern_link %}{{page.extra.extern_link}}{% else %}/{{page.path}}index.html{% endif %}"
+            {% if page.extra.extern_link %}target="self"{% endif %}
+        >
             <h3>{{ page.title }}</h3>
             <span class="sub-title">
                 {{ page.date }}
