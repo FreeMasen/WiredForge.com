@@ -1,0 +1,81 @@
+@import 'colors';
+
+#box-shadow {
+    width: 100%;
+    min-height: 500px;
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: flex-start;
+    #input-forms {
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        #shadows-list {
+            min-height: 175px;
+            min-width: 400px;
+            display: flex;
+            flex-flow: row wrap;
+            .shadow-container {
+                display: flex;
+                flex-flow: column;
+                justify-content: center;
+                align-items: center;
+                align-content: center;
+                width: 350px;
+                .shadow-form-input-pair {
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: flex-start;
+                    align-items: center;
+                    align-content: flex-start;
+                    padding: 0 5px;
+                    .slider-input-pair {
+                        display: flex;
+                        flex-flow: row;
+                        justify-content: flex-start;
+                        align-items: center;
+                        align-content: flex-start;
+                        input {
+                            width: 40px;
+                            margin-left: 10px;
+                        }
+                    }
+                    .input-slider {
+                        height: 10px;
+                        padding: 2px 5px;
+                        position: relative;
+                        width: 200px;
+                        .slider-bar {
+                            background-color: $grey;
+                            position: absolute;
+                            height: 1px;
+                            top: 4px;
+                            width: 100%;
+                            z-index: 1;
+                        }
+                        .slider-handle {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                            background-color: rgba(0, 180, 255, 1);
+                            position: absolute;
+                            top: 0;
+                            z-index: 2;
+                        }
+                    }
+                }
+                .shadow-color {
+
+                }
+            }
+        }
+    }
+    #target {
+        width: 300px;
+        height: 150px;
+        background: transparent;
+        border: 1px solid $grey;
+    }
+}
+

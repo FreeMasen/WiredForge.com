@@ -1,6 +1,4 @@
 const path = require('path');
-const wp = require('webpack');
-const pl = require('./plugin.js')
 const entries = [
     'pacman',
     'binary_calc',
@@ -15,6 +13,7 @@ const entries = [
     'voiceWorker',
     'xor',
     'binaryNot',
+    'boxShadow',
 ]
 function entry() {
     let ret = {};
@@ -45,9 +44,6 @@ module.exports = function(env) {
             ]
         },
     };
-    opts.plugins = [
-        // new pl({crateRoots: [path.join(__dirname, 'server', 'wasm')]}),
-    ]
     if (env != 'prod'){
         opts.mode = 'development';
         opts.devtool = 'source-map';
