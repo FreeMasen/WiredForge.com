@@ -13,7 +13,7 @@ function oldSchool(text) {
     console.log('oldSchool')
     return new Promise((r, x) => {
         let ta = document.createElement('textarea');
-        ta.setAttribute('style', 'display: none;');
+        ta.setAttribute('style', 'width: 1px, height: 1px;position:absolute;left:-1;top:-1;');
         ta.value = text;
         document.body.appendChild(ta);
         ta.focus();
