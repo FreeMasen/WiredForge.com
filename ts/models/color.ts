@@ -2,10 +2,10 @@ import Text from '../services/text';
 export default class Color {
 
     constructor(
-        public r: number = 0,
-        public g: number = 0,
-        public b: number = 0,
-        public a?: number,
+        public red: number = 0,
+        public green: number = 0,
+        public blue: number = 0,
+        public alpha?: number,
     ) {}
 
     static fromHex(hex: string) {
@@ -36,25 +36,19 @@ export default class Color {
     }
 
     toHex(): string {
-        let r = Text.twoDigit(this.r.toString(16));
-        let g = Text.twoDigit(this.g.toString(16));
-        let b = Text.twoDigit(this.b.toString(16));
+        let r = Text.twoDigit(this.red.toString(16));
+        let g = Text.twoDigit(this.green.toString(16));
+        let b = Text.twoDigit(this.blue.toString(16));
         return `#${r}${g}${b}`;
     }
 
     toRgb(): string {
-        let r = Text.twoDigit(this.r);
-        let g = Text.twoDigit(this.g);
-        let b = Text.twoDigit(this.b);
-        return `rgb(${r}, ${g}, ${b})`;
+        return `rgb(${this.red}, ${this.green}, ${this.blue})`;
     }
 
     toRgbA(): string {
-        let r = Text.twoDigit(this.r);
-        let g = Text.twoDigit(this.g);
-        let b = Text.twoDigit(this.b);
-        let a = this.a || 1;
-        return `rgba(${r}, ${g}, ${b}, ${a})`
+        let a = this.alpha || 1;
+        return `rgba(${this.red}, ${this.green}, ${this.blue}, ${a})`
     }
 }
 

@@ -1,5 +1,6 @@
 import Color from './models/color';
 import Text from './services/text';
+import Clipboard from './services/clipboard';
 let boxShadow;
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -12,7 +13,7 @@ class BoxShadow {
     ) {
         this.registerEventListeners();
         this.render();
-        requestAnimationFrame(() => this.updateBoxShadow());
+        this.updateBoxShadow();
     }
 
     render() {
@@ -33,11 +34,39 @@ class BoxShadow {
     }
 
     updateBoxShadow() {
+        console.log('updateBoxShadow', this.shadows.length);
         let target = document.getElementById('target');
         if (!target) return console.error('Unable to find target container');
-        let newValue = `${this.shadows.map(s => s.toString()).join(', ')};`;
+        let newValue = this.getBoxShadowProperty();
         target.setAttribute('style', `box-shadow: ${newValue}`);
-        setTimeout(() => this.updateBoxShadow(), 1000);
+        requestAnimationFrame(() => this.updateBoxShadow());
+    }
+
+    copyCss(ev: MouseEvent) {
+        console.log(ev);
+        let css =this.getBoxShadowProperty();
+        Clipboard.copy(css).then(() => {
+            this.showPopup(`copied: '${css}'`, ev.pageY + 15, ev.pageX + 10);
+        })
+        .catch(e => {
+            console.error('Error copying text', e);
+        });
+    }
+
+    showPopup(msg, top, left) {
+        let popup = document.createElement('div');
+        let text = document.createElement('span');
+        text.appendChild(document.createTextNode(msg));
+        popup.setAttribute('class', 'clipboard-popup');
+        let clientWidth = document.body.getBoundingClientRect().width;
+        popup.setAttribute('style', `position: absolute;top: ${top}px;left: ${left}px;max-width: ${clientWidth - left};`);
+        popup.appendChild(text);
+        document.body.appendChild(popup);
+        setTimeout(() => document.body.removeChild(popup), 2000);
+    }
+
+    getBoxShadowProperty(): string {
+        return this.shadows.map(s => s.toString()).join(',');
     }
 
     registerEventListeners() {
@@ -47,21 +76,34 @@ class BoxShadow {
             this.shadows.push(Shadow.random());
             setTimeout(this.render(), 0);
         });
+        let copy = document.getElementById('copy-css-property');
+        if (!copy) return console.error('Unable to find copy button');
+        copy.addEventListener('click', ev => this.copyCss(ev));
     }
 
     constructShadowForm(shadow: Shadow, i: number): HTMLDivElement {
-        console.log('constructShadowForm', shadow, i);
         let ret = document.createElement('div');
         ret.setAttribute('class', 'shadow-container');
         ret.setAttribute('id', `shadow-container-${i}`);
+        let titleContainer = document.createElement('div');
+        titleContainer.setAttribute('class', 'shadow-form-title-container');
         let title = document.createElement('h3');
         title.appendChild(document.createTextNode(`Shadow ${i + 1}`));
-        ret.appendChild(title);
+        titleContainer.appendChild(title);
+        let removeButton = document.createElement('button');
+        removeButton.setAttribute('class', 'remove-form-button button');
+        removeButton.appendChild(document.createTextNode('X'));
+        titleContainer.appendChild(removeButton);
+        ret.appendChild(titleContainer);
         ret.appendChild(this.constructShadowFormPair('offset-x', shadow.offsetX,i, false, -10));
         ret.appendChild(this.constructShadowFormPair('offset-y', shadow.offsetY, i, false, -10));
         ret.appendChild(this.constructShadowFormPair('blur-radius', shadow.blurRadius, i, false));
         ret.appendChild(this.constructShadowFormPair('spread-radius', shadow.spreadRadius, i, false, -10));
         ret.appendChild(this.constructShadowColor(shadow.color, i));
+        removeButton.addEventListener('click', () => {
+            ret.parentElement.removeChild(ret);
+            this.deleteShadow(i)
+        });
         return ret;
     }
 
@@ -82,10 +124,10 @@ class BoxShadow {
         ret.appendChild(title);
         let mixer = document.createElement('div');
         mixer.setAttribute('class', 'shadow-color-set');
-        mixer.appendChild(this.constructShadowColorProp('Red', c.r, i));
-        mixer.appendChild(this.constructShadowColorProp('Green', c.g, i));
-        mixer.appendChild(this.constructShadowColorProp('Blue', c.b, i));
-        mixer.appendChild(this.constructShadowColorProp('Alpha', c.a, i, 1));
+        mixer.appendChild(this.constructShadowColorProp('Red', c.red, i));
+        mixer.appendChild(this.constructShadowColorProp('Green', c.green, i));
+        mixer.appendChild(this.constructShadowColorProp('Blue', c.blue, i));
+        mixer.appendChild(this.constructShadowColorProp('Alpha', c.alpha, i, 1));
         ret.appendChild(mixer);
         return ret;
     }
@@ -128,14 +170,17 @@ class BoxShadow {
             input.setAttribute('value', newValue.toFixed(2));
         }
         let shadow = this.shadows[detail.containerId];
-        console.log('eventHandler', shadow);
         if (detail.isColor) {
             shadow.color[detail.name] = newValue;
         } else {
             shadow[detail.name] = newValue;
         }
         this.shadows[detail.containerId] = shadow;
-        this.updateBoxShadow();
+    }
+
+    deleteShadow(idx: number) {
+        console.log('deleteShadow', idx);
+        this.shadows.splice(idx, 1);
     }
 }
 
@@ -167,8 +212,10 @@ class Slider {
     private currentPosition;
     private container: HTMLDivElement;
     private slider: HTMLDivElement;
+    private bar: HTMLDivElement;
     private dragCb;
     private endDragCb;
+    private lastX: number;
     constructor(
         private containerId: number,
         private isColor: boolean,
@@ -187,10 +234,11 @@ class Slider {
         let bar = document.createElement('div');
         bar.setAttribute('class', 'slider-bar');
         ret.appendChild(bar);
+        this.bar = bar;
         let slider = document.createElement('div');
         this.slider = slider;
         slider.setAttribute('class', 'slider-handle');
-        slider.addEventListener('mousedown', () => this.startDrag());
+        slider.addEventListener('mousedown', ev => this.startDrag(ev));
         ret.appendChild(slider);
         this.updateSlider();
         return ret;
@@ -201,10 +249,12 @@ class Slider {
     }
 
     drag(ev) {
-        let width = this.container.getBoundingClientRect().width;
-        let percentMoved = ev.movementX / width;
+        let width = this.bar.getBoundingClientRect().width;
+        let movementX = ev.clientX - this.lastX;
+        this.lastX = ev.clientX;
+        let percentMoved = movementX / width;
         let totalSpread = this.maxValue - this.minValue;
-        this.currentPosition += percentMoved * (totalSpread + this.minValue);
+        this.currentPosition += percentMoved * (totalSpread);
         if (this.currentPosition < this.minValue) {
             this.currentPosition = this.minValue;
         }
@@ -219,7 +269,8 @@ class Slider {
         this.container.dispatchEvent(new CustomEvent('value-changed', {detail: this.eventDetail(fromInputUpdate)}));
     }
 
-    startDrag() {
+    startDrag(ev: MouseEvent) {
+        this.lastX = ev.clientX;
         this.dragCb = this.drag.bind(this);
         this.endDragCb = this.endDrag.bind(this);
         window.addEventListener('mousemove', this.dragCb);

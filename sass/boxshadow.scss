@@ -23,6 +23,25 @@
                 align-items: center;
                 align-content: center;
                 width: 350px;
+                position: relative;
+                .shadow-form-title-container {
+                    width: 100%;
+                    h3 {
+                        display: block;
+                        margin: auto;
+                        text-align: center;
+                    }
+                    button {
+                        position: absolute;
+                        right: 5px;
+                        top: 5px;
+                        padding: 4px 5px;
+                        background: $red;
+                        font-weight: bold;
+                        border: none;
+                        border-radius: 5px;
+                    }
+                }
                 .shadow-form-input-pair {
                     display: flex;
                     flex-flow: column;
@@ -68,6 +87,18 @@
                 .shadow-color {
 
                 }
+            }
+        }
+        #shadows-button-container {
+            display: flex;
+            flex-flow: row;
+            justify-content: space-between;
+            button {
+                padding: 4px 10px;
+                background: $blue;
+                font-size: 14pt;
+                border: 0;
+                border-radius: 5px;
             }
         }
     }

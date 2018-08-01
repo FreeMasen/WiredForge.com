@@ -15,6 +15,7 @@ const entries = [
     'binaryNot',
     'boxShadow',
 ]
+
 function entry() {
     let ret = {};
     for (let entry of entries) {
@@ -23,7 +24,7 @@ function entry() {
     ret['wasm_ser'] = path.join(__dirname, 'js', 'wasm_ser.js');
     return ret;
 }
-module.exports = function(env) {
+module.exports = function (env) {
     let opts = {
         entry: entry(),
         output: {
@@ -36,15 +37,13 @@ module.exports = function(env) {
             extensions: ['.ts', '.tsx', '.js', '.jsx', '.wasm']
         },
         module: {
-            rules: [
-                    {
-                        test: /\.tsx?$/,
-                        use: 'awesome-typescript-loader'
-                    }
-            ]
+            rules: [{
+                test: /\.tsx?$/,
+                use: 'awesome-typescript-loader'
+            }]
         },
     };
-    if (env != 'prod'){
+    if (env != 'prod') {
         opts.mode = 'development';
         opts.devtool = 'source-map';
     } else {

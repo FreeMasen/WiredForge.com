@@ -22,7 +22,7 @@ export default class Text {
                 capitalize = false;
                 return c.toUpperCase();
             }
-            return c;
+            return c.toLowerCase();
         }).join('')
     }
 }
