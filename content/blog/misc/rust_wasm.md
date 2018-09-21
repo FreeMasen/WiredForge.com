@@ -5,7 +5,7 @@ draft = false
 tags = ["rust", "wasm"]
 [extra]
 snippet = "Getting started with Rust and Web Assembly"
-image = "R_W.png"
+image = "rust-wasm-logo-purple.png"
 image_desc = "Rust and Wasm"
 extern_link = "https://freemasen.github.io/wasm_tutorial"
 +++
