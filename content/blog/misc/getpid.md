@@ -1,5 +1,5 @@
 +++
-title = "ps | grep | head | sed | cut | rust"
+title = "From Bash to Rust"
 date = 2018-09-21
 draft = false
 tags = ["rust", "bindgen", "interop", "unix"]
