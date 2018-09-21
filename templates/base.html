@@ -9,16 +9,232 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <meta name="msapplication-TileColor" content="#0E2B5E"/>
+    <meta name="msapplication-TileColor" content="#0E2B5E" />
     <link type="text/plain" rel="author" href="/humans.txt" />
     <title>Wired Forge</title>
     <style>
-        {% raw %}
-        *{box-sizing:border-box;font-family:'Raleway-light'}body,html{width:100%;height:100%;margin:0;padding:0;border:0}body{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-start}pre,blockquote{border-radius:5px;padding:0px 10px 10px;display:inline-block;max-width:100%;white-space:pre-wrap;box-shadow:2px 2px 2px 1px rgba(0,0,0,0.5)}pre>span{font-family:mono}text{font-family:'Raleway-light'}@media (max-width: 841px){#nav-sidebar .site-description{display:none}#nav-sidebar .nav-button{font-size:12pt}#nav-sidebar .nav-button span{display:none}#content-wrapper{display:flex;flex-direction:column-reverse;width:80%;height:100%;justify-content:flex-end;align-items:center}#content-wrapper #content{width:100%;padding:5px}#content-wrapper #ad-bar{width:100%;height:75px;background:rgba(0,0,0,0.5)}}@media (min-width: 841px){#content-wrapper{display:flex;flex-flow:row;width:80%;height:100%;justify-content:space-between;align-items:flex-start}#content-wrapper #content{padding:50px 25px;flex-grow:1;flex-shrink:1;padding-bottom:25px}#content-wrapper #ad-bar{width:150px;height:100%;flex-grow:0;flex-shrink:0;background:rgba(0,0,0,0.5)}}#nav-sidebar{width:20%;height:100%;flex-grow:0;flex-shrink:0;display:flex;flex-flow:column;box-shadow:2px 1px 4px 1px rgba(0,0,0,0.5)}#nav-sidebar .icon-wrapper{padding:20px 10px 10px 10px}#nav-sidebar .site-description{font-size:16pt;margin-left:10px}#nav-sidebar a{text-decoration:none;color:unset}#nav-sidebar a:visited,#nav-sidebar a:active{color:unset}#nav-sidebar a svg{width:35px;height:35px;margin-left:10px}#nav-sidebar a svg .icon-background,#nav-sidebar a svg .cutout{fill:rgba(0,180,255,0.5);stroke:none}#nav-sidebar a svg #lines{stroke:rgba(0,180,255,0.5);fill:none}#nav-sidebar a svg .icon{fill:white;font-size:70pt}#nav-sidebar .nav-button,#nav-sidebar .nav-button:visited{display:flex;flex-flow:row;align-items:center;justify-content:space-between;width:calc(100% - 10px);padding:20px 10px 20px 10px;box-shadow:1px 1px 4px 1px rgba(0,0,0,0.5);text-decoration:none;color:rgba(0,0,0,0.5);margin-top:10px;font-size:20pt;font-weight:bold;margin-left:10px}#nav-sidebar .nav-button:hover{box-shadow:1px 1px 2px 1px rgba(0,180,255,0.5)}#nav-sidebar .nav-button:active{transform:translate(4, -4)}blockquote,blockquote>*{margin:0}blockquote{box-shadow:1px 1px 2px 1px rgba(0,180,255,0.5)}input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.clipboard-popup {padding: 2px;z-index: 1000;box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.5); background: white; border: 1px solid rgba(0,0,0,0.5);white-space: pre-wrap;word-wrap: break-word;}
-            @font-face{font-family:'Raleway-light';font-style:normal;font-weight:300;src:url("fonts/Raleway.Light.woff2")}@font-face{font-family:'Raleway-regular';font-style:normal;font-weight:400;src:url("fonts/Raleway.Regular.ext.woff2")}@font-face{font-family:'mono';src:url("fonts/ShareTechMono-Regular.ttf")}
-        {% endraw %}
+        { % raw % }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Raleway-light'
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            border: 0
+        }
+
+        body {
+            display: flex;
+            flex-flow: row;
+            justify-content: space-between;
+            align-items: flex-start
+        }
+
+        pre,
+        blockquote {
+            border-radius: 5px;
+            padding: 5px 10px 10px;
+            display: inline-block;
+            max-width: 100%;
+            white-space: pre-wrap;
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.5)
+        }
+
+        pre>span {
+            font-family: mono
+        }
+
+        text {
+            font-family: 'Raleway-light'
+        }
+
+        @media (max-width: 841px) {
+            #nav-sidebar .site-description {
+                display: none
+            }
+
+            #nav-sidebar .nav-button {
+                font-size: 12pt
+            }
+
+            #nav-sidebar .nav-button span {
+                display: none
+            }
+
+            #content-wrapper {
+                display: flex;
+                flex-direction: column-reverse;
+                width: 80%;
+                height: 100%;
+                justify-content: flex-end;
+                align-items: center
+            }
+
+            #content-wrapper #content {
+                width: 100%;
+                padding-top: 5px;
+                padding-left: 5px;
+                padding-right: 15px;
+                padding-bottom: 25px;
+            }
+        }
+
+        @media (min-width: 841px) {
+            #content-wrapper {
+                display: flex;
+                flex-flow: row;
+                width: 80%;
+                height: 100%;
+                justify-content: space-between;
+                align-items: flex-start
+            }
+
+            #content-wrapper #content {
+                padding: 50px 25px;
+                padding-top: 50px;
+                padding-bottom: 25px;
+                padding-left: 25px;
+                padding-right: 25px;
+                flex-grow: 1;
+                flex-shrink: 1;
+            }
+        }
+
+        #nav-sidebar {
+            width: 20%;
+            height: 100%;
+            flex-grow: 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-flow: column;
+            box-shadow: 2px 1px 4px 1px rgba(0, 0, 0, 0.5)
+        }
+
+        #nav-sidebar .icon-wrapper {
+            padding: 20px 10px 10px 10px
+        }
+
+        #nav-sidebar .site-description {
+            font-size: 16pt;
+            margin-left: 10px
+        }
+
+        #nav-sidebar a {
+            text-decoration: none;
+            color: unset
+        }
+
+        #nav-sidebar a:visited,
+        #nav-sidebar a:active {
+            color: unset
+        }
+
+        #nav-sidebar a svg {
+            width: 35px;
+            height: 35px;
+            margin-left: 10px
+        }
+
+        #nav-sidebar a svg .icon-background,
+        #nav-sidebar a svg .cutout {
+            fill: rgba(0, 180, 255, 0.5);
+            stroke: none
+        }
+
+        #nav-sidebar a svg #lines {
+            stroke: rgba(0, 180, 255, 0.5);
+            fill: none
+        }
+
+        #nav-sidebar a svg .icon {
+            fill: white;
+            font-size: 70pt
+        }
+
+        #nav-sidebar .nav-button,
+        #nav-sidebar .nav-button:visited {
+            display: flex;
+            flex-flow: row;
+            align-items: center;
+            justify-content: space-between;
+            width: calc(100% - 10px);
+            padding: 20px 10px 20px 10px;
+            box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.5);
+            text-decoration: none;
+            color: rgba(0, 0, 0, 0.5);
+            margin-top: 10px;
+            font-size: 20pt;
+            font-weight: bold;
+            margin-left: 10px
+        }
+
+        #nav-sidebar .nav-button:hover {
+            box-shadow: 1px 1px 2px 1px rgba(0, 180, 255, 0.5)
+        }
+
+        #nav-sidebar .nav-button:active {
+            transform: translate(4, -4)
+        }
+
+        blockquote,
+        blockquote>* {
+            margin: 0
+        }
+
+        blockquote {
+            box-shadow: 1px 1px 2px 1px rgba(0, 180, 255, 0.5)
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0
+        }
+
+        .clipboard-popup {
+            padding: 2px;
+            z-index: 1000;
+            box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.5);
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @font-face {
+            font-family: 'Raleway-light';
+            font-style: normal;
+            font-weight: 300;
+            src: url("fonts/Raleway.Light.woff2")
+        }
+
+        @font-face {
+            font-family: 'Raleway-regular';
+            font-style: normal;
+            font-weight: 400;
+            src: url("fonts/Raleway.Regular.ext.woff2")
+        }
+
+        @font-face {
+            font-family: 'mono';
+            src: url("fonts/ShareTechMono-Regular.ttf")
+        }
+
+            { % endraw % }
     </style>
 </head>
+
 <body>
     <aside id="nav-sidebar">
         <div id="icon-wrapper" class="icon-wrapper" title="Wired Forge">
@@ -35,20 +251,21 @@
                         <stop id="leader" offset="0%" stop-color="rgba(0,0,0,0.3)" />
                     </linearGradient>
                 </defs>
-                <path id="main-panel" class="box-section" clip-path="url(#clip-name)" fill="url(#pattern)" stroke="none" stroke-width="1"
-                    stroke-linecap="round" stroke-linejoin="round" d="
+                <path id="main-panel" class="box-section" clip-path="url(#clip-name)" fill="url(#pattern)" stroke="none"
+                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="
                     M 0 0
                     l 99 0
                     l 0 20
                     l -99 0
                     z" />
-                <path fill="rgba(0, 180, 255, 0.5)" class="box-section" stroke="none" stroke-linecap="round" stroke-linejoin="round" d="M 5 0
+                <path fill="rgba(0, 180, 255, 0.5)" class="box-section" stroke="none" stroke-linecap="round"
+                    stroke-linejoin="round" d="M 5 0
                     l -5 5
                     l 0 15
                     l 5 -5
                     z" />
-                <path fill="url(#pattern)" class="box-section" stroke="none" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round"
-                    d="M 5.25 15.5
+                <path fill="url(#pattern)" class="box-section" stroke="none" stroke-width="0.25" stroke-linecap="round"
+                    stroke-linejoin="round" d="M 5.25 15.5
                     l -5 5
                     l 95 0
                     l 5 -5" />
@@ -113,8 +330,7 @@
                 <path class="cutout" stroke-width="4" stroke="black" d="
                                     M 74 63
                                     a 10 10 0 0 1 -30 -5
-                                        "
-                />
+                                        " />
             </svg>
         </a>
         <a title="About" class="nav-button" href="/about/index.html">
@@ -343,6 +559,22 @@
 
         function createSvgElement(name) {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
+        }
+        /**
+         * @param {HTMLDivElement} el
+         **/
+        function hideContent(el) {
+            console.log('hideContent', el);
+            let content = el.parentElement.children[1];
+            console.log(content);
+            let currentClass = content.getAttribute('class');
+            let newClass;
+            if (currentClass.indexOf('hidden') > -1) {
+                newClass = currentClass.replace(' hidden');
+            } else {
+                newClass = currentClass + ' hidden';
+            }
+            content.setAttribute('class', newClass);
         }
     </script>
 </body>

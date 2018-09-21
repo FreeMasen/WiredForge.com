@@ -1,4 +1,5 @@
 #content {
+    width: 100%;
     pre,
     p,
     blockquote, {
@@ -27,12 +28,12 @@ pre {
     overflow-x: auto;
     max-width: 100%;
     white-space: pre;
-    filter: invert(5%);
+    min-width: 75%;
 }
 code {
     font-family: 'mono';
-    background: rgba(0,0,0,0.5);
-    color: white;
+    background: #31333d;
+    color: #ffffffc4;
     border-radius: 2px;
     padding: 0 2px;
 }
@@ -68,5 +69,21 @@ code {
         th {
             border: 2px solid black;
         }
+    }
+}
+.hidable {
+    .hider {
+        cursor: pointer;
+    }
+    .hidable-content {
+        &.hidden {
+            display: none;
+        }
+    }
+}
+
+@media (min-width: 841px) {
+    pre {
+        min-width: 75%;
     }
 }
