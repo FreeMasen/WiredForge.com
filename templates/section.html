@@ -21,7 +21,7 @@
 
         <a class="post-summary"
             href="{% if page.extra.extern_link %}{{page.extra.extern_link}}{% else %}/{{page.path}}index.html{% endif %}"
-            {% if page.extra.extern_link %}target="self"{% endif %}
+            {% if page.extra.extern_link %}target="_blank" rel="noopener noreferrer"{% endif %}
         >
             <h3>{{ page.title }}</h3>
             <span class="sub-title">
