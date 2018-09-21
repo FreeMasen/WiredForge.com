@@ -5,7 +5,7 @@ draft = false
 tags = ["rust", "bindgen", "interop", "unix"]
 [extra]
 snippet = "Rebuilding a bash script as a rust program"
-image = "rust-logo-blk.svg"
+image = "rust-logo-blk.png"
 image_desc = "Rust"
 +++
 Over the past year, I have found myself creating some kind of redeploy script for long running services, like web-servers. I got tired of looking up the pid for a process and then typing out the kill command. A redeploy script, for me, looks something like this.
