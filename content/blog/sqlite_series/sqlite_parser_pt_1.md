@@ -8,7 +8,7 @@ snippet = "This is the first in a series of posts describing the process of buil
 image = "sqlite.gif"
 image_desc = "SQLite Logo"
 [[series]]
-title = "SQLite Parser Pt. 1: The Header" 
+title = "SQLite Parser Pt. 1: The Header"
 link = "/blog/sqlite_series/sqlite-parser-pt-1/index.html"
 #[[series]]
 #title = "SQLite Parser Pt. 2: The Header... continues" 

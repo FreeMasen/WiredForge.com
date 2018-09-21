@@ -1,5 +1,5 @@
 +++
 render = true
 title = "Utilities"
-sort_by = "order"
+sort_by = "weight"
 +++

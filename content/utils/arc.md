@@ -1,6 +1,6 @@
 +++
 title = "Arc drawing utility"
-order = 5
+weight = 5
 [extra]
 snippet = "A utility for understanding how arcs are drawn in the HTML5 canvas"
 +++
