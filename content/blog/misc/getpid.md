@@ -8,10 +8,12 @@ snippet = "Rebuilding a bash script as a rust program"
 image = "rust-logo-blk.png"
 image_desc = "Rust"
 +++
-Over the past year, I have found myself creating some kind of redeploy script for long running services, like web-servers. I got tired of looking up the pid for a process and then typing out the kill command. A redeploy script, for me, looks something like this.
+Over the past year, I have found myself writing bash scripts to automate redeploying my long running services. The process of pulling down changes, re-building the binary, packaging any javascript, killing the old process and starting the new process is something that seemed like it should be easy to automate. The only difficult thing about it would be looking up the old pid to kill the old process, otherwise it is somewhat straight forward. The redeploy script I came up with looks something like this.
 
 ```sh
 git pull
+npm install
+webpack
 cargo build --release
 echo finding old pid
 ID=`ps ax -o pid,args | egrep "[w]iredforge" | head -1 | sed -e 's/^[ \t]*// ' | cut -d ' ' -f 1`
@@ -22,7 +24,7 @@ else
     kill -kill $ID
 fi
 echo starting server
-./target/release/wiredforge
+nohup ./target/release/wiredforge > wiredforge.log &
 ```
 
 The key line we are going to concentrate on is:
@@ -48,7 +50,7 @@ Now that I have a clean list of pids and processes running, I pass that over to 
 2222 wiredforge
 ```
 
-To make sure I only have one line I pass the result of `egrep` to `head` which will just truncate the result to the first new line. Then I pass the result to `sed`, a stream editor, with the argument `s/^[ \t]*//`, by passing the `s` flag, I am telling `sed` that I want to do a substitution and the syntax here is `/[target]/[new value]/`. So `/^[ \t]*//` is saying replace any combinations of space or tab at the start of the text with nothing, effectively trimming any leading whitespace. Finally we pass the output of `sed` to `cut` with the arguments `d` which takes in the deliminator and the flag `f` which takes the desired position of the result, so split the text on a space and give me the first one. All of that together should I should end up with `2222`
+To make sure I only have one line I pass the result of `egrep` to `head` which will just truncate the result to the first new line. Then I pass the result to `sed`, a stream editor, with the argument `s/^[ \t]*//`, by passing the `s` flag, I am telling `sed` that I want to do a substitution and the syntax here is `/[target]/[new value]/`. So `/^[ \t]*//` is saying replace any combinations of space or tab at the start of the text with nothing, effectively trimming any leading whitespace. Finally we pass the output of `sed` to `cut` with the arguments `d` which takes in the deliminator and the flag `f` which takes the desired position of the result, so split the text on spaces and give me the first part. All of that together should I should end up with `2222`
 
 This works ok, though it is difficult to remember when I want to add a redeploy script to a new long running process. So I decided I wanted to build a small program that would do most of this for me, *not in bash*.
 
@@ -73,7 +75,7 @@ fn parse_line(line: &str) -> Option<(String, String)> {
 
 ```
 
-This works out ok, though I have to worry about how I want to search the process and it just feels a little bit hacky. In addition, I found that more than 2 columns and you can't guarantee that the output will be complete, it sometimes gets truncated which would be an issue. Looking into how `ps` gets its information I learned about `procfs`, which is a virtual file system used by some unix-like systems to provide process information to users. The basic idea of `procfs` is that you can navigate to the folder `/proc` and in it there will be a folder for each process running, named with its pid. It has a lot more to offer than I can cover here but this is the thing we are most interested in. To give you an idea, it looks something like this.
+This works out ok, though I have to worry about how I want to search the process and it just feels a little bit hacky. In addition, I found that more than 2 columns and you can't guarantee that the output will be complete, it sometimes gets truncated which would be an issue if I wanted to extend this to include python or nodejs programs. Looking into how `ps` gets its information I learned about `procfs` which is a virtual file system used by some unix-like systems to provide process information to users. The basic idea of `procfs` is that you can navigate to the folder `/proc` and in it there will be a folder for each process running, named with its pid. It has a lot more to offer than I can cover here but this is the thing we are most interested in. To give you an idea, it looks something like this.
 
 ```sh
 cd /proc
@@ -81,17 +83,17 @@ ls
 1 1111 2222 3333 444 6666
 ```
 
-In each of these folders there is additional information about that process as files. The one I am primarily concerned with is `comm`, this has one line which is the executable name that started the process. Some others that are nice include `cmdline` which lists the full command line arguments used and `exe` which is a symlink to the actual executable. For this, for my program I only really need the `comm` information.
+In each of these folders there is additional information about that process as files. The one I am primarily concerned with is `comm`, this has one line which is the executable name that started the process. Some others that are nice include `cmdline` which lists the full command line arguments used and `exe` which is a symlink to the actual executable. For for my program I only really need the `comm` information.
 
 ```sh
 tail /proc/2222/comm
 wiredforge
 ```
 
-Now this should be easy, just loop over the `/proc` folder and log each directory's name as a pid, then read the contents of `comm` in that folder for the process name. I chose to use the `walkdir` library to make the loop a little easier.
+So, the basic flow would be to loop over the `/proc` folder's contents and log each **directory**'s name as a pid, then read the contents of `comm` in that folder for the process name. I chose to use the `walkdir` library to make the loop a little easier.
 
 ```rust
-fn get_processes() -> Vec<(String, String)> {
+fn get_processes() -> Vec<(usize, String)> {
     // loop over the files in /proc
     // min_depth(1) mean we don't want proc
     // max_depth(1) means we don't want to go into any directories that are inside of proc
@@ -99,11 +101,11 @@ fn get_processes() -> Vec<(String, String)> {
     // want to have to deal with that.
     // filter_map takes a function that returns an Option, so we can offload the actual
     // processing to process_entry
-    // then collect what makes it through into a Vec<(String, String)>
+    // then collect what makes it through into a Vec<(usize, String)>
     WalkDir::new("/proc").min_depth(1).max_depth(1).filter_map(process_entry).collect()
 }
 
-fn process_entry(entry: Result<Entry, walkdir::Error>) -> Option<(String, String)> {
+fn process_entry(entry: Result<Entry, walkdir::Error>) -> Option<(usize, String)> {
     // pull the actual entry out of the result
     // returning None if it fails
     let entry = entry.ok()?;
@@ -114,6 +116,9 @@ fn process_entry(entry: Result<Entry, walkdir::Error>) -> Option<(String, String
     // try and convert the file name from an OsStr into an &str
     // returning None if it fails
     let pid = entry.file_name().to_str().ok()?.to_string();
+    // try and parse that into a usize if the folder name isn't
+    // a number we can just skip it
+    let pid: usize = pid.parse().ok()?;
     // read the contents of the comm file to a string
     // returning None if it fails
     let comm = ::std::io::read_to_string(entry.path().join("comm")).ok()?;
@@ -179,9 +184,9 @@ The one thing I will note here is that it is important we are logging to `stderr
 cargo run -- getpid
 8888
 ```
-That works great for my Ubuntu server but macos doesn't utilize procfs so on the computer I do most of my development, it will fail. Less important but it would still be nice to use it in both places.
+That works great for my Ubuntu server but macOS doesn't utilize procfs, so on the computer I do most of my development, it will fail. Less important but it would still be nice to use it in both places.
 
-Looking into how I would get pids and process names from the macOS Kernal, I learned about an interface called `sysctl`.  This is the primary way for programs to get information about the system they are running on. The api for this is defined in a c header file called `sys/sysctl.h`, that means we can use the tool `bindgen` to make a rust bindings file for us. To start, we need to get bindgen, one way to do that is by having cargo install it.
+Looking into how I would get pids and process names from macOS, I learned about an interface called `sysctl`.  This is the primary way for programs to get information about the system they are running on. The api for this is defined in a c header file called `sys/sysctl.h`, that means we can use the tool `bindgen` to make a rust bindings file for us. To start, we need to get bindgen, one way to do that is by having cargo install it.
 
 ```sh
 cargo install bindgen
@@ -193,7 +198,7 @@ The above command will download the rust source, compile it for you and then put
 #include <sys/sysctl>
 ```
 
-That is all you need to include in your file, I named my `wrapper.h`. Once this is done we are going to run bindgen.
+That is all you need to include in your file, I named mine `wrapper.h`. Once this is done we are going to run bindgen.
 
 ```sh
 bindgen ./wrapper.h -o ./src/bindings.rs
@@ -208,7 +213,7 @@ This will generate a file for us with all of the definitions we will need. At th
 #![allow(unused)]
 ```
 
-This will silence all the warnings, there are a lot of warnings. Once that is done we want to declare it in our `main.rs` file. We need to make sure that it only gets included if we are on a mac though so we are going to add a `cfg` attribute. I am going to also add a second module that will act as our interface for these bindings.
+This will silence all the warnings, there are a lot of warnings. Once that is done we want to declare it in our `main.rs` file. We need to make sure that it only gets included if we are compiling on a mac though so we are going to add a `cfg` attribute. I am going to also add a second module that will act as our interface for these bindings called `sysctl`.
 
 ```rust
 #[cfg(target_os = "macos")]
@@ -227,7 +232,7 @@ pub fn get_processes() -> Vec<(String, String)> {
 }
 ```
 
-Now we are going to start using the bindings, this can get a little hairy since we will lose all of the rust niceties. Our goal is going to be to reproduce [this](https://stackoverflow.com/questions/7729245/can-i-use-sysctl-to-retrieve-a-process-list-with-the-user#7733928) c but with a few twists. Essentially we will be building a `Vec` of `kinfo_proc`s from raw memory and then returning the `kp_proc.p_pid` and `kp_proc.p_comm` properties as strings. To start we need to create some variables.
+Now we are going to start using the bindings, this can get a little hairy since when interoperating with c we will lose all of the rust niceties. Our goal is going to be to reproduce [this](https://stackoverflow.com/questions/7729245/can-i-use-sysctl-to-retrieve-a-process-list-with-the-user#7733928) stack overflow answer but with a few twists. Essentially we will be building a `Vec` of `kinfo_proc`s from raw memory and then returning the `kp_proc.p_pid` and `kp_proc.p_comm` properties as strings. To start we need to create some variables.
 
 ```rust
 // this resolves in sysctl to kern.procs.all
