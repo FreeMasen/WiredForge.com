@@ -17,7 +17,12 @@
 
         * {
             box-sizing: border-box;
-            font-family: 'Raleway-light'
+            font-family: 'Raleway-light';
+            text-rendering: optimizeLegibility;
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
         }
 
         body,
@@ -27,14 +32,16 @@
             max-width: 100%;
             margin: 0;
             padding: 0;
-            border: 0
+            border: 0;
+            text-rendering: optimizeLegibility;
         }
 
         body {
             display: flex;
             flex-flow: row;
             justify-content: space-between;
-            align-items: flex-start
+            align-items: flex-start;
+            background: #fff;
         }
 
         pre,
@@ -52,7 +59,9 @@
         }
 
         text {
-            font-family: 'Raleway-light'
+            font-family: 'Raleway-light';
+            white-space: nowrap;
+            display: block;
         }
 
         @media (max-width: 841px) {
@@ -246,9 +255,9 @@
                         </text>
                     </clipPath>
                     <linearGradient id="pattern">
-                        <stop id="trailer" offset="0%" stop-color="rgba(0,0,0,0.3)" />
-                        <stop id="color" offset="0%" stop-color="rgba(0, 180, 255, 0.5)" />
-                        <stop id="leader" offset="0%" stop-color="rgba(0,0,0,0.3)" />
+                        <stop id="trailer" offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0.3" />
+                        <stop id="color" offset="0%" stop-color="rgb(0,180,255)" stop-opacity="0.5" />
+                        <stop id="leader" offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0.3" />
                     </linearGradient>
                 </defs>
                 <path id="main-panel" class="box-section" clip-path="url(#clip-name)" fill="url(#pattern)" stroke="none"
@@ -499,15 +508,18 @@
             let trailer = createSvgElement('stop');
             trailer.setAttribute('id', 'trailer');
             trailer.setAttribute('offset', '0%');
-            trailer.setAttribute('stop-color', 'rgba(0,0,0,0.3)');
+            trailer.setAttribute('stop-color', 'rgb(0,0,0)');
+            trailer.setAttribute('stop-opacity', '0.3');
             let color = createSvgElement('stop');
             color.setAttribute('id', 'color');
             color.setAttribute('offset', '0%');
-            color.setAttribute('stop-color', 'rgba(0, 180, 255, 0.5)');
+            color.setAttribute('stop-color', 'rgba(0, 180, 255)');
+            trailer.setAttribute('stop-opacity', '0.5');
             let leader = createSvgElement('stop');
             leader.setAttribute('id', 'leader');
             leader.setAttribute('offset', '0%');
-            leader.setAttribute('stop-color', 'rgba(0,0,0,0.3)');
+            leader.setAttribute('stop-color', 'rgb(0,0,0)');
+            leader.setAttribute('stop-opacity', '0.3');
             linearGradient.appendChild(trailer);
             linearGradient.appendChild(color);
             linearGradient.appendChild(leader);
@@ -577,6 +589,7 @@
             content.setAttribute('class', newClass);
         }
     </script>
+    <script type="text/javascript" src="/js/analytics.js" ></script>
 </body>
 
 </html>

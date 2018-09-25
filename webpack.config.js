@@ -14,6 +14,7 @@ const entries = [
     'xor',
     'binaryNot',
     'boxShadow',
+    'analytics',
 ]
 
 function entry() {
