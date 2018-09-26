@@ -47,6 +47,24 @@ module.exports = function (env) {
     if (env != 'prod') {
         opts.mode = 'development';
         opts.devtool = 'source-map';
+        opts.devServer = {
+            historyApiFallback: true,
+            publicPath: '/js/',
+            contentBase: path.join(__dirname, 'public'),
+
+            proxy: {
+                '/analytics': {
+                    headers: {
+                        'x-client-address': '0.0.0.0',
+                    },
+                   target: {
+                      host: "0.0.0.0",
+                      protocol: 'http:',
+                      port: 5555
+                   },
+                }
+            }
+        };
     } else {
         opts.mode = 'production';
     }

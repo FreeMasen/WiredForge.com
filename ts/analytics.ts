@@ -1,17 +1,13 @@
-import * as analyst from '../../analytics/analytics';
+import { sendInfo, sendExiting, setup_click_watcher, initialResponseHandler } from '../../analytics/analytics';
 
 window.addEventListener('load', () => {
-    console.log('analytics.js', 'load');
-    analyst.sendInfo();
-    console.log('new line!')
+    sendInfo().then(initialResponseHandler);
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-    analyst.setup_click_watcher();
+    setup_click_watcher();
 });
 
 window.addEventListener('beforeunload', () => {
-    console.log('analytics.js', 'before unload');
-    analyst.sendExiting();
-
+    sendExiting();
 });
