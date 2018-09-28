@@ -20,6 +20,7 @@ use std::env;
 use hyper::server::Http;
 use hyper::server::NewService;
 use pony::pony_builder::PonyBuilder;
+use pony::pony::ETag;
 
 fn main() {
     let environ = env::args().last().expect("Unable to get last arg");
@@ -36,6 +37,7 @@ fn main() {
     wf.use_static(static_path);
     wf.add_known_extension(&["wasm"]);
     wf.use_static_logging();
+    wf.use_etag(ETag::Sha1);
     let handler = Http::new().bind(&addr, move || wf.new_service()).unwrap();
     println!("Listening on 1111");
     match handler.run() {
