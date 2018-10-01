@@ -590,6 +590,19 @@
         }
     </script>
     <script type="text/javascript" src="/js/analytics.js" ></script>
+    <textarea id="tera-context" style="display:none">{{ __tera_context }}</textarea>
+
+        <script>
+            (function() {
+                let tc = document.getElementById('tera-context');
+                try {
+                    console.log(JSON.parse(tc.value));
+                } catch (e) {
+                    console.error(e.message);
+                    console.log(tc.value);
+                }
+            })()
+        </script>
 </body>
 
 </html>
