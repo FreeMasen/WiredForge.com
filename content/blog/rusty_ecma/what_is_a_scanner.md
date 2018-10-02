@@ -2,7 +2,7 @@
 title = "What is a Scanner"
 date = 2018-10-02
 draft = false
-order = 1
+weight = 1
 tags = ["rust", "ecma", "javascript"]
 [extra]
 snippet = "The basic concepts behind a scanner's role in parsing code"
