@@ -1,6 +1,6 @@
 +++
 title = "What is a Scanner"
-date = 2018-10-01
+date = 2018-10-02
 draft = false
 order = 1
 tags = ["rust", "ecma", "javascript"]
