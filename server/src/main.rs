@@ -35,7 +35,7 @@ fn main() {
     wf.get("/rsvp", routes::rsvps);
     wf.get("/sertest/native", routes::get_wasm_results);
     wf.use_static(static_path);
-    wf.add_known_extension(&["wasm"]);
+    wf.add_known_extension(&["wasm", "svg"]);
     wf.use_static_logging();
     wf.use_etag(ETag::Sha1);
     let handler = Http::new().bind(&addr, move || wf.new_service()).unwrap();
