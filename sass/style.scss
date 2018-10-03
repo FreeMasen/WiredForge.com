@@ -181,4 +181,9 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
-.clipboard-popup {box-shadow: 1px 1px 2px 1px $grey; background: white; border: 1px solid $grey;}
+.clipboard-popup {
+    box-shadow: 1px 1px 2px 1px $grey;
+    background: white;
+    border: 1px solid $grey;
+}
+

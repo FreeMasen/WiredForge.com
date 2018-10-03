@@ -29,13 +29,23 @@ pre {
     max-width: 100%;
     white-space: pre;
     min-width: 75%;
+    border: 1px solid #fafafa;
+    color: rgba(0, 180, 255, 0.5);
+    background-color: white !important;
+    font-size: 18pt;
+    span {
+        background-color: white !important;
+    }
 }
+
 code {
+    background-color: white;
     font-family: 'mono';
-    background: #31333d;
-    color: #ffffffc4;
+    border: 1px solid #fafafa;
+    color: rgba(0, 180, 255, 0.5);
     border-radius: 2px;
     padding: 0 2px;
+    font-size: 16pt;
 }
 
 .series-list {
