@@ -28,9 +28,9 @@ pub struct Test<T> {
     largest: usize,
     total_size: usize,
 }
-
-pub fn get_res<T:Sub<T>>(now: Box<Fn() -> T>, time_unit: &str) -> TestResult<T>
-where <T as Sub>::Output: Debug
+use std::fmt::Display;
+pub fn get_res<T>(now: Box<Fn() -> T>, time_unit: &str) -> TestResult<T>
+where <T as Sub>::Output: Debug, T: Sub + Copy
 {
     let rmp_msgs = msgs();
     let rmp_start = (now)();

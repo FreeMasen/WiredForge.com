@@ -7,7 +7,10 @@ pub struct Rsvp {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Email {
+    #[serde(rename = "your-name-input")]
     pub name: String,
+    #[serde(rename = "your-email-address-input")]
     pub address: String,
+    #[serde(rename = "your-message-input")]
     pub message: String,
 }

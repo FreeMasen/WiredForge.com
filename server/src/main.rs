@@ -1,48 +1,43 @@
-extern crate futures;
-extern crate hyper;
+// extern crate futures;
+// extern crate hyper;
 extern crate lettre;
+extern crate lettre_email;
 extern crate url;
-extern crate pony;
+// extern crate pony;
 extern crate rusqlite;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 extern crate ser_test;
+#[macro_use]
+extern crate warp;
+extern crate env_logger;
 
 mod routes;
 mod mailer;
 mod models;
-mod data;
+mod error;
 
-use std::env;
-
-use hyper::server::Http;
-use hyper::server::NewService;
-use pony::pony_builder::PonyBuilder;
-// use pony::pony::ETag;
+use warp::{Filter};
 
 fn main() {
-    let environ = env::args().last().expect("Unable to get last arg");
-    let static_path = match environ.as_str() {
-        "prod" => "public/",
-        _ => "../public/"
-    };
-    let addr = "127.0.0.1:1111".parse().unwrap();
-    let mut wf = PonyBuilder::new();
-    wf.post("/send", routes::contact);
-    wf.post("/rsvp", routes::rsvp);
-    wf.get("/rsvp", routes::rsvps);
-    wf.get("/sertest/native", routes::get_wasm_results);
-    wf.use_static(static_path);
-    wf.add_known_extension(&["wasm", "svg"]);
-    wf.use_static_logging();
-    // wf.use_etag(ETag::Sha1);
-    let handler = Http::new().bind(&addr, move || wf.new_service()).unwrap();
-    println!("Listening on 1111");
-    match handler.run() {
-        Ok(_) => (),
-        Err(_e) => (),
-    };
-    println!("Server closing");
+    ::std::env::set_var("RUST_LOG", "info");
+    env_logger::init();
+    let contact = warp::post2()
+                .and(warp::path("send"))
+                .and(warp::filters::body::form())
+                .map(routes::contact);
+    let ser_test = warp::get2()
+                .and(path!("sertest" / "native"))
+                .map(routes::get_wasm_results);
+    let static_route = warp::fs::dir("../public/");
+    let routes = warp::any()
+                    .and(contact)
+                    .or(ser_test)
+                    .or(static_route)
+                    .with(warp::log("wiredforge"));
+    warp::serve(routes)
+        .run(([0,0,0,0], 1111));
 }
+

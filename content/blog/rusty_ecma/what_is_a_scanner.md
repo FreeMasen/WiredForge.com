@@ -1,16 +1,16 @@
 +++
-title = "What is a Scanner"
+title = "What is RESS"
 date = 2018-10-02
 draft = false
 weight = 1
 tags = ["rust", "ecma", "javascript"]
 [extra]
-snippet = "The basic concepts behind a scanner's role in parsing code"
+snippet = "The basic use of the Rusty ECMAscript Scanner"
 image = "rust-ecma.svg"
 image_desc = "Rusty ECMA"
 +++
 
-After releasing the Rusty ECMA Script Scanner (RESS) 0.4, my next big effort in the Rust+Javascript space is to increase the amount of documentation. This post is an effort to clarify what RESS does and how someone might use it. 
+After releasing the Rusty ECMA Script Scanner (RESS) 0.4, my next big effort in the Rust+Javascript space is to increase the amount of documentation. This post is an effort to clarify what RESS does and how someone might use it.
 
 The first thing to cover is to answer the question *What is a scanner's role in parsing code?* The basic idea behind a scanner is to stand between the bare text of a code file and the component that will interpret the larger context (the parser). The idea here is to separate the process of reading text from determining the actual meaning of that text. Typically a scanner sits idly by until the parser asks for the next *token*. A *token* can be as simple as a single character or it can be more complicated like a word, it all depends on the scanner. For RESS I wanted to give a little more information than a single character and I ended up with 11 distinct types of tokens.
 
@@ -38,17 +38,17 @@ function print(message) {
 the above javascript as tokens would look like this.
 
 1. `function` - Keyword
-1. `print` - Identifier
-1. `(` - Punctuation
-1. `message` - Identifier
-1. `)` - Punctuation
-1. `{` - Punctuation
-1. `console` - Identifier
-1. `log` - Identifier
-1. `(` - Punctuation
-1. `message` - Identifier
-1. `)` - Punctuation
-1. `}` - Punctuation
+2. `print` - Identifier
+3. `(` - Punctuation
+4. `message` - Identifier
+5. `)` - Punctuation
+6. `{` - Punctuation
+7. `console` - Identifier
+8. `log` - Identifier
+9. `(` - Punctuation
+10. `message` - Identifier
+11. `)` - Punctuation
+12. `}` - Punctuation
 
 It might seem foreign to think about any code like this since we typically thing about larger parts of our code, like functions definitions or variable assignments. Eventually, any parser would get to that level but we are working one step below that.
 

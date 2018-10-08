@@ -3,8 +3,10 @@ title = "Wasm Serialization Test"
 draft = false
 [extra]
 snippet = "A simple test of the RMP and Bincode serializated"
+image = "rust-wasm-logo-purple.png"
 +++
-<link type="text/css" rel="stylesheet" href="ser_test.css">
+
+<link type="text/css" rel="stylesheet" href="ser_test.css"/>
 # Results
 <div id="tests">
     <div id="native" class="result-list">
