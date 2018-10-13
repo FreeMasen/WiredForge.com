@@ -35,9 +35,12 @@ Stop by, and hang out!
 
 ### Where
 
-The Wymdham Grand
+The Wymdham Grand's Kensington Room
+
 2900 Jackson Avenue
+
 Ann Arbor, MI 48103
+
 
 ### When
 
