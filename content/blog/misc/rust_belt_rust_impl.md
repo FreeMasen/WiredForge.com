@@ -1,15 +1,16 @@
 +++
 title = "Pre Rust Belt Impl Day"
 date = 2018-10-13
-draft = true
+draft = false
 tags = ["rust"]
 [extra]
 snippet = "Event Info for the Pre-Rust Belt Rust Impl Day"
 image = "rust-logo-blk.png"
 image_desc = "Rust Belt Rust Impl"
+private = true
 +++
 
-As a pre-conference event, there will be a day of unstructured
+You're invited to a day of unstructured
 hacking day in the Kensington room at the Wyndham Grand Ann Arbor.
 
 All skill levels welcome!
