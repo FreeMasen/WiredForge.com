@@ -31,6 +31,10 @@ Hey, great! Maybe you can help that last person!
 
 Stop by, and hang out!
 
+## Want to help out?
+
+Bring some snacks! The conference organizers have ensured that there will be coffee, tea and ice water available all day but something to munch on would be greatly appreciated.
+
 ## Details
 
 ### Where
@@ -44,7 +48,7 @@ Ann Arbor, MI 48103
 
 ### When
 
-9am - 6pm
+9am - 5pm
 
 ### Questions Comment's Concerns?
 [Rust Belt Rust has a Slack](https://rust-belt-rust-slack.herokuapp.com/) (I'm @Robert Masen there)
