@@ -11,7 +11,7 @@ private = true
 +++
 
 You're invited to a day of unstructured
-hacking day in the Kensington room at the Wyndham Grand Ann Arbor.
+hacking day in the Kensington room at the Wyndham Garden Ann Arbor.
 
 All skill levels welcome!
 
@@ -39,7 +39,7 @@ Bring some snacks! The conference organizers have ensured that there will be cof
 
 ### Where
 
-The Wymdham Grand's Kensington Room
+The Wyndham Garden's Kensington Room
 
 2900 Jackson Avenue
 
