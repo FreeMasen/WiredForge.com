@@ -10,9 +10,10 @@ image = "rust-ecma.svg"
 image_desc = "Rusty ECMA"
 +++
 
-After releasing the Rusty ECMA Script Scanner (RESS) 0.4, my next big effort in the Rust+Javascript space is to increase the amount of documentation. This post is an effort to clarify what RESS does and how someone might use it.
+After releasing the Rusty ECMA Script Scanner (RESS) 0.5, my next big effort in the Rust+Javascript space is to increase the amount of documentation. This post is an effort to clarify what RESS does and how someone might use it.
 
-The first thing to cover is to answer the question *What is a scanner's role in parsing code?* The basic idea behind a scanner is to stand between the bare text of a code file and the component that will interpret the larger context (the parser). The idea here is to separate the process of reading text from determining the actual meaning of that text. Typically a scanner sits idly by until the parser asks for the next *token*. A *token* can be as simple as a single character or it can be more complicated like a word, it all depends on the scanner. For RESS I wanted to give a little more information than a single character and I ended up with 11 distinct types of tokens.
+The first thing to cover is to answer the question *What is a scanner's role in parsing code?* The basic idea behind a scanner is to stand between the bare text of a code file and the component that will interpret the larger context (most likely a parser). The idea here is to separate the process of reading text from determining the actual meaning of that text. A scanner typically provides a series of *token*s to
+whoever is using it. A *token* can be as simple as a single character or it can be more complicated like a word, it all depends on the scanner. For RESS I wanted to give a little more information than a single character and I ended up with 11 distinct tokens.
 
 ## RESS Tokens
 * Boolean - `true` or `false`
@@ -50,18 +51,58 @@ the above javascript as tokens would look like this.
 11. `)` - Punctuation
 12. `}` - Punctuation
 
-It might seem foreign to think about any code like this since we typically thing about larger parts of our code, like functions definitions or variable assignments. Eventually, any parser would get to that level but we are working one step below that.
+It might seem foreign to think about any code like this since we typically thing about larger parts of our code, like functions definitions or variable assignments. Eventually, any parser would get to that level but we are working one step below that. Normally the scanner sits
+idly by until the parent process asks for another token, this makes it a great fit for implementing the rust `Iterator` trait. This is exactly
+how the `Scanner` works, you can create a new scanner with text and then loop over its results.
 
-Now that we have that basic idea, how would you use RESS? Essentially you would need to embed a RESS `Scanner` into a context aware service. It would be the parent service's job to be aware of the context that these tokens exist in. Let's say your work as a style guideline stating that no semi-colons should be used. You could build a validation utility to check for the existence of semi-colons in any js files that are included in the project.
+```rust
 
-First, let's create this project using `cargo`.
+extern crate ress;
+use ress::{Scanner};
+fn main() {
+    let js = "function print(message) {
+        console.log(message)
+    }";
+    let scanner = Scanner::new(js);
+    for item in scanner {
+        println!("{:?} ", item.token);
+    }
+}
+```
+
+The above program would output the following.
+```sh
+Keyword(Keyword::Function)
+Ident(Ident("print"))
+Punct(Punct::OpenParen)
+Ident(Ident("message"))
+Punct(Punct::CloseParen)
+Punct(Punct::OpenBrace)
+Ident(Ident("console"))
+Punct(Punct::Period)
+Ident(Ident("log"))
+Punct(Punct::OpenParen)
+Ident(Ident("message"))
+Punct(Punct::CloseParen)
+Punct(Punct::CloseBrace)
+```
+One of the nice things about the rust `Iterator` trait is the amount of stuff you get for free once you have implemented it. You can
+use `filter` or `map` with it, you can even `collect` it up into a `Vec`, right out of the box.
+
+
+Now that we have that basic idea about how RESS works, it might not seem super helpful all by itself. To build something with `RESS` you would need to embed a `Scanner` into something that knows about the larger context. It would be the parent's job to tie all of the tokens together into something more useful. Let's build something to see more about what I mean.
+
+For this example we are going to build a tool to help a team of JS developers to stick to a very simple style guideline "no semi-colons should be used". This should be pretty straight forward since the only context we care about is that no semi-colons are allowed, so either all of the tokens pass or all the tokens fail.
+
+To get started, let's create this project using `cargo`.
 
 ```sh
 cargo new semi_finder
 cd semi_finder
 ```
 
-Then we will add RESS and `walkdir` as dependencies.
+Then we will add `ress` and, since I want to be able to evaluate a whole directory of files, `walkdir` as dependencies. If you are not
+familiar with `walkdir` it is a library for easily dealing with file system directories and their contents.
 
 ### Cargo.toml
 ```toml
@@ -75,25 +116,28 @@ ress = "0.4"
 walkdir = "2.2"
 ```
 
-Now, add them to the project, we'll also need some stuff from `std` so I will add it here too.
-
 ### src/main.rs
 ```rust
 extern crate ress;
 extern crate walkdir;
+```
 
+Once we have them added, we can import the things we want to use from them. From `ress` we are going to need the `Scanner`
+and the `Punct` since the semi-colon is a variant of a `Punct`. From `walkdir` we are going to use the `WalkDir` struct. Finally
+from the standard library we need `collections::HashMap` to allow us to keep track of the files that have semi-colons,
+`env::args` to get the arguments from the command line, `fs::read_to_string` to easily read a file into a string, and
+`path::PathBuf` to pass our paths around. All of that would look like this.
+
+```rust
 use ress::{Punct, Scanner};
 use walkdir::WalkDir;
 
-use std::{collections::HashMap, 
+use std::{
+        collections::HashMap,
         env::args, 
-        fs::read_to_string, 
+        fs::read_to_string,
         path::PathBuf
 };
-
-fn main() {
-    println!("Hello world!");
-}
 ```
 
 Next, let's write a function that will take in a js string, pass it to a `Scanner` and then check for any semi-colons. If we find any semi-colons, we are going to add it's index to a `Vec` that will get returned when we are done.
@@ -118,7 +162,8 @@ fn check_js(js: &str) -> Vec<usize> {
 ```
 
 Now that we can determine if any arbitrary javascript contains semi-colons, let's build a function that will loop over
-a directory of files and checks each one. This time we are going to collect all of our results into a `HashMap` with the path as the key and the list of semi-colon indexes as the value.
+a directory of files and checks each one. This time we are going to collect all of our results into a `HashMap` with the path
+as the key and the list of semi-colon indexes as the value.
 
 ```rust
 fn check_files(start: String) -> HashMap<PathBuf, Vec<usize>> {
@@ -154,7 +199,7 @@ fn check_files(start: String) -> HashMap<PathBuf, Vec<usize>> {
 }
 ```
 
-At this point all we have left to do is provide a small CLI user interface for it. Let's update `main` to include the following. It is a bit of a naive approach to parsing arguments but we don't really need much.
+At this point all we have left to do is provide a small CLI for it. Let's update `main` to include the following. It is a bit of a naive approach to parsing arguments but we don't really need much.
 
 ```rust
 fn main() {
@@ -164,11 +209,12 @@ fn main() {
     // executable
     let _ = args.next();
     // The next argument will be the path to check
-    // panic and display an error to the user if no path
-    // was provided
-    let start = args
-        .next()
-        .expect("No directory provided as starting location.");
+    // display an error to the user if no path
+    // was provided and exit early
+    let start = if let Some(start) =  args.next() {
+        eprintln!("No directory provided as starting location.");
+        return;
+    }
     // Pass the argument off to our `check_files` function
     let issues = check_files(start);
     // If no issues were found
@@ -180,7 +226,7 @@ fn main() {
         // tell the user where we found semi-colons that need to be
         // removed
         for (path, indexes) in issues {
-            println!("Issues found in {:?} at indexes:", path);
+            println!("{} issues found in {:?} at indexes:", indexes.len(), path);
             println!("\t{:?}\n", indexes)
         }
     }
@@ -209,12 +255,11 @@ Then run the following to evaluate the file.
 
 ```sh
 cargo run -- ./js/
-Issues found in "./path/to/js/file.js" at indexes:
+3 issues found in "./path/to/js/file.js" at indexes:
         [62, 209, 421]
 ```
 
 Looks like it is working just fine! It might be nice to have a method to go from an index to a line and column number but I think that might be for version 2.
-
 
 
 In the process of putting this post together I have added the above code to the examples for RESS. You can find the full file [here](https://github.com/FreeMasen/RESS/blob/8b8abfa61d1a0273c1502031669262e29f69a6c5/examples/semi_finder/src/main.rs). If you have RESS cloned on your computer and you wanted to try this example out you can do so with the following command
@@ -223,3 +268,5 @@ In the process of putting this post together I have added the above code to the 
 ```sh
 cargo run --example semi_finder -- ./path/to/js
 ```
+
+Next post, I plan on covering [`ressa`](https://github.com/freemasen/ressa) which uses `ress` move up to the next level of a parser's job.
