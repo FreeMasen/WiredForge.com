@@ -45,11 +45,12 @@ the above javascript as tokens would look like this.
 5. `)` - Punctuation
 6. `{` - Punctuation
 7. `console` - Identifier
-8. `log` - Identifier
-9. `(` - Punctuation
-10. `message` - Identifier
-11. `)` - Punctuation
-12. `}` - Punctuation
+8. `.` - Punctuation
+9. `log` - Identifier
+10. `(` - Punctuation
+11. `message` - Identifier
+12. `)` - Punctuation
+13. `}` - Punctuation
 
 It might seem foreign to think about any code like this since we typically thing about larger parts of our code, like functions definitions or variable assignments. Eventually, any parser would get to that level but we are working one step below that. Normally the scanner sits
 idly by until the parent process asks for another token, this makes it a great fit for implementing the rust `Iterator` trait. This is exactly
