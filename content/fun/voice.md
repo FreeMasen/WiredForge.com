@@ -1,7 +1,7 @@
 +++
 title = "Voice Synthesis"
-draft = true
-date = 2018-02-01
+draft = false
+date = 2018-12-17
 [extra]
 snippet = "A simple form to get your browser to speak to you"
 +++

@@ -8,6 +8,7 @@ tags = ["rust", "ecma", "javascript"]
 snippet = "The basic use of the Rusty ECMAscript Syntax Analyzer"
 image = "rust-ecma.svg"
 image_desc = "Rusty ECMA"
+date_sort = 20181217
 +++
 
 Now that I have released a minimal working version of [RESSA](https://github.com/FreeMasen/RESSA), it seems like a good time

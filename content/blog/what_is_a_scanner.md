@@ -8,6 +8,7 @@ tags = ["rust", "ecma", "javascript"]
 snippet = "The basic use of the Rusty ECMAscript Scanner"
 image = "rust-ecma.svg"
 image_desc = "Rusty ECMA"
+date_sort = 20181002
 +++
 
 After releasing the Rusty ECMA Script Scanner (RESS) 0.5, my next big effort in the Rust+Javascript space is to increase the amount of documentation. This post is an effort to clarify what RESS does and how someone might use it.

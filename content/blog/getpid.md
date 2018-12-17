@@ -7,6 +7,7 @@ tags = ["rust", "bindgen", "interop", "unix"]
 snippet = "Rebuilding a bash script as a rust program"
 image = "rust-logo-blk.png"
 image_desc = "Rust"
+date_sort = 20180921
 +++
 Over the past year, I have found myself writing bash scripts to automate redeploying my long running services. The process of pulling down changes, re-building the binary, packaging any javascript, killing the old process and starting the new process is something that seemed like it should be easy to automate. The only difficult thing about it would be looking up the old pid to kill the old process, otherwise it is somewhat straight forward. The redeploy script I came up with looks something like this.
 

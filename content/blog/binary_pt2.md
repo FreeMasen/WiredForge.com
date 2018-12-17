@@ -4,9 +4,12 @@ title = "Understanding Binary, Pt 2 number formats"
 date = 2018-12-17
 [extra]
 snippet = "A guide to understanding binary from a programmer's perspective"
-[[series]]
-title = "Understanding Binary, Pt 1"
-link = "/blog/binary_series/binary-pt1/index.html"
+image = "bin.png"
+date_sort = 20181217
+image_desc = "binary series logo"
+#[[series]]
+#title = "Understanding Binary, Pt 1"
+#link = "/blog/binary_series/binary-pt1/index.html"
 +++
 
 In the last post of this series we covered the basic concept of how to count in binary, in truth we only covered one type of number; the unsigned 8 bit integer. Unsigned integers are whole number who's value is always positive. Using this type of number is a great place to start for learning how binary and more human friendly concepts intersect but what happens if you need to represent a negative number or a number bigger than 255? Hopefully by the end of this post you will be able to answer both of those questions.

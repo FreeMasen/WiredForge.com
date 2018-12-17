@@ -8,6 +8,7 @@ snippet = "Event Info for the Pre-Rust Belt Rust Impl Day"
 image = "rust-logo-blk.png"
 image_desc = "Rust Belt Rust Impl"
 private = true
+date_sort = 20181013
 +++
 
 You're invited to a day of unstructured

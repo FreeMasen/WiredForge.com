@@ -8,4 +8,5 @@ snippet = "Getting started with Rust and Web Assembly"
 image = "rust-wasm-logo-purple.png"
 image_desc = "Rust and Wasm"
 extern_link = "https://freemasen.github.io/wasm_tutorial"
+date_sort = 20180627
 +++

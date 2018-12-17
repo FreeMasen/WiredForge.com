@@ -7,6 +7,7 @@ tags = ["rust", "http"]
 snippet = "Building on top of Hyper.rs"
 image = "hyper.png"
 image_desc = "hyper-rs"
+date_sort = 20180414
 +++
 
 If you are interested in the web stack and Rust, you have probably been directed to [Are We Web Yet](http://www.arewewebyet.org/) to help you pick which web framework is right for you. While each of the options here have their advantages, I personally have found learning their systems that abstract away Hyper's semantics is really no much less difficult than learning Hyper itself. In this post I am going to cover why Hyper works for me and maybe it will work for you too.

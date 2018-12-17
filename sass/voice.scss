@@ -5,48 +5,30 @@
     flex-flow: column;
     justify-content: flex-start;
     align-items: center;
-    width: 500px;
-    border: 1px solid $grey;
-    .top-group {
-        display: flex;
-        flex-flow: row;
-        justify-content: flex-end;
-        align-content: center;
-        padding-top: 15px;
-        padding-bottom: 5px;
+    max-width: 500px;
+    padding-bottom: 7px;
+    box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+    #utterance-group {
         width: 100%;
-        button {
-            padding: 5px 10px;
-            border: none;
-            box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
-            margin-right: 5px;
-            &.pressed {
-                transform: translate(2px,2px);
-            }
-        }
-        #pause {
-            background: $orange;
-        }
-        #stop {
-            background: $red;
-        }
-        #play {
-            background: $green;
+        label {
+            background: $grey;
+            color: #fff;
+            font-family: 'mono';
+            width: 100%;
         }
     }
     .input-group {
         display: flex;
         flex-flow: column;
-        width: calc(100% - 10px);
         label {
-            font-size: 14pt;
+            font-size: 16pt;
             font-weight: bold;
         }
         textarea {
-            border: none;
-            box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
+            border: 1px solid $grey;
+            border-top: none;
             resize: none;
-            height: 200px;
+            height: 50px;
         }
     }
     .bottom-group {

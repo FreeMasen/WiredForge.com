@@ -1,9 +1,11 @@
 +++
 title = "Understanding Binary, Pt 1"
 date = 2018-03-27
+draft = false
 [extra]
 snippet = "A guide to understanding binary from a programmer's perspective"
 image = "bin.png"
+date_sort = 20180127
 image_desc = "binary series logo"
 #[[series]]
 #title = "Understanding Binary, Pt 2"
