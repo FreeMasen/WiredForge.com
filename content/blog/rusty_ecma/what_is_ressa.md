@@ -125,4 +125,4 @@ getConsole().log;
 
 And that's just what I could think of in this moment, imagine how many other possiblilities there might be. To handle all of that `RESSA` leans pretty heavily on `enum`s which is nice because it provides an inheriently structured kind of dynamic value. The two heavy lifters in this space are `Statement` and `Expression`, with these two structures `RESSA` is able to represent the nearly infinate possible combinations of tokens that would represent valid javascript.
 
-At this point I would normally start a little example development tool and walk through how it works, however that would make this already long winded and dense post *significantly* longer. In the coming weeks I am hoping to create an [`mdbook`](https://github.com/rust-lang-nursery/mdBook) about one such example.
+At this point I would normally start a little example development tool and walk through how it works, however that would make this already long winded and dense post *significantly* longer. In the coming weeks I am hoping to create an [`mdbook`](https://github.com/rust-lang-nursery/mdBook) with one such example.

@@ -8,6 +8,7 @@ snippet = "A guide to understanding binary from a programmer's perspective"
 title = "Understanding Binary, Pt 1"
 link = "/blog/binary_series/binary-pt1/index.html"
 +++
+
 In the last post of this series we covered the basic concept of how to count in binary, in truth we only covered one type of number; the unsigned 8 bit integer. Unsigned integers are whole number who's value is always positive. Using this type of number is a great place to start for learning how binary and more human friendly concepts intersect but what happens if you need to represent a negative number or a number bigger than 255? Hopefully by the end of this post you will be able to answer both of those questions.
 
 As a refresher, lets look at our 8 bit unsigned integer (u8) again. Each u8 will be represented by 8 positions, each position will be either a 1 or a 0, moving right to left each position will represent 2x the number on its right (starting with 1 and ending with 255). Consider this table.
@@ -56,7 +57,7 @@ Personally, that definition seems like non-sense. Especially when you continue o
 
 > If the binary number 010<sub>2</sub> encodes the signed integer 2<sub>10</sub>, then its two's complement, 110<sub>2</sub>, encodes the inverse: -2<sub>10</sub>. In other words, to reverse the sign of any integer in this scheme, you can take the two's complement of its binary representation.
 
-I simpler way to think about this that you are counting in both directions, the left side will be negative and the right side will be positive. This slider might help illustrate that.
+I simpler way to think about this that you are counting towards 0 from both directions, the left side will be negative and the right side will be positive. This slider might help illustrate that.
 
 {{ twos_comp() }}
 
@@ -64,4 +65,4 @@ As you move the indicator, to the left, it will increase the unsigned value as e
 
 {{ twos_counter() }}
 
-At the end of the day, why does this matter? For the most part, it doesn't. Rarely will you need to think about this concept, however most modern programming languages use two's compliment to represent signed integers. That means, if a specification says it encodes signed integers using two's compliment, you can pretty much just cast from a unsigned to an signed.
+At the end of the day, why does this matter? For the most part, it doesn't. Rarely will you need to think about this concept, however most modern programming languages use two's compliment to represent signed integers. One case where that would be good to know is if you are parsing a binary data format, something like the [SQLite file format](https://sqlite.org/fileformat2.html), if they are also using the two's compliment method for signed integers your programming language will do all of the work for you.
