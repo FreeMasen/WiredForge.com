@@ -1,5 +1,5 @@
 +++
 title = "Rusty ECMA"
-sort_by = "weight"
+sort_by = "date"
 render = true
 +++

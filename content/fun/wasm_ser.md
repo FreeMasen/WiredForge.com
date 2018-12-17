@@ -1,6 +1,7 @@
 +++
 title = "Wasm Serialization Test"
 draft = false
+date = 2018-03-01
 [extra]
 snippet = "A simple test of the RMP and Bincode serializated"
 image = "rust-wasm-logo-purple.png"

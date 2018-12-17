@@ -15,6 +15,8 @@ const entries = [
     'binaryNot',
     'boxShadow',
     'analytics',
+    'twos-comp',
+    'twosCounter',
 ]
 
 function entry() {

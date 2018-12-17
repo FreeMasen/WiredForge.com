@@ -1,0 +1,94 @@
+@import 'colors';
+
+#twos-comp-slider-container {
+    display: grid;
+    grid-template-rows: 30px 100px 25px 25px;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+        "title      title    title"
+        "bar        bar      bar"
+        "t-unsigned t-signed t-bin"
+        "unsigned   signed   bin";
+    box-shadow: 1px 1px 3px 1px $grey;
+    #twos-comp-slider-title {
+        span {
+            font-family: 'mono', monospace;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        grid-area: title;
+        background: $grey;
+        color: #fff;
+        text-align: center;
+    }
+    #twos-comp-slider {
+        grid-area: bar;
+        height: 100px;
+        position: relative;
+        margin-right: 50px;
+        width: calc(100% - 100px);
+        margin: 0 25px;
+        #twos-comp-slider-bar {
+            overflow: show;
+            border: 1px solid $grey;
+            height: 2px;
+            position: absolute;
+            top: 60%;
+            left: 35px;
+            width: calc(100% - 35px);
+        }
+        #twos-comp-slider-position {
+            height: 76px;
+            width: 38px;
+            position: absolute;
+            top: 20px;
+            left: 100%;
+            box-shadow: 1px 1px 1px 1px $grey;
+            border-bottom: 10px solid $blue;
+            background: #fff;
+        }
+    }
+    #twos-comp-slider-title-unsigned {
+        grid-area: t-unsigned;
+        text-align: center;
+        font-family: 'mono', monospace;
+        color: #fff;
+        background: $blue;
+        font-size: 16pt;
+    }
+    #twos-comp-slider-unsigned {
+        grid-area: unsigned;
+        text-align: center;
+        font-family: 'mono', monospace;
+    }
+    #twos-comp-slider-title-signed {
+        grid-area: t-signed;
+        text-align: center;
+        font-family: 'mono', monospace;
+        color: #fff;
+        background: $blue;
+        font-size: 16pt;
+    }
+    #twos-comp-slider-signed {
+        grid-area: signed;
+        text-align: center;
+        font-family: 'mono', monospace;
+    }
+    #twos-comp-slider-title-bin {
+        grid-area: t-bin;
+        text-align: center;
+        font-family: 'mono', monospace;
+        color: #fff;
+        background: $blue;
+        font-size: 16pt;
+    }
+    #twos-comp-slider-bin {
+        grid-area: bin;
+        text-align: center;
+        .nibble {
+            margin: 5px;
+            text-align: center;
+            font-family: 'mono', monospace;
+        }
+    }
+}
