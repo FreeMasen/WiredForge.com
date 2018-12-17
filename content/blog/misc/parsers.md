@@ -1,5 +1,5 @@
 +++
-title = "Rust + Wasm"
+title = "3 Rust Parsers"
 date = 2018-12-05
 draft = false
 tags = ["rust", "parsing"]
