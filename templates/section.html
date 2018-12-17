@@ -7,7 +7,7 @@
     {% set_global pages = pages | concat(with=sub.pages) %}
     {% endfor %}
     {% for page in pages %} {% if not page.draft and not page.extra.private %}
-    <a class="post-summary" href={% if page.extra.external_link %}"{{page.extra.external_link}}"{% else %}"/{{page.path}}index.html"{% endif %}>
+    <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"/{{page.path}}index.html"{% endif %}>
         <h3>{{ page.title }}</h3>
         {% if page.date %}
         <span class="sub-title">
