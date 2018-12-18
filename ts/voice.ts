@@ -1,6 +1,7 @@
-import {Statement, IDbMessage, IVoiceMessage, MessageType} from './voice/models';
+import {Statement} from './voice/models';
 import Html from './voice/html';
 import Speaker from './voice/speaker';
+import ErrorMessenger from './services/errorMessenger';
 let voice: Voice;
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -23,14 +24,13 @@ class Voice {
         }
         let voices = this.speaker.getVoices();
         if (voices.length < 1) {
-            let time;
             if (!iter) {
-                time = 100;
-                iter = 0;
-            } else {
-                time = iter * 1.5;
+                iter = 500;
             }
-            return setTimeout(() => this.setVoiceOptions(time), iter);
+            if (iter > 3000) {
+                ErrorMessenger.displayError('This browser does not support SpeechSynthesis')
+            }
+            return setTimeout(() => this.setVoiceOptions(iter * 1.5), iter);
         }
         for (let i = 0; i < voices.length; i++) {
             let opt = document.createElement('option') as HTMLOptionElement;
