@@ -13,18 +13,17 @@ export default class ErrorMessenger {
 
     private static _displayError(msg: string) {
         ErrorMessenger.hasCurrent = true;
-        let container = ErrorMessenger.getContainer();
+        let container = ErrorMessenger.createContainer();
         let span = ErrorMessenger.createSpan(msg);
         container.appendChild(span);
+        document.body.insertBefore(container, document.body.firstElementChild);
         setTimeout(ErrorMessenger.clearCurrentError, 3000);
     }
 
     private static clearCurrentError() {
         this.hasCurrent = false;
         let container = ErrorMessenger.getContainer();
-        while (container.hasChildNodes()) {
-            container.removeChild(container.firstChild);
-        }
+        container.parentNode.removeChild(container);
         if (ErrorMessenger.queue.length > 0) {
             let nextMsg = ErrorMessenger.queue.shift();
             ErrorMessenger._displayError(nextMsg);
@@ -32,20 +31,16 @@ export default class ErrorMessenger {
     }
 
     private static getContainer(): HTMLDivElement {
-        let container = document.getElementById('') as HTMLDivElement;
-        if (!container) {
-            container = ErrorMessenger.createContainer();
+        let container = document.getElementById('error-message-container') as HTMLDivElement;
+        if (container) {
+            container.parentElement.removeChild(container);
         }
-        if (!container) {
-            throw new Error('Unable to find or create an error message container');
-        }
-        return container;
+        return ErrorMessenger.createContainer();
     }
 
     private static createContainer(): HTMLDivElement {
         let div = document.createElement('div');
         div.setAttribute('id', 'error-message-container');
-        document.body.appendChild(div);
         return div;
     }
 

@@ -5,6 +5,7 @@ import ErrorMessenger from './services/errorMessenger';
 let voice: Voice;
 
 window.addEventListener('DOMContentLoaded', () => {
+    ErrorMessenger.displayError('Test error message');
     voice = new Voice();
 });
 
