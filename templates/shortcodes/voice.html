@@ -17,6 +17,7 @@
 </div>
 <script>
     function speak(ev) {
+        var junk = new SpeechSynthesisUtterance();
         if (window.syntheticVoice) {
             window.syntheticVoice.sayUtterance(ev);
         } else {
