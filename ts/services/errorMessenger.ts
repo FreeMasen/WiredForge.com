@@ -4,7 +4,9 @@ export default class ErrorMessenger {
     private static hasCurrent: boolean = false;
 
     static displayError(msg: string) {
+        console.log('displayError');
         if (ErrorMessenger.hasCurrent) {
+            console.log('queueing message');
             ErrorMessenger.queue.push(msg);
         } else {
             ErrorMessenger._displayError(msg);
@@ -21,21 +23,22 @@ export default class ErrorMessenger {
     }
 
     private static clearCurrentError() {
-        this.hasCurrent = false;
         let container = ErrorMessenger.getContainer();
         container.parentNode.removeChild(container);
         if (ErrorMessenger.queue.length > 0) {
             let nextMsg = ErrorMessenger.queue.shift();
             ErrorMessenger._displayError(nextMsg);
+        } else {
+            ErrorMessenger.hasCurrent = false;
         }
     }
 
     private static getContainer(): HTMLDivElement {
         let container = document.getElementById('error-message-container') as HTMLDivElement;
-        if (container) {
-            container.parentElement.removeChild(container);
+        if (!container) {
+            return ErrorMessenger.createContainer();
         }
-        return ErrorMessenger.createContainer();
+        return container;
     }
 
     private static createContainer(): HTMLDivElement {

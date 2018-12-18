@@ -20,11 +20,14 @@ class Voice {
     setVoiceOptions(iter?: number) {
         let select = this.getSelect();
         //clear out any existing options
+        ErrorMessenger.displayError(`Clearing any existing voices`);
         while (select.options.length > 0) {
             select.options.remove(0);
         }
+        ErrorMessenger.displayError('Getting voices');
         let voices = this.speaker.getVoices();
         if (voices.length < 1) {
+            ErrorMessenger.displayError('No voices, trying again');
             if (!iter) {
                 iter = 500;
             }
@@ -33,6 +36,7 @@ class Voice {
             }
             return setTimeout(() => this.setVoiceOptions(iter * 1.5), iter);
         }
+        ErrorMessenger.displayError(`voice count: ${voices.length}`);
         for (let i = 0; i < voices.length; i++) {
             let opt = document.createElement('option') as HTMLOptionElement;
             opt.value = i.toString();
