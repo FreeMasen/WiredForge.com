@@ -4,9 +4,7 @@ export default class ErrorMessenger {
     private static hasCurrent: boolean = false;
 
     static displayError(msg: string) {
-        console.log('displayError');
         if (ErrorMessenger.hasCurrent) {
-            console.log('queueing message');
             ErrorMessenger.queue.push(msg);
         } else {
             ErrorMessenger._displayError(msg);

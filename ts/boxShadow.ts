@@ -34,7 +34,6 @@ class BoxShadow {
     }
 
     updateBoxShadow() {
-        console.log('updateBoxShadow', this.shadows.length);
         let target = document.getElementById('target');
         if (!target) return console.error('Unable to find target container');
         let newValue = this.getBoxShadowProperty();
@@ -43,7 +42,6 @@ class BoxShadow {
     }
 
     copyCss(ev: MouseEvent) {
-        console.log(ev);
         let css =this.getBoxShadowProperty();
         Clipboard.copy(css).then(() => {
             this.showPopup(`copied: '${css}'`, ev.pageY + 15, ev.pageX + 10);
@@ -179,7 +177,6 @@ class BoxShadow {
     }
 
     deleteShadow(idx: number) {
-        console.log('deleteShadow', idx);
         this.shadows.splice(idx, 1);
     }
 }

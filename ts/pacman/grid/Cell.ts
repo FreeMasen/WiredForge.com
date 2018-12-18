@@ -53,7 +53,6 @@ export default class Cell {
      * @param wall The wall to add to this cell
      */
     addWall(wall: CellWall) {
-        console.log('addWall', wall);
         if ((this.walls & wall) > 0) return;
         this.walls |= wall;
         switch (wall) {
@@ -76,7 +75,6 @@ export default class Cell {
      * @param wall The wall to remove from this cell, if not there does nothing
      */
     removeWall(wall: CellWall) {
-        console.log('removeWall', wall);
         this.walls &= ~wall;
         switch (wall) {
             case CellWall.Top:
@@ -133,7 +131,6 @@ export default class Cell {
         let tests = 0;
         while (cell.visited) {
             if (tests > 3) return;
-            console.log(cell, tests);
             tests++;
             dir = this.getNextDir(dir);
             this.nextCell(dir);

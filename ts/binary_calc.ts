@@ -43,7 +43,6 @@ class BinaryCalculator {
 
     count(): Bit {
         let ret = new Bit();
-        console.log('counting', ret.toString());
         let values = []
         let elements = document.querySelectorAll('.bit-value') as NodeListOf<HTMLSpanElement>;
         for (var i = 0; i < elements.length; i++) {
@@ -51,11 +50,9 @@ class BinaryCalculator {
             if (value.innerHTML == '1') {
                 let uintIndex = parseInt(value.getAttribute('uint-index'));
                 let onBit = this.bits[uintIndex];
-                console.log('found on bit', uintIndex, onBit.toString());
                 ret.add(onBit.copy());
             }
         }
-        console.log('counted', ret.toString());
         return ret;
     }
 

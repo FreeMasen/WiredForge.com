@@ -26,7 +26,6 @@ class Shifter {
     }
 
     inputChanged() {
-        console.log('inputChanged');
         let input = document.querySelector('#shifter-wrapper > .values > .input-group > #u16') as HTMLInputElement;
         let value = parseInt(input.value);
         this.bits = this.getBits(value);
@@ -36,7 +35,6 @@ class Shifter {
     }
 
     shiftBits(ev: Event) {
-        console.log('shiftBits', ev);
         let button = ev.currentTarget as HTMLButtonElement;
         if (button.disabled) return;
         if (button.getAttribute('id') == 'left-shift') {
@@ -50,7 +48,6 @@ class Shifter {
     }
 
     updateValues() {
-        console.log('updateValues', this.value);
         this.updateCounter();
         this.updateInput();
         this.updateBits();
@@ -96,13 +93,11 @@ class Shifter {
     }
 
     updateInput() {
-        console.log('updateInput');
         let input = document.querySelector('#shifter-wrapper > .values > .input-group > #u16') as HTMLInputElement;
         input.value = `${this.getValue()}`;
     }
 
     updateBits() {
-        console.log('updateBits', this.value);
         let bits = document.querySelector('.representation') as HTMLElement;
         HTMLHelper.clearChildren(bits);
         let leftBits = document.querySelector('#shifter-wrapper > .values > .representation > #little-bits');
@@ -114,7 +109,6 @@ class Shifter {
                 bigStr += ' ';
             }
         }
-        console.log('big bits', bigBits);
         let bigSpan = document.createElement('span') as HTMLSpanElement;
         bigSpan.setAttribute('id', 'big-bits');
         let bigText = document.createTextNode(bigStr);
@@ -130,7 +124,6 @@ class Shifter {
                 littleStr += ' ';
             }
         }
-        console.log('little bits', littleBits);
         let littleSpan = document.createElement('span') as HTMLSpanElement;
         littleSpan.setAttribute('id', 'little-bits');
         let littleText = document.createTextNode(littleStr)
@@ -139,7 +132,6 @@ class Shifter {
     }
 
     getBits(val: number): Array<number> {
-        console.log('getBits', val);
         let ret = [];
         let bitValue = 1;
         for (var i = 0; i < this.bits.length; i++) {
@@ -165,7 +157,6 @@ class Shifter {
             }
             bitValue *= 2;
         }
-        console.log('getValue', ret);
         return ret;
     }
 }

@@ -140,7 +140,6 @@ class Arcer {
     }
 
     canvasDragStart(ev: MouseEvent) {
-        console.log('canvasDragStart');
         let position = this.getPointFromMouse(ev);
         this.draggingPoint = this.findNearestPoint(position.x, position.y);
     }

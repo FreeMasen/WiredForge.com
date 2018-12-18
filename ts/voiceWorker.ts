@@ -3,12 +3,10 @@ import Data from './voice/data';
 
 let data = new Data();
 addEventListener('message', async ev => {
-    console.log('worker.message', ev.data);
     let message: IVoiceMessage = ev.data;
     switch (message.messageType) {
         case MessageType.Add:
         case MessageType.Update:
-            console.log('Add/Update message');
             for (let s of message.statements) {
                 await data.upsertStatement(s);
             }
@@ -30,7 +28,6 @@ addEventListener('messageerror', ev => {
 });
 
 async function sendUpdate(messageType: MessageType) {
-    console.log('worker.sendUpdate');
     let update: IDbMessage = {
         messageType,
         queued: [],

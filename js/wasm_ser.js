@@ -25,7 +25,6 @@ function getNativeResults() {
     fetch('sertest/native')
         .then(res => {
             res.json().then(res => {
-                console.log('res.json', res);
                 updateResults('native', TestResult.fromJson(res));
             });
         })

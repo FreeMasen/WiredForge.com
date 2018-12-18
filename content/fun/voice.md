@@ -9,3 +9,4 @@ image_desc = "robot voice"
 +++
 
 {{ voice() }}
+NOTE: Mobile users may need to turn their ringer on to hear sound.

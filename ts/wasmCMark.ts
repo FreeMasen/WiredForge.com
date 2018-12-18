@@ -1,18 +1,15 @@
 let wasm;
 import('wasm_cmark_parse').then(w => {
-    console.log('wasm_cmark_parse resolved');
     wasm = w;
     ready();
 }).catch(console.error);
 
 function parseMD(md) {
-    console.log('parseMD');
     return wasm.parse_markdown(md);
 }
 
 let debounce;
 function ready() {
-    console.log('ready');
     renderMD();
     let input = getInput();
     if (!input) throw new Error('Unable to find MD input');
@@ -26,7 +23,6 @@ function ready() {
     });
 }
 function renderMD() {
-    console.log('renderMD');
     debounce = null;
     let input = getInput();
     if (!input) throw new Error('Unable to find MD input');
@@ -38,11 +34,9 @@ function renderMD() {
 }
 
 function getInput(): HTMLInputElement {
-    console.log('getInput');
     return document.getElementById('md-input-box') as HTMLInputElement;
 }
 
 function getHTML() {
-    console.log('getHTML');
     return document.getElementById('rendered');
 }

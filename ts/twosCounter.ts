@@ -67,7 +67,6 @@ export default class SignedCounter {
         if (this.countingTimeout !== null) {
             clearTimeout(this.countingTimeout);
         }
-        console.log('updateValuesWith', segment, one);
         if (one) {
             this.unsigned |= segment;
         } else {

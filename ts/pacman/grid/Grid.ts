@@ -34,7 +34,6 @@ export default class Grid {
     }
 
     setupEmptyCells() {
-        console.log('setupEmptyCells')
         let width = this.width / 11;
         let height = this.height / 11;
         let rowLength = this.width / width;
@@ -91,7 +90,6 @@ export default class Grid {
     }
 
     render() {
-        console.log('render');
         let height = this.context.canvas.height;
         let width = this.context.canvas.width;
         let upperPortCell = this.cells.get(0, 2);

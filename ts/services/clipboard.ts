@@ -10,7 +10,6 @@ export default class Clipboard {
 }
 
 function oldSchool(text) {
-    console.log('oldSchool')
     return new Promise((r, x) => {
         let ta = document.createElement('textarea');
         ta.setAttribute('style', 'width: 1px, height: 1px;position:absolute;left:-1;top:-1;');
@@ -32,6 +31,5 @@ function oldSchool(text) {
 }
 
 function newStuff(text) {
-    console.log('newStuff')
     return (navigator as any).clipboard.writeText(text);
 }
