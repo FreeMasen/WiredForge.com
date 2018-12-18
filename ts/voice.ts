@@ -51,8 +51,8 @@ class Voice {
         this.speaker.addEventListener('ready', () => this.setVoiceOptions());
         let clear = document.getElementById('clear') as HTMLButtonElement;
         clear.addEventListener('click', ev => this.clearBox(ev));
-        // let submit = document.getElementById('submit') as HTMLButtonElement;
-        // submit.addEventListener('click', ev => this.sayUtterance(ev))
+        let submit = document.getElementById('submit') as HTMLButtonElement;
+        submit.addEventListener('click', ev => this.sayUtterance(ev))
     }
 
     /**Add a new statement to the queue */
