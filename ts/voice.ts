@@ -18,9 +18,11 @@ class Voice {
 
     /**Setup the select list options */
     setVoiceOptions(iter?: number) {
+        try {
         let select = this.getSelect();
         //clear out any existing options
         ErrorMessenger.displayError(`Clearing any existing voices`);
+
         while (select.options.length > 0) {
             select.options.remove(0);
         }
@@ -46,6 +48,9 @@ class Voice {
                 select.value = i.toString();
             }
             select.options.add(opt);
+        }
+        } catch (e) {
+            ErrorMessenger.displayError(e.message);
         }
     }
 
