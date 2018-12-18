@@ -1,16 +1,33 @@
 import { Statement } from "./models";
 
 export type EventHandler = (ev: Event) => void;
-export type SpeakerEvent = 'ready' | 'voiceschanged' | 'speaking' | 'stoppedSpeaking' | 'paused' | 'resumed' | 'cancelled';
+export type SpeakerEvent = 'ready' | 'voiceschanged' | 'speaking' | 'stoppedSpeaking' | 'paused' | 'resumed' | 'cancelled' | 'error';
 
 export default class Speaker {
     private _speaker: SpeechSynthesis = window.speechSynthesis;
     private handlers = new Map<string, Array<EventHandler>>();
     public statement: Statement;
     constructor() {
-        this._speaker.addEventListener('voiceschanged', ev => this.dispatchEvent(ev));
+        if (this._speaker.onvoiceschanged) {
+            this._speaker.addEventListener('voiceschanged', ev => this.dispatchEvent(ev));
+        } else {
+
+        }
         this.addEventListener('stoppedSpeaking', ev => this.statement = null);
         this.watchVoices();
+    }
+
+    private manualGetVoices(ct = 0) {
+        let voices = this.getVoices();
+        if (ct > 5) {
+            return this.dispatchEvent(this.getEvent('error'));
+        }
+        if (voices.length < 1) {
+            let newCt = ct + 1;
+            setTimeout(() => this.manualGetVoices(newCt), 1000 * newCt);
+        } else {
+            this.dispatchEvent(this.getEvent('ready'));
+        }
     }
 
     private watchVoices() {

@@ -13,6 +13,7 @@ class Voice {
     private speaker: Speaker = new Speaker();
 
     constructor() {
+        debugger;
         this.registerEvents();
     }
 
@@ -55,6 +56,7 @@ class Voice {
     }
 
     registerEvents() {
+        debugger;
         this.speaker.addEventListener('ready', () => this.setVoiceOptions());
         let clear = document.getElementById('clear') as HTMLButtonElement;
         clear.addEventListener('click', ev => this.clearBox(ev));
