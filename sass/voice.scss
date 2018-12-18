@@ -34,10 +34,12 @@
     .bottom-group {
         width: calc(100% - 10px);
         display: flex;
-        flex-flow: row;
-        justify-content: space-between;
+        flex-flow: row wrap;
+        justify-content: center;
         align-items: center;
-
+        @media (min-width: 841px) {
+            justify-content: space-between;
+        }
         .input-group {
             display: flex;
             flex-flow: column;
@@ -58,83 +60,24 @@
             display: flex;
             flex-flow: row;
             align-items: flex-end;
-            height: 100%;
+            margin-top: 10px;
+            @media (min-width: 841px) {
+                height: 100%;
+                margin-top: 0;
+            }
             button {
                 padding: 5px 10px;
                 border: none;
-                box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
                 margin-right: 5px;
                 font-size: 14pt;
-            }
-        }
-    }
-
-    #statements {
-        display: flex;
-        flex-flow: row;
-        width: 100%;
-        margin-top: 10px;
-        min-width: 300px;
-        justify-content: space-around;
-        div {
-            width: calc(50% - 2px);
-            .list-title {
-                text-align: center;
-                width: 100%;
-                display: block;
-                border-bottom: 1px solid $grey;
-            }
-            .statement-list {
-                display: flex;
-                flex-flow: column;
-                min-height: 100px;
-                overflow: auto;
-                width: 100%;
-                .statement {
-                    width: 98%;
-                    display: flex;
-                    flex-flow: column;
-                    justify-content: flex-start;
-                    align-items: flex-start;
-                    position: relative;
-                    padding: 5px 0;
-                    box-shadow: 2px 2px 2px 1px rgba(0,0,0,0.5);
-                    margin-bottom: 5px;
-                    &.completed {
-                        background: $blue;
-                        color: #fff;
-                    }
-                    &.queued {
-                        background: $orange;
-                        color: #fff;
-                    }
-                    .delete {
-                        position: absolute;
-                        right: 0;
-                        top: 0;
-                        width: 20px;
-                        height: 20px;
-                        padding: 0;
-                        text-align: center;
-                        line-height: 1;
-                    }
-                    .voice-info {
-                        display: flex;
-                        flex-flow: column;
-                        justify-content: flex-start;
-                        align-items: flex-start;
-                        align-content: flex-start;
-                        width: 100%;
-                        .voice-title {
-                            width: 100%;
-                            border-bottom: 1px solid $grey;
-                            font-weight: bold;
-                        }
-                    }
+                border-radius: 5px;
+                border: none;
+                background: #fff;
+                box-shadow: 1px 1px 1px 1px $grey;
+                &#submit {
+                    background: $blue;
                 }
             }
-
         }
-
     }
 }
