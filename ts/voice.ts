@@ -2,10 +2,12 @@ import {Statement} from './voice/models';
 import Html from './voice/html';
 import Speaker from './voice/speaker';
 import ErrorMessenger from './services/errorMessenger';
-let voice: Voice;
 
 window.addEventListener('DOMContentLoaded', () => {
-    voice = new Voice();
+    (window as any).syntheticVoice = new Voice();
+    window.addEventListener('user-error', (ev: CustomEvent) => {
+        ErrorMessenger.displayError(ev.detail);
+    });
 });
 
 class Voice {

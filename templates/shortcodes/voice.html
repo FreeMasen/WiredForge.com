@@ -11,15 +11,16 @@
         </div>
         <div class="button-group">
             <button type="reset" id="clear">Clear</button>
-            <button type="submit" id="submit" onclick="speak(ev)">Say</button>
+            <button type="submit" id="submit" onclick="speak(event)">Say</button>
         </div>
     </div>
 </div>
 <script>
     function speak(ev) {
-        if (window.voice) {
-            window.voice.sayUtterance(ev);
+        if (window.syntheticVoice) {
+            window.syntheticVoice.sayUtterance(ev);
         } else {
+            window.dispatchEvent(new CustomEvent('user-error', {detail: 'Unable to pass along event'}));
             console.error('Unable to pass event along');
         }
     }
