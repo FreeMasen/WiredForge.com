@@ -20,6 +20,7 @@ mod models;
 mod error;
 
 use warp::{Filter};
+use std::path::PathBuf;
 
 fn main() {
     ::std::env::set_var("RUST_LOG", "info");
@@ -31,7 +32,7 @@ fn main() {
     let ser_test = warp::get2()
                 .and(path!("sertest" / "native"))
                 .map(routes::get_wasm_results);
-    let static_route = warp::fs::dir("../public/");
+    let static_route = warp::fs::dir(find_static_path());
     let routes = warp::any()
                     .and(contact)
                     .or(ser_test)
@@ -39,5 +40,17 @@ fn main() {
                     .with(warp::log("wiredforge"));
     warp::serve(routes)
         .run(([0,0,0,0], 1111));
+}
+
+fn find_static_path() -> PathBuf {
+    let path = PathBuf::from("../public/");
+    if path.exists() {
+        return path
+    }
+    let path = PathBuf::from("./public/");
+    if path.exists() {
+        return path
+    }
+    panic!("Unable to find static path, should be either ./public or ../public");
 }
 

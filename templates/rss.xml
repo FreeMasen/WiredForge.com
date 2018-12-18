@@ -21,7 +21,8 @@
                     <a href="{{page.extra.extern_link}}">External Link</a>
                 {% else %}
                     {{ page.content }}
-                {% endif %}</description>
+                {% endif %}
+                </description>
             </item>
         {% endif %}
         {% endfor %}
