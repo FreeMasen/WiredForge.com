@@ -11,8 +11,17 @@
         </div>
         <div class="button-group">
             <button type="reset" id="clear">Clear</button>
-            <button type="submit" id="submit">Say</button>
+            <button type="submit" id="submit" onclick="speak(ev)">Say</button>
         </div>
     </div>
 </div>
+<script>
+    function speak(ev) {
+        if (window.voice) {
+            window.voice.sayUtterance(ev);
+        } else {
+            console.error('Unable to pass event along');
+        }
+    }
+</script>
 <script type="text/javascript" src="/js/voice.js"></script>

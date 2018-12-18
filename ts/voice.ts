@@ -5,7 +5,6 @@ import ErrorMessenger from './services/errorMessenger';
 let voice: Voice;
 
 window.addEventListener('DOMContentLoaded', () => {
-    ErrorMessenger.displayError('Test error message');
     voice = new Voice();
 });
 
@@ -19,18 +18,14 @@ class Voice {
 
     /**Setup the select list options */
     setVoiceOptions(iter?: number) {
-        try {
         let select = this.getSelect();
         //clear out any existing options
-        ErrorMessenger.displayError(`Clearing any existing voices`);
 
         while (select.options.length > 0) {
             select.options.remove(0);
         }
-        ErrorMessenger.displayError('Getting voices');
         let voices = this.speaker.getVoices();
         if (voices.length < 1) {
-            ErrorMessenger.displayError('No voices, trying again');
             if (!iter) {
                 iter = 500;
             }
@@ -39,7 +34,6 @@ class Voice {
             }
             return setTimeout(() => this.setVoiceOptions(iter * 1.5), iter);
         }
-        ErrorMessenger.displayError(`voice count: ${voices.length}`);
         for (let i = 0; i < voices.length; i++) {
             let opt = document.createElement('option') as HTMLOptionElement;
             opt.value = i.toString();
@@ -50,9 +44,6 @@ class Voice {
             }
             select.options.add(opt);
         }
-        } catch (e) {
-            ErrorMessenger.displayError(e.message);
-        }
     }
 
     registerEvents() {
@@ -60,8 +51,8 @@ class Voice {
         this.speaker.addEventListener('ready', () => this.setVoiceOptions());
         let clear = document.getElementById('clear') as HTMLButtonElement;
         clear.addEventListener('click', ev => this.clearBox(ev));
-        let submit = document.getElementById('submit') as HTMLButtonElement;
-        submit.addEventListener('click', ev => this.sayUtterance(ev))
+        // let submit = document.getElementById('submit') as HTMLButtonElement;
+        // submit.addEventListener('click', ev => this.sayUtterance(ev))
     }
 
     /**Add a new statement to the queue */
