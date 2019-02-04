@@ -1,5 +1,7 @@
-            <svg viewBox="0 0 80 75">
-                  <path d="M 3 10
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<svg viewBox="0 0 80 75" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 3 10
                   l 50 0
                   l 0 5
                   l 25 0
@@ -12,22 +14,9 @@
                   l -19 -15
                   l 0 -10
                   l 2 0
-                  z"
-                  fill="green"
-                  stroke="none"
-                  stroke-linejoin="round"
-                  />
-                  <rect
-                  class="anvil"
-                  x="10"
-                  y="60.75"
-                  width="45"
-                  height="10"
-                  fill="green"
-                  />
-                  <path
-                  stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 5 13
+                  z" fill="green" stroke="none" stroke-linejoin="round" />
+      <rect class="anvil" x="10" y="60.75" width="45" height="10" fill="green" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 5 13
                   l 0 3
                   l -2 0
                   l 0 7
@@ -41,11 +30,9 @@
                   l -2 4
                   l 3 2.5
                   l 10 0
-                  "
-                  />
-                  <circle cx="5" cy="12.5" r="1" stroke="#D4AF37" fill="green" stroke-width="0.5"/>
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 30 40
+                  " />
+      <circle cx="5" cy="12.5" r="1" stroke="#D4AF37" fill="green" stroke-width="0.5"/>
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 30 40
                   l 0 1
                   l -4 0
                   a 7 5 -45 0 1 1.5 2
@@ -109,22 +96,15 @@
                   l 0 3.5
                   l -3 0
                   l 0 -1
-                  "
-
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1" cx="15.5" cy="64.75"/>
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 29 30
+                  " />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="15.5" cy="64.75"/>
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 29 30
                   l -2 0
                   l 0 4
                   l -5 0
-                  "
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1" cx="22" cy="34" />
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 30 30
+                  " />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="22" cy="34" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 30 30
                   l 0 -2
                   l -4 0
                   l 0 -13
@@ -144,15 +124,9 @@
                   l 0 -2
                   l 5.5 3.5
                   l 0 -5.7
-                  l -7 0"
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1"
-                  cx="9"
-                  cy="13.8"
-                  />
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 32 30
+                  l -7 0" />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="9" cy="13.8" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 32 30
                   l 0 -15
                   l -2 0
                   l 0 11
@@ -163,15 +137,9 @@
                   l 31 0
                   l 0 2
                   l -20 0
-                  "
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1"
-                  cx="30"
-                  cy="13"
-                  />
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 34 40
+                  " />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="30" cy="13" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 34 40
                   l 0 21
                   l 15 0
                   a 10 30 -100 0 1 -3 -2
@@ -195,16 +163,10 @@
                   l 0 -2
                   l 4.5 0
                   l 0 -4
-                  "
-                  />
+                  " />
 
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1"
-                  cx="40.7"
-                  cy="38"
-                  />
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="M 39 35
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="40.7" cy="38" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="M 39 35
                   l 8 0
                   a 10 20 45 0 1 8 -1.5
                   a 20 10 -45 0 0 22 -17
@@ -225,15 +187,9 @@
                   l 0 -2
                   a 20 10 -45 0 0 6 -4
                   l -4.5 0
-                  "
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1"
-                  cx="54.25"
-                  cy="17"
-                  />
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="
+                  " />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="54.25" cy="17" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="
                   M 39.5 32
                   l 10.5 0
                   l 0 -17.5
@@ -244,15 +200,9 @@
                   l -2 0
                   l 0 15.5
                   l -2 0
-                  "
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1"
-                  cx="41.5"
-                  cy="29.75"
-                  />
-                  <path stroke="darkgreen" fill="none" stroke-width="0.5"
-                  d="
+                  " />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="41.5" cy="29.75" />
+      <path stroke="darkgreen" fill="none" stroke-width="0.5" d="
                   M 34 30
                   l 0 -15
                   l 1.9 0
@@ -263,21 +213,7 @@
                   l 0 12
                   l 2 0
                   l 0 -10.5
-                  "
-                  />
-                  <circle stroke="#D4AF37" fill="green" stroke-width="0.5"
-                  r="1"
-                  cx="42"
-                  cy="16"
-                  />
-                  <rect
-                        id="processor"
-                        stroke="#D4AF37"
-                        fill="grey"
-                        stroke-width="0.5"
-                        x="29"
-                        y="30"
-                        width="10"
-                        height="10"
-                  />
-            </svg>
+                  " />
+      <circle stroke="#D4AF37" fill="green" stroke-width="0.5" r="1" cx="42" cy="16" />
+      <rect id="processor" stroke="#D4AF37" fill="silver" stroke-width="0.5" x="29" y="30" width="10" height="10" />
+</svg>
