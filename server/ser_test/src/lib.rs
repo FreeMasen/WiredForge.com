@@ -28,7 +28,7 @@ pub struct Test<T> {
     largest: usize,
     total_size: usize,
 }
-use std::fmt::Display;
+
 pub fn get_res<T>(now: Box<Fn() -> T>, time_unit: &str) -> TestResult<T>
 where <T as Sub>::Output: Debug, T: Sub + Copy
 {
