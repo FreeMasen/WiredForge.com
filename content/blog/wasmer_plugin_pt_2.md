@@ -9,7 +9,7 @@ date_sort = 20190530
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
-If you haven't seen it yet, you may want to checkout [part one](./wasmer_plugin_pt1.md) where we went over the basics of using wasmer. In this post we are going to cover how we could pass more complicated data from the wasm module back to the runner. Let's make one last naive and dumb plugin that takes a string and returns that string repeated twice. 
+If you haven't seen it yet, you may want to checkout [part one](/blog/wasmer-plugin-pt-1/index.html) where we went over the basics of using wasmer. In this post we are going to cover how we could pass more complicated data from the wasm module back to the runner. Let's make one last naive and dumb plugin that takes a string and returns that string repeated twice. 
 
 ### Plugin
 ```rust
@@ -325,4 +325,4 @@ original: "repeat", multiplied: "repeatrepeatrepeatrepeatrepeat"
 
 Huzzah! Another success! At this point it might be a good idea to address the elephant in the room, if we asked another developer to understand all of this, do you think anyone would build a plugin for our system? Propbably not, in the next post we are going to cover how to ease that process by leveraging `proc_macros` and even look at some more real world examples.
 
-[part three](./wasmer_plugin_pt_3.md)
+[part three](/blog/wasmer-plugin-pt-3/index.html)

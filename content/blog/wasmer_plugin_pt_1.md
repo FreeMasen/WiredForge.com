@@ -210,4 +210,4 @@ original: 34, wasm: 34
 
 Huzzah! Success again! But alas, still pretty useless. In the next post we are going to cover step 4 and how we can ease this process for plugin developers.
 
-[part two](./wasmer_plugin_pt2.md)
+[part two](/blog/wasmer-plugin-pt-2/index.html)
