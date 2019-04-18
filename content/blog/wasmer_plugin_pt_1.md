@@ -9,25 +9,43 @@ date_sort = 20190530
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
-A few months ago, the [Wasmer](https://wasmer.io) team announced a Web Assembly (aka wasm) interpreter that could be embedded into rust programs. This is particularly exciting for anyone looking for to providing an avenue to add plugins to their project and since Rust provides a way to directly compile programs to wasm, it seems like a perfect option. In this series of blog posts we are going to investigate what building a plugin system using wasmer and rust would take. 
+A few months ago, the [Wasmer](https://wasmer.io) team announced a Web Assembly (aka wasm) interpreter that could be embedded into rust programs. This is particularly exciting for anyone looking to add plugins to their project and since Rust provides a way to directly compile programs to wasm, it seems like a perfect option. In this series of blog posts we are going to investigate what building a plugin system using wasmer and rust would take. 
 
 ## The Setup
 
-Before we really dig into the specifics, we should have a layout in mind for our project. That way if you want to follow along on your own computer, you can and if your not nothing will seem like _magic_. To do this we are going to take advantage of cargo's workspace feature which allows us to collect a bunch of related projects in one parent project. You can also find a github repo with all of the code [here](https://github.com/FreeMasen/wiredforge-wasmer-plugin-code), each branch will represent a different state of this series. The basic structure we are going to shoot for would look something like this.
-
-- `wasmer-plugin-example` - A rust library, the details of which we will cover in detail in part 3
+Before we really dig into the specifics, we should have a layout in mind for our project. That way if you want to follow along on your own computer, you can and if your not, nothing will seem like _magic_. To do this we are going to take advantage of cargo's workspace feature which allows us to collect a bunch of related projects in one parent project. You can also find a github repo with all of the code [here](https://github.com/FreeMasen/wiredforge-wasmer-plugin-code), each branch will represent a different state of this series. The basic structure we are going to shoot for would look something like this.
+```
+wasmer-plugin-example
+├── Cargo.toml
+├── crates
+│   ├── example-macro
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       └── lib.rs
+│   ├── example-plugin
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       └── lib.rs
+│   └── example-runner
+│       ├── Cargo.toml
+│       └── src
+│           └── main.rs
+└── src
+    └── lib.rs
+```
+- `wasmer-plugin-example` - A rust library, the details of which we will cover in detail in one of the next parts
   - `crates` - The folder that will house all of our other projects
     - `example-plugin` - The plugin we will use to test that everything is working as expected
-    - `example-runner` - A Binary/Library project that will act as our plugin host
-    - `example-macro` - A `proc_macro` library that we will cover in part 3
+    - `example-runner` - A Binary project that will act as our plugin host
+    - `example-macro` - A `proc_macro` library that we will be creating in one of the next parts
 
 To set this up we are going to start by creating the parent project.
 
 ```
 cargo new --lib wasmer-plugin-example
-cd wiredforge-wasmer-plugin-code
+cd wasmer-plugin-example
 ```
-Once that has been created we can move into that directory. In your editor of choice you would then open the Cargo.toml and add a `[workspace]` table to the configuration and point to the 3 projects in the `crates` folder from above.
+Once that has been created we can move into that directory and in your editor of choice you would then open the Cargo.toml. We need to add a `[workspace]` table to the configuration and point to the 3 projects in the `crates` folder from above.
 
 ```toml
 [package]
@@ -151,7 +169,9 @@ Huzzah, success! but that isn't super useful. Let's investigate what we would ne
 3. A method to communicate where and what the data is to the wasm module
 4. A system for extracting the update information from the wasm memory after the plugin is executed
 
-First we need a way to initialize some value into the wasm module's memory before we run our function. Thankfully `wasmer_runtime` gives us a way to do exactly that. Let's update our example to take in a string and return the length of that string, this isn't going to be much more useful than our last example but we will get a little closer.
+First we need a way to initialize some value into the wasm module's memory before we run our function. Thankfully `wasmer_runtime` gives us a way to do exactly that. Let's update our example to take in a string and return the length of that string, this isn't going to be much more useful than our last example but... baby steps.
+
+![Bill Murray everyone...](https://media0.giphy.com/media/NAe117ka9jAdi/giphy.gif?cid=790b76115cb8b4c2565a54784d25a2f4)
 
 ### Our Second Plugin
 ```rust
@@ -178,28 +198,22 @@ pub fn _length(ptr: i32, len: u32) -> u32 {
 }
 ```
 
-There is quite a bit more that we needed to do this time around, let's go over what is happening. First we have defined a function `length`, this is exactly what we would want to if we were using this library from another rust program. Since we are using this library as a wasm module, we need to add a helper that will deal with all of the memory interactions. This may seem like an odd structure but this doing it this way allows for additional flexibility which will become more clear as we move forward. The `_length` function is going to be that helper. First, we need the arguments and return values to match what is available when crossing the wasm boundary (only numbers). Our arguments then will the the shape of our string, `ptr` is the start of the string and `len` is they length. Since we are dealing with raw memory, we need to do the conversion inside of an `unsafe` block (I know that is a bit scary but we are going to make sure that there actually is a string there in just a moment). Once we pull the string out of memory, we can pass it over to `length` just like normal, returning the result of that function. Go ahead and build it just like before.
+There is quite a bit more that we needed to do this time around, let's go over what is happening. First we have defined a function `length`, this is exactly what we would want to if we were using this library from another rust program. Since we are using this library as a wasm module, we need to add a helper that will deal with all of the memory interactions. This may seem like an odd structure but this doing it this way allows for additional flexibility which will become more clear as we move forward. The `_length` function is going to be that helper. First, we need the arguments and return values to match what is available when crossing the wasm boundary (only numbers). Our arguments then will describe the shape of our string, `ptr` is the start of the string and `len` is the length. Since we are dealing with raw memory, we need to do the conversion inside of an `unsafe` block (I know that is a bit scary but we are going to make sure that there actually is a string there in the runner). Once we pull the string out of memory, we can pass it over to `length` just like normal, returning the result. Go ahead and build it just like before.
 
 ```
 cargo build --target wasm32-unknown-unknown
 ```
 
-Now let's cover how we would do this on the other side.
+Now let's cover how we would set this up in the runner.
 
-### Runner
 ```rust
+// ./crates/example-runner/src/main.rs
 use wasmer_runtime::{
-    Ctx,
     imports,
-    Instance,
     instantiate,
 };
-
-use std::{
-    fs::File,
-    io::Read,
-    path::PathBuf,
-};
+// For now we are going to use this to read in our wasm bytes
+static WASM: &[u8] = include_bytes!("../../../target/wasm32-unknown-unknown/debug/example_plugin.wasm");
 
 fn main() {
     // This part hasn't change at all!
@@ -214,7 +228,7 @@ fn main() {
     let instance = instantiate(&wasm, imports!{}).expect("failed to instantiate wasm module");
     // The changes start here
     // First we get the module's context
-    let context = instance.inst.context();
+    let context = instance.context();
     // Then we get memory 0 from that context
     // web assembly only supports one memory right
     // now so this will always be 0.
@@ -227,10 +241,10 @@ fn main() {
     let bytes = s.as_bytes();
     // Our length of bytes
     let len = bytes.len();
-    // loop over the wasm memory view bytes
+    // loop over the wasm memory view's bytes
     // and also the string bytes
     for (cell, byte) in view[0..len].iter().zip(bytes.iter()) {
-        // set the wasm memory byte to 
+        // set each wasm memory byte to 
         // be the value of the string byte
         cell.set(byte)
     }
@@ -241,19 +255,15 @@ fn main() {
 }
 ```
 
-Ok, there is quite a bit more going on this time around. The first few lines are going to be exactly the same, we are going to read in the wasm and then instantiate it. Once that is done, we are going to get a view into the wasm memory, we do this by first getting the `Ctx` (context) from the module instance. Once we have the context we can pull out the memory by calling `memory(0)`, web assembly only has one memory currently so in the short term this will always take the value 0 but moving forward there may be more than one memory allowed. One last step to actually get the memory is to call the `view()` method on that, it is quite a few steps but we are finally at a stage where we can modify the module's memory. You may have noticed that the type of `view` is `Vec<Cell<u8>>`, so we have a vector of bytes but each of the bytes is wrapped in a `Cell`. A [`Cell`](https://doc.rust-lang.org/std/cell/struct.Cell.html) according to the documentation is a way to allow mutating one part of an immutable value, in our case it is essentially saying "I'm not going to make this memory any longer or shorter, just change what its values are". 
+Ok, there is quite a bit more going on this time around. The first few lines are going to be exactly the same, we are going to read in the wasm and then instantiate it. Once that is done, we are going to get a view into the wasm memory, we do this by first getting the `Ctx` (context) from the module instance. Once we have the context we can pull out the memory by calling `memory(0)`, web assembly only has one memory currently so in the short term this will always take the value 0 but moving forward there may be more than one memory allowed. One last step to actually get the raw memory is to call the `view()` method, we are finally at a stage where we can modify the module's memory. You may have noticed that the type of `view` is `Vec<Cell<u8>>`, so we have a vector of bytes but each of the bytes is wrapped in a `Cell`. A [`Cell`](https://doc.rust-lang.org/std/cell/struct.Cell.html) according to the documentation is a way to allow mutating one part of an immutable value, in our case it is essentially saying "I'm not going to make this memory any longer or shorter, just change what its values are". 
 
-Now we define the string we want to pass into the wasm memory and convert that to bytes. We also want to keep track of the byte length of that string so we capture that as `len`
-
-To update those values we are going to user the [`Zip`](https://doc.rust-lang.org/std/iter/struct.Zip.html) iterator, which just lets us loop over two things at one time. So in each iteration of our loop, we are going to stop at both the cell and the string byte setting the value of the cell to the value of the byte. 
-
-Now that we have injected this value into the wasm memory, we can bind our `_length` function and execute it, with the arguments `ptr` being `0` and `len` being `32`. 
+Now we define the string we want to pass into the wasm memory and convert that to bytes. We also want to keep track of the byte length of that string so we capture that as `len`. To put the string bytes into the memory bytes we are going to user the [`Zip`](https://doc.rust-lang.org/std/iter/struct.Zip.html) iterator, which just lets us loop over two things at one time. In each iteration of our loop, we are going to stop at both the cell and the string byte in the same index, in the loop body we are setting the value of the wasm memory byte to the value of the string's byte. Notice that we started at index 0 in the `view`, that means our `ptr` parameter is going to be 0 and our byte length is going to be the `len` parameter.
 
 ```
 cargo run
 original: 34, wasm: 34
 ```
 
-Huzzah! Success again! But alas, still pretty useless. In the next post we are going to cover step 4 and how we can ease this process for plugin developers.
+Huzzah! Success again! But alas, still pretty useless. It does however give us a good foundation to build upon for working with more complicated data. We saw how to interact with the wasm memory on both sides of the equation which we will exploit in part 2.
 
 [part two](/blog/wasmer-plugin-pt-2/index.html)
