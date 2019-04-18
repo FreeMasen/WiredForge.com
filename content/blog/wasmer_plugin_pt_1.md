@@ -191,7 +191,8 @@ pub fn length(s: &str) -> u32 {
 pub fn _length(ptr: i32, len: u32) -> u32 {
     // Extract the string from memory.
     let value = unsafe { 
-        String::from_raw_parts(ptr as *mut u8, len as usize, len as usize)
+        let slice = ::std::slice::from_raw_parts(ptr as _, len as _);
+        String::from_utf8_lossy(slice)
     };
     //pass the value to `length` and return the result
     length(&value)
@@ -212,20 +213,12 @@ use wasmer_runtime::{
     imports,
     instantiate,
 };
+
 // For now we are going to use this to read in our wasm bytes
 static WASM: &[u8] = include_bytes!("../../../target/wasm32-unknown-unknown/debug/example_plugin.wasm");
 
 fn main() {
-    // This part hasn't change at all!
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("target")
-                .join("wasm32-unknown-unknown")
-                .join("debug")
-                .join("really_dumb_plugin.wasm");
-    let mut wasm = Vec::new();
-    let mut f = File::open(path).expect("Failed to open wasm file");
-    f.read_to_end(&mut wasm).expect("Failed to read wasm file");
-    let instance = instantiate(&wasm, imports!{}).expect("failed to instantiate wasm module");
+    let instance = instantiate(&WASM, &imports!{}).expect("failed to instantiate wasm module");
     // The changes start here
     // First we get the module's context
     let context = instance.context();
@@ -234,7 +227,7 @@ fn main() {
     // now so this will always be 0.
     let memory = context.memory(0);
     // Now we can get a view of that memory
-    let view: Vec<Cell<u8>> = memory.view();
+    let view = memory.view::<u8>();
     // This is the string we are going to pass into wasm
     let s = "supercalifragilisticexpialidocious".to_string();
     // This is the string as bytes
@@ -243,21 +236,24 @@ fn main() {
     let len = bytes.len();
     // loop over the wasm memory view's bytes
     // and also the string bytes
-    for (cell, byte) in view[0..len].iter().zip(bytes.iter()) {
+    for (cell, byte) in view[1..len + 1].iter().zip(bytes.iter()) {
         // set each wasm memory byte to 
         // be the value of the string byte
-        cell.set(byte)
+        cell.set(*byte)
     }
     // Bind our helper function
     let length = instance.func::<(i32, u32), u32>("_length").expect("Failed to bind _length");
-    let wasm_len = length.call(0 as i32, len as u32);
+    let wasm_len = match length.call(1 as i32, len as u32) {
+        Ok(l) => l,
+        Err(e) => panic!("{}\n\n{:?}", e, e),
+    }; //.expect("Failed to execute _length");
     println!("original: {}, wasm: {}", len, wasm_len); // original: 34, wasm: 34
 }
 ```
 
 Ok, there is quite a bit more going on this time around. The first few lines are going to be exactly the same, we are going to read in the wasm and then instantiate it. Once that is done, we are going to get a view into the wasm memory, we do this by first getting the `Ctx` (context) from the module instance. Once we have the context we can pull out the memory by calling `memory(0)`, web assembly only has one memory currently so in the short term this will always take the value 0 but moving forward there may be more than one memory allowed. One last step to actually get the raw memory is to call the `view()` method, we are finally at a stage where we can modify the module's memory. You may have noticed that the type of `view` is `Vec<Cell<u8>>`, so we have a vector of bytes but each of the bytes is wrapped in a `Cell`. A [`Cell`](https://doc.rust-lang.org/std/cell/struct.Cell.html) according to the documentation is a way to allow mutating one part of an immutable value, in our case it is essentially saying "I'm not going to make this memory any longer or shorter, just change what its values are". 
 
-Now we define the string we want to pass into the wasm memory and convert that to bytes. We also want to keep track of the byte length of that string so we capture that as `len`. To put the string bytes into the memory bytes we are going to user the [`Zip`](https://doc.rust-lang.org/std/iter/struct.Zip.html) iterator, which just lets us loop over two things at one time. In each iteration of our loop, we are going to stop at both the cell and the string byte in the same index, in the loop body we are setting the value of the wasm memory byte to the value of the string's byte. Notice that we started at index 0 in the `view`, that means our `ptr` parameter is going to be 0 and our byte length is going to be the `len` parameter.
+Now we define the string we want to pass into the wasm memory and convert that to bytes. We also want to keep track of the byte length of that string so we capture that as `len`. To put the string bytes into the memory bytes we are going to user the [`Zip`](https://doc.rust-lang.org/std/iter/struct.Zip.html) iterator, which just lets us loop over two things at one time. In each iteration of our loop, we are going to stop at both the cell and the string byte in the same index, in the loop body we are setting the value of the wasm memory byte to the value of the string's byte. Notice that we started at index 1 in the `view`, that means our `ptr` parameter is going to be 1 and our byte length is going to be the `len` parameter.
 
 ```
 cargo run
