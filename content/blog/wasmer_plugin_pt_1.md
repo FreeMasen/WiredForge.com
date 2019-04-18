@@ -9,48 +9,109 @@ date_sort = 20190530
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
-A few months ago, the [Wasmer](https://wasmer.io) team announced a Web Assembly (aka wasm) interpreter that could be embedded into rust programs. This is particularly exciting for anyone looking for to providing an avenue to add plugins to their project. Current the Web Assembly specification only allows for the existence of numbers, with just that our plugin's wouldn't be particularly useful. The Web Assembly target for rust is already capable to dealing with more complicated data within any given function, however crossing the Web Assembly boundary we are stuck with this limitation. Let's start with an example of a plugin that just deals with these numbers so we can better understand where that boundary lies.
+A few months ago, the [Wasmer](https://wasmer.io) team announced a Web Assembly (aka wasm) interpreter that could be embedded into rust programs. This is particularly exciting for anyone looking for to providing an avenue to add plugins to their project and since Rust provides a way to directly compile programs to wasm, it seems like a perfect option. In this series of blog posts we are going to investigate what building a plugin system using wasmer and rust would take. 
 
-### Plugin
+## The Setup
+
+Before we really dig into the specifics, we should have a layout in mind for our project. That way if you want to follow along on your own computer, you can and if your not nothing will seem like _magic_. To do this we are going to take advantage of cargo's workspace feature which allows us to collect a bunch of related projects in one parent project. You can also find a github repo with all of the code [here](https://github.com/FreeMasen/wiredforge-wasmer-plugin-code), each branch will represent a different state of this series. The basic structure we are going to shoot for would look something like this.
+
+- `wasmer-plugin-example` - A rust library, the details of which we will cover in detail in part 3
+  - `crates` - The folder that will house all of our other projects
+    - `example-plugin` - The plugin we will use to test that everything is working as expected
+    - `example-runner` - A Binary/Library project that will act as our plugin host
+    - `example-macro` - A `proc_macro` library that we will cover in part 3
+
+To set this up we are going to start by creating the parent project.
+
+```
+cargo new --lib wasmer-plugin-example
+cd wiredforge-wasmer-plugin-code
+```
+Once that has been created we can move into that directory. In your editor of choice you would then open the Cargo.toml and add a `[workspace]` table to the configuration and point to the 3 projects in the `crates` folder from above.
+
+```toml
+[package]
+name = "wasmer-plugin-example"
+version = "0.1.0"
+authors = ["freemasen <r@wiredforge.com>"]
+edition = "2018"
+
+[dependencies]
+
+
+[workspace]
+members = [
+    "./crates/example-macro",
+    "./crates/example-plugin",
+    "./crates/example-runner",
+]
+```
+
+Now we can make that `creates` folder and the projects that will live inside it.
+
+```
+mkdir ./crates
+cd ./crates
+cargo new --lib example-plugin
+cargo new --lib example-macro
+cargo new example-runner
+```
+
+With that we have our workspace setup. This will allow us to use cargo commands from any of the directories inside our project and target activity in any other project in our workspace. We tell cargo which project we want an action to apply to with the `-p` argument. If we wanted to build the `example-plugin` project for instance we would use the following command.
+
+```
+cargo build -p example-plugin
+```
+
+With our workspace all setup, we should take a moment and get our development environment in order. First and for most we need to have the rust compiler, `cargo` and `rustup`. If you need those head over to [rustup.rs](https://rustup.rs/). With all that installed we are going to need the web assembly target from `rustup`.  
+
+```
+rustup target add wasm32-unknown-unknown
+```
+
+In addition to are rust requirements, we will also need a few things for wasmer. The full guide is available [here](https://github.com/wasmerio/wasmer#dependencies), for most system you just need to make sure `cmake` is installed, for windows it is slightly more complicated but there are links on dependency guide.
+
+## Our First  Plugin
+With that out of the way, we should talk about the elephant in the room, the Web Assembly specification only allows for the existence of numbers. Thankfully the web assembly target for rust can already handle this inside of a single program for us but any function in a plugin we want to call from our runner will need to only take numbers as arguments and only return numbers. With that in mind let's start with a very simple example. I will note that the examples in this part will not be very useful but I promise we will slowly build up the ability to do much more interesting things. 
+
 ```rust
+// ./crates/example-plugin/src/lib.rs
 #[no_mangle]
 pub fn add(one: i32, two: i32) -> i32 {
     one + two
 }
 ```
 
-The above is an extremely naive and uninteresting example of what a plugin might look like but it sticks into our requirement that it only deals with numbers. Now to get this to compile to Web Assembly, we would need to set a few more things up. First, we need to make sure that rust knows about Web Assembly we can do that via `rustup`
+The above is an extremely naive and uninteresting example of what a plugin might look like but it fits our requirement that it only deals with numbers. Now to get this to compile to Web Assembly, we need to set one more thing up in our `Cargo.toml`.
 
-```
-rustup target add wasm32-unknown-unknown
-```
-
-This will add all of the things that rustc/cargo will need to compile your rust code into a `wasm` file. The next thing we need to do is update the `Cargo.toml` for this library. 
-
-### Cargo.toml
 ```toml
+# ./crates/example-plugin/Cargo.toml
 [package]
-name = "really-dumb-plugin"
+name = "example-plugin"
 version = "0.1.0"
 authors = ["freemasen <r@wiredforge.com>"]
 edition = "2018"
+
+[dependencies]
+
 
 [lib]
 crate-type = ["cdylib"]
 ```
 
-The key here is the `crate-type = ["cdylib"]`, which say that we want this crate to be compiled as a C dynamic library. Now we can compile it with the following command
+The key here is the `crate-type = ["cdylib"]`, which says that we want this crate to be compiled as a C dynamic library. Now we can compile it with the following command
 
 ```
 cargo build --target wasm32-unknown-unknown
 ```
 
-At this point we should have a file in `./target/wasm32-unknown-unknown/debug/really_dumb_plugin.wasm`. Now that we have that, let's build a program that will run this, first we will get our dependencies all setup.
+At this point we should have a file in `./target/wasm32-unknown-unknown/debug/example_plugin.wasm`. Now that we have that, let's build a program that will run this, first we will get our dependencies all setup.
 
-### Cargo.toml
+## Our First Runner
 ```toml
+# ./crates/example-runner/Cargo.toml
 [package]
-name = "really-dumb-plugin-runner"
+name = "example-runner"
 version = "0.1.0"
 authors = ["freemasen <r@wiredforge.com>"]
 edition = "2018"
@@ -60,57 +121,42 @@ wasmer_runtime = "0.3.0"
 ```
 Here we are adding the `wamer_runtime` crate which we will use to interact with our web assembly module.
 
-### Runner
 ```rust
+// ./crates/example-runner/src/main.rs
 use wasmer_runtime::{
-    Ctx,
     imports,
-    Instance,
     instantiate,
 };
-
-use std::{
-    fs::File,
-    io::Read,
-    path::PathBuf,
-};
+// For now we are going to use this to read in our wasm bytes
+static WASM: &[u8] = include_bytes!("../../../target/wasm32-unknown-unknown/debug/example_plugin.wasm");
 
 fn main() {
-    // Setup the path the the .wasm file
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("target")
-                .join("wasm32-unknown-unknown")
-                .join("debug")
-                .join("really_dumb_plugin.wasm")
-    // read all the bytes into a Vec<u8>
-    let mut wasm = Vec::new();
-    let mut f = File::open(path).expect("Failed to open wasm file");
-    f.read_to_end(&mut wasm).expect("Failed to read wasm file");
     // Instantiate the web assembly module
-    let instance = instantiate(&wasm, imports!{}).expect("failed to instantiate wasm module");
+    let instance = instantiate(WASM, &imports!{}).expect("failed to instantiate wasm module");
     // Bind the add function from the module
     let add = instance.func::<(i32, i32), i32>("add").expect("failed to bind function add");
     // execute the add function
     let three = add.call(1, 2).expect("failed to execute add");
     println!("three: {}", three); // "three: 3"
 }
-```
-
-At this point we could try and run this with `cargo run`, but we need to make sure that the additional `wasmer` dependencies. If your on MacOs or Linux you just need to make sure that you have cmake installed, for windows there are a few more things you need, checkout the [dependencies guide](https://github.com/wasmerio/wasmer#dependencies) for all the details. 
-
-Now when we run `cargo run` it should successfully print `three: 3` in the terminal.
+``` 
+First, we have our `use` statement, there was are just grabbing 2 things; the `imports` macro for easily defining our import object and the `instantiate` function for converting bytes into a web assembly module instance. We are going to use the `include_bytes!` macro for now to read our bytes but eventually we will want to make this a little more flexible.  Inside of our `main` we are going to call `instantiate` with the wasm bytes as the first argument and an empty imports object as the secon. Next we are going to use the `func` method on `instance` to bind the function `add` giving it the arguments types of two `i32`s and a return value of an `i32`. At this point we can use the `call` method on the function `add`, and then print the result to the terminal. When we `cargo run` it should successfully print `three: 3` in the terminal.
 
 Huzzah, success! but that isn't super useful. Let's investigate what we would need to make it more useful.
 
+## Digging Deeper
+### Our requirements
 1. Access to the WASM Memory before our function runs
-1. A way to insert a more complicated data structure into that memory
-1. A method to communicate where and what the data is to the wasm module
-1. A system for extracting the update information from the wasm memory after the plugin is executed
+2. A way to insert a more complicated data structure into that memory
+3. A method to communicate where and what the data is to the wasm module
+4. A system for extracting the update information from the wasm memory after the plugin is executed
 
 First we need a way to initialize some value into the wasm module's memory before we run our function. Thankfully `wasmer_runtime` gives us a way to do exactly that. Let's update our example to take in a string and return the length of that string, this isn't going to be much more useful than our last example but we will get a little closer.
 
-### Plugin
+### Our Second Plugin
 ```rust
+// ./crates/example-plugin/src/lib.rs
+
 /// This is the actual code we would 
 /// write if this was a pure rust
 /// interaction
