@@ -65,7 +65,7 @@ members = [
 ]
 ```
 
-Now we can make that `creates` folder and the projects that will live inside it.
+Now we can make that `crates` folder and the projects that will live inside it.
 
 ```
 mkdir ./crates
