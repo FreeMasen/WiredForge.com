@@ -397,6 +397,6 @@ cargo run
 multiply 2: (136, "supercalifragilisticexpialidocioussupercalifragilisticexpialidocious")
 ```
 
-Huzzah! Another success! At this point it might be a good idea to address the elephant in the room, if we asked another developer to understand all of this, do you think anyone would build a plugin for our system? Probably not, in the next post we are going to cover how to ease that process by leveraging `proc_macros`.
+Huzzah! Another success! At this point it might be a good idea to address ergonomics, if we asked another developer to understand all of this, do you think anyone would build a plugin for our system? Probably not. In the next post we are going to cover how to ease that process by leveraging `proc_macros`.
 
 [part three](/blog/wasmer-plugin-pt-3/index.html)
