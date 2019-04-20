@@ -399,4 +399,6 @@ multiply 2: (136, "supercalifragilisticexpialidocioussupercalifragilisticexpiali
 
 Huzzah! Another success! At this point it might be a good idea to address the ergonomics all of this, if we asked another developer to understand all of this, do you think anyone would build a plugin for our system? Probably not. In the next post we are going to cover how to ease that process by leveraging `proc_macros`.
 
-[part three](/blog/wasmer-plugin-pt-3/index.html)
+<!--
+[part three](/blog/wasmer-plugin-pt-3/index.html)-->
+
