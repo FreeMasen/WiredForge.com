@@ -261,5 +261,6 @@ original: 34, wasm: 34
 ```
 
 Huzzah! Success again! But alas, still pretty useless. It does however give us a good foundation to build upon for working with more complicated data. We saw how to interact with the wasm memory on both sides of the equation which we will exploit in part 2.
-<!-- 
-[part two](/blog/wasmer-plugin-pt-2/index.html) -->
+
+
+[part two](/blog/wasmer-plugin-pt-2/index.html)
