@@ -79,6 +79,7 @@ Then we can use it like this.
 ```rust
 // ./crates/example-plugin/src/lib.rs
 use bincode::{deserialize, serialize};
+use example_macro::*;
 /// This is the actual code we would 
 /// write if this was a pure rust
 /// interaction
@@ -119,19 +120,25 @@ As a side note, if you have an older version of cargo-expand installed it may no
 #![feature(prelude_import)]
 #![no_std]
 #[prelude_import]
-use std::prelude::v1::*;
+use ::std::prelude::v1::*;
 #[macro_use]
 extern crate std as std;
+// ./crates/example-plugin/src/lib.rs
 use bincode::{deserialize, serialize};
-#[doc = " This is the actual code we would "]
-#[doc = " write if this was a pure rust"]
-#[doc = " interaction"]
-#[plugin_helper]
+use example_macro::*;
+/// This is the actual code we would 
+/// write if this was a pure rust
+/// interaction
 pub fn multiply(pair: (u8, String)) -> (u8, String) {
+    // create a repeated version of the string
+    // based on the u8 provided
     let s = pair.1.repeat(pair.0 as usize);
+    // Multiply the u8 by the length
+    // of the new string
     let u = pair.0.wrapping_mul(s.len() as u8);
     (u, s)
 }
+
 ```
 
 This is the fully expanded output of our library, not much has change except that we can see a few things that rust will always do to our program like convert out doc comments to attributes. Now let's update our `proc_macro` to do something a little more interesting.
@@ -175,7 +182,7 @@ fn handle_func(func: syn::ItemFn) -> TokenStream {
         #func
 
         pub fn #shadows_ident() {
-            #ident((2, "attributed"));
+            #ident((2, String::from("attributed")));
         }
     };
     ret.into()
@@ -193,22 +200,27 @@ cargo expand -p example-plugin
 #![feature(prelude_import)]
 #![no_std]
 #[prelude_import]
-use std::prelude::v1::*;
+use ::std::prelude::v1::*;
 #[macro_use]
 extern crate std as std;
+// ./crates/example-plugin/src/lib.rs
 use bincode::{deserialize, serialize};
 use example_macro::*;
+
 #[doc = " This is the actual code we would "]
 #[doc = " write if this was a pure rust"]
 #[doc = " interaction"]
 pub fn multiply(pair: (u8, String)) -> (u8, String) {
+    // create a repeated version of the string
+    // based on the u8 provided
     let s = pair.1.repeat(pair.0 as usize);
+    // Multiply the u8 by the length
+    // of the new string
     let u = pair.0.wrapping_mul(s.len() as u8);
     (u, s)
 }
-pub fn _multiply() {
-    multiply((2, "attributed"));
-}
+pub fn _multiply() { multiply((2, String::from("attributed"))); }
+
 ```
 
 Another relatively useless transformation but we did successfully generate some code with our macro, now let's do something slightly more interesting. If we look back at part 2's last helper function our end goal is going to replicated the following.
@@ -293,32 +305,34 @@ You may notice at the top we need to add the module attribute `#![recursion_limi
 #![feature(prelude_import)]
 #![no_std]
 #[prelude_import]
-use std::prelude::v1::*;
+use ::std::prelude::v1::*;
 #[macro_use]
 extern crate std as std;
+// ./crates/example-plugin/src/lib.rs
 use bincode::{deserialize, serialize};
 use example_macro::*;
 #[doc = " This is the actual code we would "]
 #[doc = " write if this was a pure rust"]
 #[doc = " interaction"]
 pub fn multiply(pair: (u8, String)) -> (u8, String) {
+    // create a repeated version of the string
+    // based on the u8 provided
     let s = pair.1.repeat(pair.0 as usize);
+    // Multiply the u8 by the length
+    // of the new string
     let u = pair.0.wrapping_mul(s.len() as u8);
     (u, s)
 }
 #[no_mangle]
 pub fn _multiply(ptr: i32, len: u32) -> i32 {
-    let value = { ::std::slice::from_raw_parts(ptr as _, len as _) };
+    let value = unsafe { ::std::slice::from_raw_parts(ptr as _, len as _) };
     let arg = deserialize(value).expect("Failed to deserialize argument");
     let ret = multiply(arg);
     let bytes = serialize(&ret).expect("Failed to serialize return value");
     let len = bytes.len() as u32;
-    unsafe {
-        ::std::ptr::write(1 as _, len);
-    }
-    bytes.as_ptr()
+    unsafe { ::std::ptr::write(1 as _, len); }
+    bytes.as_ptr() as _
 }
-
 ```
 Looks a lot like our last example from part 2!
 
