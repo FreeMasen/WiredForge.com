@@ -102,19 +102,19 @@ rustup toolchain add nightly
 rustup target add wasm32-unknown-unknown --target nightly
 ```
 
-With that take care of we can now install `cargo-expand`.
+With that taken care of we can now install `cargo-expand`.
 
 ```
 cargo install cargo-expand
 ```
 
-Now if we were to run the following command it should print our expanded library to the console.
+If we were to run the following command it should print our expanded library to the console.
 
 ```
 cd crates/example-plugin
 cargo +nightly expand -p example-plugin
 ```
-As a side note, if you have an older version of cargo-expand installed it may not have the `-p` flag implemented, you can upgrade your version to current by running `cargo install --force cargo-expand` or simply run it from `crates/example-plugin`.
+> As a side note, if you have an older version of cargo-expand installed it may not have the `-p` flag implemented, you can upgrade your version to current by running `cargo install --force cargo-expand` or simply run it from `crates/example-plugin`.
 
 ```rust
 #![feature(prelude_import)]
@@ -123,22 +123,16 @@ As a side note, if you have an older version of cargo-expand installed it may no
 use ::std::prelude::v1::*;
 #[macro_use]
 extern crate std as std;
-// ./crates/example-plugin/src/lib.rs
 use bincode::{deserialize, serialize};
 use example_macro::*;
-/// This is the actual code we would 
-/// write if this was a pure rust
-/// interaction
+#[doc = " This is the actual code we would "]
+#[doc = " write if this was a pure rust"]
+#[doc = " interaction"]
 pub fn multiply(pair: (u8, String)) -> (u8, String) {
-    // create a repeated version of the string
-    // based on the u8 provided
     let s = pair.1.repeat(pair.0 as usize);
-    // Multiply the u8 by the length
-    // of the new string
     let u = pair.0.wrapping_mul(s.len() as u8);
     (u, s)
 }
-
 ```
 
 This is the fully expanded output of our library, not much has change except that we can see a few things that rust will always do to our program like convert out doc comments to attributes. Now let's update our `proc_macro` to do something a little more interesting.
@@ -190,7 +184,7 @@ fn handle_func(func: syn::ItemFn) -> TokenStream {
 ```
 This time around we are first converting the `TokenStream` into the `proc_macro2::TokenStream` which will allow us to parse the tokens. The result of that is a `syn::Item` which is an enum of all the different types of rust `Item`s and will allow us to determine exactly what our attribute is decorating. For us, we only want this to work on functions, so we match `parse2`, if it is a `fn` we pass the inner data off to `handle_func` if not, we panic with a message about only supporting `fn`s.
 
-Inside of `handle_func` we first make a copy of the original function's identifier, for our example that would be `multiply`. Next we are going to use that copy to create a new identifer that will have an underscore at the start: `_multiply`. To do this we are going to use the `proc_macro2::Ident` constructor which takes a `&str` and a `Span` (the index that this token takes up), we are going to use the `format!` macro for the first argument and thankfully `proc_macro2::Span` provides the `call_site` constructor that we can use that will figure out the index for us.  At this point we are going to use the `quote::quote` macro to generate a new `proc_macro2::TokenStream`. This is where that _quasi quoting_ happens, we can use the `#variable_name` syntax to insert variable's values into some raw text representing a rust program. First we want to put the original function as it was defined at the top, then we want to create a new function with our `_multiply` identifer the body of which will just call the original function with a constant set of arguments. Let's look at the expanded output. 
+Inside of `handle_func` we first make a copy of the original function's identifier, for our example that would be `multiply`. Next we are going to use that copy to create a new identifer that will have an underscore at the start: `_multiply`. To do this we are going to use the `proc_macro2::Ident` constructor which takes a `&str` and a `Span` (the index that this token takes up), we are going to use the `format!` macro for the first argument and thankfully `proc_macro2::Span` provides the `call_site` constructor that we can use which will figure out the index for us.  At this point we are going to use the `quote::quote` macro to generate a new `proc_macro2::TokenStream`. This is where that _quasi quoting_ happens, we can use the `#variable_name` syntax to insert variable's values into some raw text representing a rust program. First we want to put the original function as it was defined at the top, then we want to create a new function with our `_multiply` identifer the body of which will just call the original function with a constant set of arguments. Let's look at the expanded output. 
 
 ```
 cargo expand -p example-plugin
@@ -223,7 +217,7 @@ pub fn _multiply() { multiply((2, String::from("attributed"))); }
 
 ```
 
-Another relatively useless transformation but we did successfully generate some code with our macro, now let's do something slightly more interesting. If we look back at part 2's last helper function our end goal is going to replicated the following.
+Another relatively useless transformation but we did successfully generate some code with our macro, now let's get back to our actual goal. If we look back at part 2's last helper function our end goal is going to replicated the following.
 
 ```rust
 #[no_mangle]
@@ -242,7 +236,7 @@ pub fn _multiply(ptr: i32, len: u32) -> i32 {
 }
 ```
 
-We should be able to reproduce the that function with our attribute if we just extend the last example a little.
+We should be able to reproduce that function with our attribute if we just extend the last example a little.
 
 ```rust
 // ./crates/example-macro/src/lib.rs
@@ -344,7 +338,7 @@ cargo run -p example-runner
 multiply 10: (72, "supercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocious")
 ```
 
-Huzzah! It still works! We still are requiring that plugin developers know a little too much about the inner workings of our system though. Let's use the library we put in the workspace root to take care of this last little hurdle. Instead of importing the macro directly into the plugin, if we were to import it into our library, we would have a more convenient package to import in the plugin. We can also take care of our dependencies problem at the same time. Let's update that project to package all of our requirements for the plugin develper.
+Huzzah! It still works! We are still requiring that plugin developers know a little too much about the inner workings of our system though. Let's use the library we put in the workspace root to take care of this last little hurdle. Instead of importing the macro directly into the plugin, if we were to import it into our library, we would have a more convenient package to provide to plugin developers. We can also take care of our dependencies problem at the same time. Let's update that project to package all of our requirements for the plugin developer, starting with the dependencies.
 
 ```toml
 # ./Cargo.toml
@@ -387,7 +381,7 @@ where S: Serialize {
 }
 ```
 
-We are essentially wrapping the bincode functions we are using in identical function. It would probably be smarter to have these return results but for now this will do. The big win here is that our users will only need to import our library and not need to worry about having `serde` and `bincode` available. Each of these mirror what the `bincode` `serialize` and `deserialize` methods look like. With those defined we can make a small update in the `example-macro` to use them. 
+We are essentially wrapping the bincode functions we are using in identical function. It would probably be smarter to have these return results but for now this will do. The big win here is that our users will only need to import our library and not need to worry about having `serde` and `bincode` available. With those defined we can make a small update in the `example-macro` to use them. 
 
 ```rust
 // ./crates/example-macro/src/lib.rs
@@ -444,7 +438,7 @@ fn handle_func(func: ItemFn) -> TokenStream {
 }
 ```
 
-Now we need to point our plugin to the workspace root instead of the macro directory which means we can get rid of the bincode dependency. The updated Cargo.toml and lib.rs are below.
+Now we need to point our plugin to the workspace root instead of the macro directly which means we can get rid of the bincode dependency.
 
 ```toml
 # ./crates/example-plugin/Cargo.toml
@@ -486,4 +480,4 @@ cargo run -p example-runner
 multiply 5: (82, "supercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocioussupercalifragilisticexpialidocious")
 ```
 
-Huzzah! It works and that looks a lot cleaner than before, how plugin developers don't need to worry about how we are doing what we do but instead can just focus on their task. In the next part, we are going to cover a real world example of how you might use this scheme to extend an application. We are going to focus on extending [mdbook](https://github.com/rust-lang-nursery/mdBook) to allow web assembly plugins for preprocessing.
+Huzzah! It works and that looks a lot cleaner than before, now plugin developers don't need to worry about how we are doing what we do but instead can just focus on their task. In the next part, we are going to cover a real world example of how you might use this scheme to extend an application. We are going to focus on extending [mdbook](https://github.com/rust-lang-nursery/mdBook) to allow web assembly plugins for preprocessing.
