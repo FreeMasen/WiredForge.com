@@ -1,11 +1,11 @@
 +++
 title = "Using Wasmer for Plugins Part 3"
-date = 2019-05-30
-draft = true
+date = 2019-04-22
+draft = false
 [extra]
 snippet = "Now with more ease"
 image = "rust-logo-blk.png"
-date_sort = 20190530
+date_sort = 20190422
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
