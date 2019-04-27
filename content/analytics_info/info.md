@@ -100,4 +100,4 @@ That is really all I care about, what is driving traffic to my site, how much un
 Each night at midnight, I purge the last 30 days of information. 
 
 ## Conclusion
-Hopefully the above is enough to help you understand the what and why of my "analytics". If you have any concerns or questions please feel free to send an email to r \[at\] robertmasen.pizza.
+Hopefully the above is enough to help you understand the what and why of my "analytics". If you have any concerns or questions please feel free to send an email to r \[at\] robertmasen.com.
