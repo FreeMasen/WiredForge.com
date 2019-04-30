@@ -85,11 +85,11 @@ fn main() {
     }
     // Parse and deserialize the context and book
     // from stdin
-    let (ctx, book): (PreprocessorContext, Book) = 
+    let (_ctx, book): (PreprocessorContext, Book) = 
         from_reader(stdin())
         .expect("Failed to deserialize context and book");
     // Update the book's contents
-    let updated = preprocess(ctx, book)
+    let updated = preprocess(book)
         .expect("Failed to preprocess book");
     // serialize and write the updated book
     // to stdout
@@ -99,7 +99,7 @@ fn main() {
 
 /// Update the book's contents so that all WASMs are
 /// replaced with Wasm
-fn preprocess(_ctx: PreprocessorContext, mut book: Book) -> Result<Book, String> {
+fn preprocess(mut book: Book) -> Result<Book, String> {
     // Iterate over the book's sections assigning
     // the updated items to the book we were passed
     book.sections = book.sections.into_iter().map(|s| {
@@ -157,9 +157,7 @@ cargo install --path ./crates/example-runner
 
 Cargo will compile that for us and put it in our path. We can now run `mdbook build` from the example-book directory. When we run this command, mdbook will generate a bunch of files in the `./example-book/book` directory, any of the html files should have their WASMs updated to Wasms.
 
-
-
-One of the really nice things about there being an existing plugin system is that we don't need to be maintainers to extend it. We could define our own scheme for running wasm plugins that interfaces with mdbook via the old system. Let's say that we want our plugin developers to provide a functions `preprocess(ctx_and_book: (PreprocessorContxt, Book)) -> Book`. Since this takes a single argument and return a single argument, we can use the same scheme to execute it as we have previously. Let's take the WASM to Wasm part from above and move that into our example plugin, to do that we need to first update the dependencies.
+One of the really nice things about there being an existing plugin system is that we don't need to be maintainers to extend it. We could define our own scheme for running wasm plugins that interfaces with mdbook via the old system. Let's say that we want our plugin developers to provide a functions `preprocess(mut book: Book) -> Book`. Since this takes a single argument and return a single argument, we can use the same scheme to execute it as we have previously. Let's take the WASM to Wasm part from above and move that into our example plugin, to do that we need to first update the dependencies.
 
 ```toml
 # ./crates/example-plugin/Cargo.toml
@@ -180,7 +178,7 @@ default-features = false
 crate-type = ["cdylib"]
 ```
 
-Adding a dependency with a toml table like this is a nice way to make it clearer what is happening, agin we are going to point to the git repository, we also need to make sure that the default-features are turned off. The mdbook default features are primarily for the binary application, not really for the library we are using. With that out of the way we can update our code.
+Adding a dependency with a toml table like this is a nice way to make it clearer what is happening. Again we are going to point to the git repository, we also need to make sure that the default-features are turned off. The mdbook default features are primarily for the binary application, not really for the library we are using. With that out of the way we can update our code.
 
 ```rust
 // ./crates/example-plugin/src/lib.rs
@@ -351,7 +349,7 @@ fn preprocess(ctx: PreprocessorContext, book: Book) -> Result<Book, String> {
 }
 ```
 
-A lot of what we see in `preprocess` should look familiar to our previous runner examples, the only real change being the contents of the `pair`. At this point, to test if this is working we would want to re-install the runner and then build our book again.
+A lot of what we see in `preprocess` should look familiar to our previous runner examples, the only real change being that `pair` will now just be `book`. At this point, to test if this is working we would want to re-install the runner and then build our book again.
 
 ```
 cargo install --path ./crates/example-runner --force
