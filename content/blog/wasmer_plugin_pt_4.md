@@ -15,7 +15,7 @@ In the last three posts of this series we covered all of the things we would nee
 
 Before we get started with any code, we should first go over [mdbook](https://github.com/rust-lang-nursery/mdBook) a little bit. If you are not familiar, mdbook is an application that enables its users to create books using markdown files and a toml file for configuration. You are probably familiar with the format because [TRPL](https://doc.rust-lang.org/book/index.html) is built using it and while HTML is probably the most popular output it has the ability to render into a few other formats. These other formats are provided through a plugin system which has two sides, preprocessors and renderers. Each side is really aptly named, the preprocessors will get the information first then the renderer will get the information last. Both types of plugins communicate with the main mdbook process via stdin and stdout. The basic workflow is that mdbook will read in the book and it's contents from the file system, generate a struct that represents that book and then serializes it to json and pipes it to a child process. If that child process is a preprocessor, it will deserialize, update, re-serialize and then pipe that back, if it is a render it will deserialize and then render that however it likes. At this point, we are going to focus on the preprocessor because wasm isn't currently a great candidate for dealing with the file system or network and the preprocessor doesn't need any of that. 
 
-In the [official guide](https://rust-lang-nursery.github.io/mdBook/for_developers/preprocessors.html) the mdbook team outlined the basic structure as being an struct that implements the trait `Preprocessor` which requires two methods `name`, `run` and allows an optional method `supports` which by default returns true. The main entry point being the `run` method, which take a `PreprocessorContext` and a `Book` and returns a `Result<Book>`. While this is a good start, because it provides a nice structure to adhere to, in actuality there are a few more things we need to do. First, we need to have this implementation inside of a command line application and that it can support running with no arguments as well as with the `supports` argument. If the supports argument is provided, the application should use the exit status code to indicate if it does support a particular renderer. If no argument was provided we would then deserialize the context and book provided from stdin (as a tuple). Once those two values are acquired, you can pass them off to your implementation of preprocessor's run method and then serialize the book it returns and send that back out to stdout. Let's quickly look at what a preprocessor might look like if it just updates any references to WASM as Wasm (because wasm isn't an acronym). For this example, we are going to update the runner. First we want to add a few more dependencies, namely mdBook, docopt, serde and serde_derive.
+In the [official guide](https://rust-lang-nursery.github.io/mdBook/for_developers/preprocessors.html) the mdbook team outlined the basic structure as being an struct that implements the trait `Preprocessor` which requires two methods `name`, `run` and allows an optional method `supports` which by default returns true. The main entry point being the `run` method, which take a `PreprocessorContext` and a `Book` and returns a `Result<Book>`. While this is a good way to explain what is needed, in actuality a preprocessor would look a little different. First, instead of a struct that implements a trait, it can just be a command line application that can support running with no arguments as well as with the `supports` argument. If the supports argument is provided, the application should use the exit status code to indicate if it does (0) or does not (1) support a particular renderer. If no argument was provided we would then deserialize the context and book provided from stdin (as a tuple). Once those two values are acquired, you can manipulate the book however you'd like and then serialize the it and send that back out via stdout. Let's quickly look at what a preprocessor might look like if it just updates any "WASM" strings to "Wasm" (because wasm isn't an acronym). For this example, we are going to update the runner. First we want to add a few more dependencies, namely mdBook, docopt, serde and serde_derive.
 
 ``` toml
 # ./crates/example-runner/Cargo.toml
@@ -34,9 +34,9 @@ serde = "1"
 serde_derive = "1"
 serde_json = "1"
 ```
-Two things to point out here, first is that we are updating the name of this program to have a prefix of `mdbook-` this is a requirement of any mdbook preprocessor, the other is that we are using mdbook as a git dependency. As of the writing of this post there is an issue with their handlebars dependency that would make the library fail to compile to wasm. The next version of mdbook will not include this problem but for now, this example will need to work with the git repository instead of crates.io. We are going to use docopt for command line argument parsing but you could just as easily use clap or DIY it if you'd prefer. 
+Two things to point out here, first is that we are updating the name of this program to have a prefix of `mdbook-` this is a requirement of any mdbook preprocessor, the other is that we are using mdbook as a git dependency. As of the writing of this post there is an issue with their handlebars dependency that would make the library fail to compile to wasm. The next version of mdbook will not include this problem but for now, this example will need to work with the git repository instead of crates.io. We are going to use docopt for command line argument parsing but you could just as easily use clap, structopt or DIY it if you'd prefer. 
 
-As a note, this example is going to remove a lot of the wasmer-runtime stuff from our program for readability (you may want to keep some of it around for later).
+As a note, this example is going to remove a lot of the wasmer-runtime stuff for readability (you may want to keep some of it around for later if you're typing along).
 
 ```rust
 // ./crates/example-runner/src/main.rs
@@ -125,7 +125,7 @@ fn preprocess(mut book: Book) -> Result<Book, String> {
 
 If you have never used docopt, it essentially uses command line usage text as a serialization format. To start we are going to define our usage. With that done we can declare the struct that will represent the deserialized command line arguments. Docopt uses a prefix scheme for flags vs sub-commands vs arguments, we want to have a field `arg_supports` that will be an optional string. Now we can actually get into the execution, first we pass the usage off to docopt and exit early if it fails to parse. Next we want to check if the caller provided the supports argument, if so we are just going to exit early with 0 which just says yes, we support this format. Once we are through that we can use the serde_json function deserialize_from to both read stdin and also serialize it into a tuple with a context first and the book second. Now that we have those two items we are going to pass them along to the function preprocess. 
 
-For this preprocessor, we are going loop over all of the sections and any chapters we find and update the contents of those to replace any "WASM"s with "Wasm"s. After we update all of those we are going to use the serde_json function `serialize_to` to serialize this book to json and write that to stdout. As you can see, this is both a powerful system but also one that requires plugin developers to know quite a bit about how everything works. After building a [preprocessor](https://github.com/FreeMasen/mdbook-presentation-preprocessor) myself and then hearing about wasmer-runtime it seemed like a perfect opportunity to make this whole thing easier.
+For this preprocessor, we are going loop over all of the sections in the book and any chapters we find and update the contents of those to replace any "WASM"s with "Wasm"s returning the updated book. We are going to use the serde_json function `serialize_to` to serialize the returned book to json and write that to stdout. As you can see, this is both a powerful system but also one that requires plugin developers to know quite a bit about how everything works. After building a [preprocessor](https://github.com/FreeMasen/mdbook-presentation-preprocessor) myself and then hearing about wasmer-runtime it seemed like a perfect opportunity to make this whole thing easier.
 
 If we wanted to test our first example out we would need mdbook installed and an actual book to run it against. To install mdbook, [you have a few options](https://github.com/FreeMasen/wasmer-plugin) but for this example we will use `cargo install mdbook`. With that installed we can create a book with the following.
 
@@ -151,15 +151,15 @@ title = "Example Book"
 [preprocessor.example-runner]
 ```
 
-Now we are almost there. The last thing we need to do is install our plugin, we do that with the following command.
+We are almost there, the last thing we need to do is install our plugin, we do that with the following command.
 
 ```
 cargo install --path ./crates/example-runner
 ```
 
-Cargo will compile that for us and put it in our path. We can now run `mdbook build ./example-book`. When we run this command, mdbook will generate a bunch of files in the `./example-book/book` directory, any of the html files should have their WASMs updated to Wasms.
+Cargo will compile that for us and put it in our path. We can now run `mdbook build ./example-book`, which will generate a bunch of files in the `./example-book/book` directory, any of the html files should have their WASMs updated to Wasms.
 
-One of the really nice things about there being an existing plugin system is that we don't need to be maintainers to extend it. We could define our own scheme for running wasm plugins that interfaces with mdbook via the old system. Let's say that we want our plugin developers to provide a functions `preprocess(mut book: Book) -> Book`. Since this takes a single argument and return a single argument, we can use the same scheme to execute it as we have previously. Let's take the WASM to Wasm part from above and move that into our example plugin, to do that we need to first update the dependencies.
+One of the really nice things about there being an existing plugin system is that we don't need to be maintainers to realize our vision. We could define our own scheme for running wasm plugins that interfaces with mdbook via the old system. Let's say that we want our plugin developers to provide a functions `preprocess(mut book: Book) -> Book`. Since this takes a single argument and return a single argument, we can use the same scheme to execute it as we have previously. Let's take the WASM to Wasm part from above and move that into our example plugin, to do that we need to update the dependencies.
 
 ```toml
 # ./crates/example-plugin/Cargo.toml
@@ -180,7 +180,7 @@ default-features = false
 crate-type = ["cdylib"]
 ```
 
-Adding a dependency with a toml table like this is a nice way to make it clearer what is happening. Again we are going to point to the git repository, we also need to make sure that the default-features are turned off. The mdbook default features are primarily for the binary application, not really for the library we are using. With that out of the way we can update our code.
+Adding a dependency with a toml table like we're doing for mdbook is a nice way to make it clearer what is happening. Again we are going to point to the git repository, we also need to make sure that the default-features are turned off. The mdbook default features are primarily for the binary application, avoiding them is the other key to allowing this to compile to wasm. With that out of the way we can update our code.
 
 ```rust
 // ./crates/example-plugin/src/lib.rs
@@ -215,7 +215,7 @@ pub fn preprocess((_ctx, mut book): (PreprocessorContext, Book)) -> Book {
 }
 ```
 
-Here we have updated the library to export function called `preprocess` annotated with the `#[plugin_helper]` attribute which means we should be able to use it just like we did before. Now we can update our runner, we are going to be passing what we have deserialized from the command line to the wasm module.
+Here we have updated the library to export a function called `preprocess` annotated with the `#[plugin_helper]` attribute which means we should be able to use it just like we did before. Now we can update our runner, we are going to be passing what we have deserialized from the command line to the wasm module.
 
 ```rust
 // ./crates/example-runner/src/main.rs
@@ -353,9 +353,10 @@ fn preprocess(book: Book) -> Result<Book, String> {
 }
 ```
 
-A lot of what we see in `preprocess` should look familiar to our previous runner examples, the only real change being that `pair` will now just be `book`. At this point, to test if this is working we would want to re-install the runner and then build our book again. 
+A lot of what we see in `preprocess` should look familiar to our previous runner examples, the only real change being that `pair` will now just be `book` and the name of the function we are calling has changed. At this point, to test if this is working we would need to rebuild the plugin and then re-install the runner before we can build our book.
 
 ```
+cargo build -p example-plugin
 cargo install --path ./crates/example-runner --force
 mdbook build example-book
 ```
@@ -366,7 +367,7 @@ mkdir ./example-book/preprocessors
 cp ./target/wasm32-unknown-unknown/debug/example-plugin.wasm ./example-book/preprocessors
 ```
 
-Now we can look in that directory instead of compiling the bytes into our runner.
+Now we can update our runner to look in that directory instead of compiling the bytes into the binary file.
 
 ```rust
 // ./crates/example-runner/src/main.rs
@@ -533,6 +534,6 @@ fn preprocess(bytes: &[u8], book: Book) -> Result<Book, String> {
 }
 ```
 
-The big changes here is that we are passing the context and book off to `run_all_preprocessors` instead of just `preprocess`. In this new function we are going to first construct the path that will contain our wasm preprocessors. The context will have a `root` field that will tell us where our book lives, we can append preprocessors on to that with join. Now that we have our path we want to loop over each of the files in that directory and if then end in .wasm we want to pass those bytes off to `preprocess` with the book. The result of that should replace our previous book and we will return the updated book after all of the wasm files have been run. All in all we seem to have a pretty viable plugin runner. There may be a few places that could use some tweaks to increase resiliency or reduce the memory footprint but at least it should be enough to get started.
+The big changes here is that we are passing the context and book off to `run_all_preprocessors` instead of just `preprocess`. In this new function we are going to first construct the path that will contain our wasm preprocessors. The context will have a `root` field that will tell us where our book lives, we can append "preprocessors" on to that with `join`. Now that we have our path we want to loop over each of the files in that directory and if then end in .wasm we want to pass those bytes off to `preprocess` with the book. The result of that should replace our previous book and we will return the updated book after all of the wasm files have been run. All in all we seem to have a pretty viable plugin runner. There may be a few places that could use some tweaks to increase resiliency or reduce the memory footprint but at least it should be enough to get started.
 
-If your interested I have built a less educational version of this plugin system which you can find [here](https://github.com/FreeMasen/wasmer-plugin). My hope is that I can add a few more niceties in the coming months that will focus on the plugin runner side of things (like extracting more data from error conditions or wrapping up the instantiate/serialize/inject/execute/extract/deserialize cycle). If you have any comments/questions/suggestions/gripes feel free to shoot me an email at r [at] robertmasen.com or find me on twitter @freemasen.
+If your interested I have built a less educational version of this plugin system which you can find [here](https://github.com/FreeMasen/wasmer-plugin). My hope is that I can add a few more niceties in the coming months that will focus on the plugin runner side of things (like extracting more data from errors in wasm or wrapping up the instantiate/serialize/inject/execute/extract/deserialize cycle). If you have any comments, questions, suggestions or gripes feel free to shoot me an email at r [at] robertmasen.com or find me on twitter @freemasen.
