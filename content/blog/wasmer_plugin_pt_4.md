@@ -193,7 +193,7 @@ use mdbook::{
     preprocess::PreprocessorContext,
 };
 #[plugin_helper]
-pub fn preprocess((_ctx, mut book): (PreprocessorContext, Book)) -> Book {
+pub fn preprocess(mut book: Book) -> Book {
     // Iterate over the book's sections assigning
     // the updated items to the book we were passed
     book.sections = book.sections.into_iter().map(|s| {
