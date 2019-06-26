@@ -1,8 +1,8 @@
+@import './colors';
 #content {
     width: 100%;
     pre,
-    p,
-    blockquote, {
+    p {
         font-size: 16pt;
     }
     .draft-message {
@@ -21,6 +21,23 @@
     h2 {
         margin: 0;
 
+    }
+    blockquote {
+        ::before {
+            content: '► ';
+        }
+        color: white;
+        background: $blue;
+        font-size: 10pt;
+        padding: 0 5px 0 0;
+        line-height: 0.5;
+        margin-top: 5px;
+        p {
+            color: white;
+            font-size: 10pt;
+            padding: 0 5px;
+            margin: 0;
+        }
     }
 }
 
@@ -97,3 +114,19 @@ code {
         min-width: 75%;
     }
 }
+
+table {
+    border: 1px solid $grey;
+    border-collapse: collapse;
+    tr {
+        border: 1px solid $grey;
+        td,th {
+            border: 1px solid $grey;
+        }
+        th {
+            background: $blue;
+            color: white;
+        }
+    }
+}
+
