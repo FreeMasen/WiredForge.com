@@ -1,8 +1,10 @@
 +++
-title = "RESS 7.0.0!"
-draft = true
-date = 2019-07-01
+title = "RESS 0.7.0!"
+draft = false
+date = 2019-06-26
 [extra]
+image = "rust-ecma.svg"
+image_desc = "Rusty ECMA"
 snippet = "So much has changed"
 
 +++
@@ -48,3 +50,4 @@ I'm not entirely sure why but because of this, it is hard to know if a `/` means
 The last change I want to include here is that there are now tests that validate everything is getting parsed as expected. Specifically I worked through the 3 files in the wonderful [everything.js](https://github.com/michaelficarra/everything.js), and created tests that validate each. Which means that making changes is a lot less risky.
 
 I can't tell you how excited I am to share this! I hope you enjoy!
+

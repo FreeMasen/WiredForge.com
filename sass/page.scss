@@ -122,6 +122,8 @@ table {
         border: 1px solid $grey;
         td,th {
             border: 1px solid $grey;
+            font-family: 'mono';
+            padding: 2px 5px;
         }
         th {
             background: $blue;
