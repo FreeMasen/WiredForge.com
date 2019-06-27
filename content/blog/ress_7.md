@@ -9,7 +9,9 @@ snippet = "So much has changed"
 
 +++
 
-Over the past month or two I have spent a large amount of my free time trying to improve ress's (Rusty EcmaScript Scanner) performance. As of today, version 7.0.0 does that and so much more! Because I am too excited about the performance wins in this release, we are going to start that. The table below is a side by side comparison of the 6.x.x version of ress and 7.0.0, things got a lot faster, 28 times faster on average! 
+Over the past month or two I have spent a large amount of my free time trying to improve ress's (Rusty EcmaScript Scanner) performance. As of today, version 7.0.0 does that and so much more! 
+
+Because I am too excited about the performance wins in this release, we are going to start that. The table below is a side by side comparison of the 6.x.x version of ress and 7.0.0, things got a lot faster, 28 times faster on average! 
 
 | Name                        | Old bench | New bench | Old +/- | New +/- |
 | :------------               | -----------: | -----------: | ------: | ------: |
