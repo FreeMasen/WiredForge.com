@@ -307,13 +307,13 @@ export class Puz {
         }
         return node;
     }
-    private selectedClue?: HTMLSpanElement;
+    private selectedClue?: IRenderedClue;
     handleSelectedCell(newCell: IRenderedCell) {
         if (this.selectedCell) {
             this.selectedCell.el.classList.remove('selected');
         }
         if (this.selectedClue) {
-            this.selectedClue.classList.remove('selected-clue');
+            this.selectedClue.el.classList.remove('selected-clue');
         }
         if (newCell == this.selectedCell) {
             this.direction = this.direction === InputDirection.Horizontal ?
@@ -340,9 +340,9 @@ export class Puz {
             clue = this.downClues[newCell.cell.downClue];
         }
         if (clue) {
-            clue.classList.add('selected-clue');
+            clue.el.classList.add('selected-clue');
             this.selectedClue = clue;
-            scrollToElm(this.selectedClue.parentElement, this.selectedClue, 0.1);
+            scrollToElm(this.selectedClue.el.parentElement, this.selectedClue.el, 0.1);
 
         }
         if (this.direction === InputDirection.Horizontal) {
