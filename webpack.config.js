@@ -17,6 +17,7 @@ const entries = [
     'analytics',
     'twos-comp',
     'twosCounter',
+    'puz',
 ]
 
 function entry() {

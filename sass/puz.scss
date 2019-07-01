@@ -1,0 +1,108 @@
+@import 'colors';
+
+#puz-root {
+    display: grid;
+    grid-template-areas: 'heading clues' 'puzzle clues' 'buttons x';
+
+}
+.puzzle-heading {
+    display: flex;
+    flex-flow: column;
+    grid-area: heading;
+    h3, h4 {
+        margin: 0;
+        padding: 0;
+    }
+    h3 {
+        font-weight: bold;
+    }
+    h4 {
+        font-weight: normal;
+    }
+}
+.puzzle-body {
+    display: flex;
+    flex-flow: column;
+    grid-area: puzzle;
+}
+.puzzle-row {
+    display: flex;
+    flex-flow: row;
+}
+.cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid black;
+    font-size: 26pt;
+    text-align: center;
+    line-height: 40px;
+    position: relative;
+    &.border-top {
+        border-top: 1px solid $green;
+    }
+    &.border-bottom {
+        border-bottom: 1px solid $green;
+    }
+    &.border-left {
+        border-left: 1px solid $green;
+    }
+    &.border-right {
+        border-right: 1px solid $green;
+    }
+    &.separator-cell{
+        background: black;
+    }
+    &.selected {
+        background-color: lightgoldenrodyellow;
+    }
+    &.solved {
+        background-color: $orange;
+    }
+    &.valid {
+        .cell-value {
+            color: $blue;
+        }
+    }
+    &.invalid {
+        .cell-value {
+            color: $red;
+        }
+    }
+}
+.board-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    line-height: 1;
+    font-size: 10pt;
+    width: 10px;
+    height: 10px;
+}
+.clue-lists {
+    grid-area: clues;
+}
+.puzzle-list,
+.clue-list {
+    display: flex;
+    flex-flow: column;
+    border: 1px solid black;
+    min-height: 250px;
+}
+.clue-list {
+    max-height: 250px;
+    overflow-y: auto;
+}
+.puzzle-list-name,
+.clue {
+    display: block;
+    border-bottom: 1px solid rgba(0,0,0,0.3);
+    margin: 0;
+    padding: 0;
+}
+.selected-clue {
+    background-color: lightgoldenrodyellow;
+}
+
+.button-group {
+    grid-area: buttons;
+}
