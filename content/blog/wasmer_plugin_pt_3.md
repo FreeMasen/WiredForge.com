@@ -282,11 +282,11 @@ fn handle_func(func: ItemFn) -> TokenStream {
             let arg = deserialize(value).expect("Failed to deserialize argument");
             let ret = #ident(arg);
             let bytes = serialize(&ret).expect("Failed to serialize return value");
-            let len = bytes.len();
+            let len = bytes.len() as u32;
             unsafe {
                 ::std::ptr::write(1 as _, len);
             }
-            bytes.as_ptr()
+            bytes.as_ptr() as _
         }
     };
     ret.into()
@@ -377,7 +377,7 @@ where D: Deserialize<'a> {
 
 pub fn revert_data<S>(s: S) -> Vec<u8> 
 where S: Serialize {
-    serialize(s).expect("Failed to serialize data")
+    serialize(&s).expect("Failed to serialize data")
 }
 ```
 
