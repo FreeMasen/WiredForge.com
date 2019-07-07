@@ -53,6 +53,7 @@ export class Puz {
         this.db = new PuzDb();
         this.db.on('ready', () => this.renderPuzzleList());
         this.db.open().then(() => {});
+        (window as any).db = this.db;
     }
 
     async puzzleUploaded(ev: Event) {
@@ -342,7 +343,7 @@ export class Puz {
         if (clue) {
             clue.el.classList.add('selected-clue');
             this.selectedClue = clue;
-            scrollToElm(this.selectedClue.el.parentElement, this.selectedClue.el, 0.1);
+            scrollToElm(this.selectedClue.el.parentElement, this.selectedClue.el, .25);
 
         }
         if (this.direction === InputDirection.Horizontal) {
@@ -696,7 +697,7 @@ class PuzDb extends Dexie {
 
 function scrollToElm(container, elm, duration){
     var pos = getRelativePos(elm);
-    scrollTo( container, pos.top , 2);  // duration in seconds
+    scrollTo( container, pos.top , duration);  // duration in seconds
   }
   
   function getRelativePos(elm){

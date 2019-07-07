@@ -150,7 +150,7 @@ export class Puzzle implements IPuzzle {
             json.title, 
             json.author, 
             json.copy, 
-            json.clues, 
+            json.rawClues, 
             json.notes, 
         );
         if (json.id) {
