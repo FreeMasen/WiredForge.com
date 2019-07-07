@@ -72,7 +72,7 @@ class BoxShadow {
         if (!btn) return console.error('Unable to find new shadow button');
         btn.addEventListener('click', () => {
             this.shadows.push(Shadow.random());
-            setTimeout(this.render(), 0);
+            setTimeout(() => this.render(), 0);
         });
         let copy = document.getElementById('copy-css-property');
         if (!copy) return console.error('Unable to find copy button');

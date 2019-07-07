@@ -8,13 +8,13 @@
   "license": "ISC",
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
-    "typescript": "3.0.1",
-    "webpack": "^4.30.0",
-    "webpack-cli": "^3.1.0"
+    "typescript": "^3.5.2",
+    "webpack": "^4.35.2",
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
     "dexie": "^2.0.4",
-    "moment": "^2.23.0",
-    "webpack-dev-server": "^3.3.1"
+    "moment": "^2.24.0"
   }
 }
