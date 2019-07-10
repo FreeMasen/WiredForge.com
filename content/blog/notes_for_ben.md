@@ -11,6 +11,8 @@ draft = true
   - `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
 - VSCode Live
   - https://docs.microsoft.com/en-us/visualstudio/liveshare/use/vscode
+- VSCode Rust
+  - https://marketplace.visualstudio.com/items?itemName=rust-lang.rust
 
 ## App Overview
 ### Goal
