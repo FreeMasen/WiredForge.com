@@ -14,10 +14,11 @@ const entries = [
     'xor',
     'binaryNot',
     'boxShadow',
-    'analytics',
+    // 'analytics',
     'twos-comp',
     'twosCounter',
     'puz',
+    'looper',
 ]
 
 function entry() {
