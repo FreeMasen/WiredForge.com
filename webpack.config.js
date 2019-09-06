@@ -14,7 +14,6 @@ const entries = [
     'xor',
     'binaryNot',
     'boxShadow',
-    'analytics',
     'twos-comp',
     'twosCounter',
     'puz',
@@ -23,6 +22,10 @@ const entries = [
 
 function entry() {
     let ret = {};
+    const fs = require('fs');
+    if (fs.existsSync('../../analytics/analytics')) {
+        entries.push('analytics');
+    }
     for (let entry of entries) {
         ret[entry] = path.join(__dirname, 'ts', `${entry}.ts`);
     }
