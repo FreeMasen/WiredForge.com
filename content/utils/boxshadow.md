@@ -6,4 +6,6 @@ date = 2018-01-01
 snippet = "A utility for playing around with css's box-shadow property"
 image = "box-shadow.png"
 +++
+
  {{ boxshadow() }}
+ 

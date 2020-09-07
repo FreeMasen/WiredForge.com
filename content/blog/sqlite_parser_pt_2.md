@@ -13,6 +13,7 @@ series = [{title = "SQLite Parser Pt. 1: The Header", link = "/blog/sqlite1/inde
 #{title = "SQLite Parser Pt. 3: The Header... reorganized",link = "/blog/sqlite3/index.html"}
 ]
 +++
+
 This is the second in a series of posts describing the process of building a SQLite file parser. A GitHub repo of the finished code can be found [here](https://github.com/FreeMasen/sqlite_parser/tree/wired_forge_pt2)
 
 

@@ -1,13 +1,13 @@
 +++
 title = "SQLite Parser Pt. 1: The Header"
-date = 2017-12-26
-draft = true
+date = 2020-09-08
+draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
 snippet = "This is the first in a series of posts describing the process of building a SQLite file parser"
 image = "sqlite.gif"
 image_desc = "SQLite Logo"
-date_sort = 20171226
+date_sort = 20200908
 [[series]]
 title = "SQLite Parser Pt. 1: The Header"
 link = "/blog/sqlite_series/sqlite-parser-pt-1/index.html"
@@ -30,14 +30,15 @@ however it is written from a very technical perspective. Let's start by trying t
 demystify some of language there. We are going to be working from
 [the Database File Format](https://sqlite.org/fileformat2.html) documentation,
 even just the first section 1.1 starts to use some terminology that is very
-specific to database or file systems work "Journals" which may be an interesting
+specific to database or file systems work. For example "Journals" which
+may be an interesting
 topic but not super important for us at this stage. Let's just skip ahead until we
 can find something a little more practical. We don't have to go to far until we find
 section 1.2 labeled "Pages". 
 
 The term pages here is a reference to the fact that the data will be sectioned into
 equally sized parts. Similar to how a term paper would be a series of 8.5 by 11 inch
-pages, this data is going to be broken into pages of at least 512 and no larger
+pages, this data is going to be broken into pages of at least 512 bytes and no larger
 than 65,536 bytes. To figure out how big pages are for any given file we need to 
 find the 16th byte of the file and somehow combine these it with the 17th byte.
 
@@ -45,10 +46,7 @@ That seems like enough information to at least get started with some code but
 before we do, let's create a database file. To do that, we have a few options
 the simplest is probably to use the SQLite cli tool
 
-Let's
-write a little program that just reads in a whole file and finds the 16th and 17th 
-byte and tells us what they are. before we begin, we should probably create one
-of these database files. If you don't already have SQLite installed, you can use 
+If you don't already have SQLite installed, you can use 
 popular package managers like `apt` or `brew` to get it or you could use the 
 [SQLite download page](https://sqlite.org/download.html). Once it is installed
 open a terminal and type `sqlite3` to open the cli.
@@ -61,18 +59,18 @@ Connected to a transient in-memory database.
 Use ".open FILENAME" to reopen on a persistent database.
 sqlite> 
 ```
+
 Here it tells us we have a in-memory database opened but we want one that
 writes to disk so we are going to use the `.open` command to create a file
 
 ```sh
 sqlite> .open data.sqlite
 ```
-While the cli doesn't give us any feedback, you should we that a file called
+While the cli doesn't give us any feedback, we should see that a file called
 data.db was created in the current working directory. While this would probably
 be enough to complete or initial goal of reading the page size bytes, let's 
-create some tables now that we have the cli open. We are going to create
-a `user` table and insert a few values into it so that we don't have to do 
-that later. 
+create a table now that we have the cli open we are going to create
+a `user` table and insert a few values into it. 
 
 ```sql
 CREATE TABLE user (
@@ -84,6 +82,7 @@ INSERT INTO user (name, email)
 VALUES ('Robert Masen', 'r@robertmasen.com'),
        ('Paul Bunyan', 'pb@example.com');
 ```
+
 Again the sqlite cli tool doesn't give us any feedback about our action so let's just be
 sure and run `SELECT * FROM user;` and we should see the following.
 
@@ -92,7 +91,8 @@ sure and run `SELECT * FROM user;` and we should see the following.
 2|Paul Bunyan|pb@example.com
 ```
 
-With that out of the way, let's get back to reading that pages size. 
+With that out of the way, let's start building our parser. The first thing we need to do
+is read the file we created and then see what is in 16th and 17th bytes.
 
 ```rust
 fn main() {
@@ -105,9 +105,10 @@ fn main() {
     println!("{:?}", page_size);
 }
 ```
+
 The above program will read in the file we just created as bytes, so the type
 of `contents` is `Vec<u8>`. Since vectors are indexable on ranges, we then
-print bytes 16 and 17 (note the range is "exclusive" so we need to index with 18).
+print bytes 16 and 17 (note the range is "exclusive" so the upper end of the range is 18).
 Let's see what happens when we run this.
 
 ```sh
@@ -149,12 +150,11 @@ and when we run this, we should see something like the following.
 cargo run
 4096
 ```
-Awesome! That looks like it is probably inside of the range we read about before
-so let's chalk this up as a win!
+Awesome! That is more that 512 and less than 65,000  so let's chalk this up as a win!
 
 Now that we have made it all the way to section 1.3, we can now see that 
 there is quite a bit of more information right there at the start of the file. 
-This long table tells us where we should expect to see everything. Looking it 
+This table tells us where we should expect to see everything. Looking it 
 over it now makes sense why the page size is at byte 16, because those first 16 
 bytes are the string "SQLite format 3\000" but wait, that string is 19
 characters long! Since SQLite is a c application, that means all of our strings
@@ -253,7 +253,7 @@ implementation.
 ```rust
 enum Error {
     /// An error with the magic string
-    /// at index 0 of all SQLite files
+    /// at index 0 of all SQLite 3 files
     MagicString,
 }
 
@@ -271,24 +271,123 @@ Before we move beyond the page size bytes, we should look over that section's do
 The issue is that the maximum page size is 65,536 bytes, but the maximum a
 2 byte integer can be is 65,535. Since the minimum size is 512, they chose to use
 a lower value as a signal of this maximum so a page size of 1 is how the 65,356 is
-represented.
-
-Next we have the Read and Write format bytes, 1 or legacy, 2 or Write Ahead Log or WAL. 
-let's create an enum to represent these values.
+represented. Now the question is, how do we want to deal with that? One option is to use
+a `u32` instead of `u16` but since we _eventually_ may want to reverse this value back to
+the original, we can wrap it in a tuple struct. First let's add an error case to our `Error`
+enum since this could fail. Since there are a few different cases that could cause failure
+we will give that variant, a `String` argument to allow for a more detailed explanation.
+And we can't forget to update our `Display` implementation.
 
 ```rust
-#[repr(u8)]
-pub enum FileFormat {
-    Legacy = 1,
-    WriteAheadLog,
+// error.rs
+enum Error {
+    /// An error with the magic string
+    /// at index 0 of all SQLite 3 files
+    MagicString,
+    InvalidPageSize(String),
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            // ...
+            Self::InvalidPageSize(msg) => write!(f, "Invalid page size, {}", msg),
+        }
+    }
+}
+
+```
+
+Now that we have our error fleshed out, lets work on the implementation. For that we have to
+perform 2 steps, first we need to ensure that any slice we get is exactly 2 bytes. After that
+we can safely convert those bytes into a `u16`, once we have that we need to validate that it
+is either 1 or greater than 512. Since a `u16` can't hold a value > 65,536 we don't need to check
+the upper bounds, however we do need to make sure the value is a power of 2. Let's work backwards.
+
+```rust
+/// Check if a value is a power of 2
+fn is_pow_2(v: u16) -> bool {
+    // First we convert the value to a float
+    let flt = f32::from(v);
+    // Now we check that `log2` has no remainder
+    flt.log2() % 1 == 0
 }
 ```
-First we use the `repr` attribute to note that this value shouldn't get larger than 1 byte
-next we make sure to define the `Legacy` case to 1 to correspond with the actual data format.
-These steps aren't strictly required but it is nice when the in memory data matches the
-file data.
 
+Now that we can test for a power of 2, we can define our tuple struct and the `TryFrom<u16>`
+implementation for that.
 
+```rust
+// lib.rs
 
+#[derive(Clone, Copy, Debug)]
+struct PageSize(pub u32);
 
-[Part 2](/blog/sqlite2/index.html)
+impl std::convert::TryFrom<u16> for PageSize {
+    type Error = Error;
+    fn try_from(v: u16) -> Result<PageSize, Error> {
+        match v {
+            1 => Ok(PageSize(65_536u32)),
+            0 | 2..=511 => Err(Error::InvalidPageSize("value must be >= 512, found: {}", v)),
+            _ => {
+                if is_pow_2(v) {
+                    Ok(PageSize(v as u32))
+                } else {
+                    Err(Error::InvalidPageSize(format!("value must be a power of 2 found: {}", v)))
+                }
+            }
+        }
+    }
+}
+```
+
+Alright, finally we can write our parsing function.
+
+```rust
+// lib.rs 
+fn parse_page_size(bytes: &[u8]) -> Result<PageSize, Error> {
+    // ensure that the slice is exactly 2 bytes by splitting on 2
+    let (two_bytes, _) = bytes.split_at(std::mem::size_of::<u16>());
+    // convert it into a [u8;2] or return early on any issues
+    let fixed = two_bytes.try_into().map_err(|e| {
+        Error::InvalidPageSize(format!("invalid byte length found: {}", bytes))
+    })?;
+    // now we can create our `u16`
+    let raw = u16::from_be_bytes(fixed);
+    // Lastly we use our `TryInto` implementation
+    raw.try_into()
+}
+```
+
+Progress! Let's update `main`.
+
+```rust
+use sqlite_parser::{
+    header::{parse_magic_string, parse_page_size},
+    error::Error,
+};
+fn main() -> Result<(), Error> {
+    // first, read in all the bytes of our file
+    // using unwrap to just panic if this fails
+    let contents = std::fs::read("data.sqlite").unwrap();
+    // Validate the magic string is correct
+    let magic_string = parse_magic_string(&contents[0..16])?;
+    let page_size = parse_page_size(&contents[16..18]);
+    // print the magic string and page size
+    println!("{:?}", page_size);
+}
+```
+
+Note, we updated the `main` to return a `Result` so we can take advantage of the `?` operator
+to return early when we find something invalid. When we run this, we should see something
+like the following, remember the actual size may be different for you.
+
+```sh
+PageSize(4096)
+```
+
+We have covered quite a bit so far, but only made it through the first 18 bytes! The docs
+say that the database headers is a total of 100 bytes so we have a bit of ground to cover still.
+In the next post, we are going to make our way through the rest of this header.
+
+<!-- [Part 2](/blog/sqlite2/index.html) -->
