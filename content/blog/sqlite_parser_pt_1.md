@@ -18,158 +18,277 @@ link = "/blog/sqlite_series/sqlite-parser-pt-1/index.html"
 #title = "SQLite Parser Pt. 3: The Header... reorganized"
 #link = "/blog/sqlite_series/sqlite-parser-pt-3/index.html"
 +++
+Databases are fascinating things, a large amount of software we build is
+some kind of user interface for a database. Even though we interact with 
+them quite often, how they actually work is often left a mystery. In this
+series we are going to start digging into how [SQLite](https://sqlite.org/) 
+works, primarily by trying to understand how the data is stored in a database 
+file. 
 
-This is the first in a series of posts describing the process of building a SQLite file parser. A GitHub repo of the finished code can be found [here](https://github.com/FreeMasen/sqlite_parser/tree/wired_forge_pt1)
+Thankfully, the SQLite folks have an incredible amount of documentation available,
+however it is written from a very technical perspective. Let's start by trying to 
+demystify some of language there. We are going to be working from
+[the Database File Format](https://sqlite.org/fileformat2.html) documentation,
+even just the first section 1.1 starts to use some terminology that is very
+specific to database or file systems work "Journals" which may be an interesting
+topic but not super important for us at this stage. Let's just skip ahead until we
+can find something a little more practical. We don't have to go to far until we find
+section 1.2 labeled "Pages". 
 
-For those who don't know, SQLite is a relational database engine that utilizes a single file for data storage and retrieval. It is widely used as an data storage solution for embedded systems or prototyping. A few things make this system very attractive: 
- - The source code is in the public domain
-   - This removes all worries about licensure and redistribution
- - The overall size is small
-    - The precompiled distribution are all under 2mb (not including mobile systems like android or UWP that have extra baggage)
- - It is written in C
-    - All modern programming languages have some degree of compatibility with C
- - It is very widely used
-    - It is included with the Python standard library.
-    - Apple's CoreData library for iOS is built on top of it.
+The term pages here is a reference to the fact that the data will be sectioned into
+equally sized parts. Similar to how a term paper would be a series of 8.5 by 11 inch
+pages, this data is going to be broken into pages of at least 512 and no larger
+than 65,536 bytes. To figure out how big pages are for any given file we need to 
+find the 16th byte of the file and somehow combine these it with the 17th byte.
 
-To dig deeper, their [website](http://sqlite.org) has quite a bit of information.
+That seems like enough information to at least get started with some code but
+before we do, let's create a database file. To do that, we have a few options
+the simplest is probably to use the SQLite cli tool
 
----
-Databases are fascinating. Just about every application I have built has amounted to a user interface for a database. While I have been able to leverage their power, knowledge of how they work makes them more powerful in the user's hands. So, I thought I would dig into how SQLite works as a way to build up that knowledge.
+Let's
+write a little program that just reads in a whole file and finds the 16th and 17th 
+byte and tells us what they are. before we begin, we should probably create one
+of these database files. If you don't already have SQLite installed, you can use 
+popular package managers like `apt` or `brew` to get it or you could use the 
+[SQLite download page](https://sqlite.org/download.html). Once it is installed
+open a terminal and type `sqlite3` to open the cli.
 
-As I started to read the documentation for SQLite I was hopeful it would start to demystify the magic part of data warehousing, however it quickly became clear that it was going to take some serious effort to understand. SQLite.org provides detailed specifications for just about every part of its system, all of them have been written from a technical perspective, so I thought it might be a good idea to start with the file format documentation. At about the 4th paragraph I started to doubt that I would be able to make sense of any of it:
-> The main database file consists of one or more pages. The size of a page is a power of two between 512 and 65536 inclusive. All pages within the same database are the same size. The page size for a database file is determined by the 2-byte integer located at an offset of 16 bytes from the beginning of the database file.
->
-> Pages are numbered beginning with 1. The maximum page number is 2147483646 (2<sup>31</sup> - 2). The minimum size SQLite database is a single 512-byte page. The maximum size database would be 2147483646 pages at 65536 bytes per page or 140,737,488,224,256 bytes (about 140 terabytes). Usually SQLite will hit the maximum file size limit of the underlying filesystem or disk hardware long before it hits its own internal size limit.
->
-> In common use, SQLite databases tend to range in size from a few kilobytes to a few gigabytes, though terabyte-size SQLite databases are known to exist in production.
-> At any point in time, every page in the main database has a single use which is one of the following:
->
-> - The lock-byte page
-> - A freelist page
->   - A freelist trunk page
->   - A freelist leaf page
-> - A b-tree page
->   - A table b-tree interior page
->   - A table b-tree leaf page
->   - An index b-tree interior page
->   - An index b-tree leaf page 
-> - A payload overflow page
-> - A pointer map page 
+```sh
+> sqlite3
+SQLite version 3.28.0 2019-04-15 14:49:49
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite> 
+```
+Here it tells us we have a in-memory database opened but we want one that
+writes to disk so we are going to use the `.open` command to create a file
 
-whoa.
+```sh
+sqlite> .open data.sqlite
+```
+While the cli doesn't give us any feedback, you should we that a file called
+data.db was created in the current working directory. While this would probably
+be enough to complete or initial goal of reading the page size bytes, let's 
+create some tables now that we have the cli open. We are going to create
+a `user` table and insert a few values into it so that we don't have to do 
+that later. 
 
-Two byte integer...
+```sql
+CREATE TABLE user (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+    name TEXT,
+    email TEXT
+);
+INSERT INTO user (name, email)
+VALUES ('Robert Masen', 'r@robertmasen.com'),
+       ('Paul Bunyan', 'pb@example.com');
+```
+Again the sqlite cli tool doesn't give us any feedback about our action so let's just be
+sure and run `SELECT * FROM user;` and we should see the following.
 
-b-trees... 
+```sh
+1|Robert Masen|r@robertmasen.com
+2|Paul Bunyan|pb@example.com
+```
 
-pointer map...
-
-Oh my!
-
-At this point, my head is swimming but when the going gets tough, the tough bang their brain against it until something clicks. Thankfully shortly after that mess, a table is included that starts to help make some more sense. This table dictates where in the file specific header information lives. At this point, I thought, I am going to need to write some code to be able to understand any of this.
-
-According to the doc the first 100 bytes of the file will be the header which is explicitly sectioned into 23 pieces. So lets start writing some code.
-
-First, we need to create a database file. There are many methods to do this but I used the [DB Browser for SQLite](http://sqlitebrowser.org/) to create mine. 
-
-the table I created was pretty simple:
-
-![CREATE TABLE user (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT, email TEXT)](/images/create_table.png)
-
-Now we need to read the first 100 bytes of this file. So lets get started with our project, all of the code samples for this will be written in Rust (though I may re-write it in other languages at a later time). To start, lets enter this into a terminal.
-
-```bash
-$ cargo new ./sqlite --bin && cd ./sqlite
-``` 
-Now that we have an Executable rust project created, open it up in your editor of choice. 
-The code block below is going to first open up our `.sqlite` file then try and read in the first
-100 bytes.
+With that out of the way, let's get back to reading that pages size. 
 
 ```rust
-use std::io::*;
-use std::path::{PathBuf};
-use std::fs::{File};
-
 fn main() {
-    //create a path buffer for our file, this will help the io operations
-    //to know where to look without manually having to look up OS conventions like 
-    //the type of slash they are using
-    let path = PathBuf::from("db.sqlite");
-    //Open the file or print a failure message
-    let file = File::open(path).expect("Unable to open db file");
-    //creat a reader with an internal buffer of 100 bytes in length that for our file
-    let mut reader = BufReader::with_capacity(100, file);
-    //fill the internal buffer with the first 100 bytes in our file
-    //or print a failure message
-    let buf = reader.fill_buf().expect("Unable to fill buffer");
-    //print our first 100 bytes to the screen
-    println!("First 100 bytes:\n{:?}", buf);
+    // first, read in all the bytes of our file
+    // using unwrap to just panic if this fails
+    let contents = std::fs::read("data.sqlite").unwrap();
+    // capture our 16 and 17 bytes in a slice
+    let page_size = &contents[16..18];
+    // print that slice to the screen
+    println!("{:?}", page_size);
 }
 ```
-When we run this, the output should look something like this.
+The above program will read in the file we just created as bytes, so the type
+of `contents` is `Vec<u8>`. Since vectors are indexable on ranges, we then
+print bytes 16 and 17 (note the range is "exclusive" so we need to index with 18).
+Let's see what happens when we run this.
 
-```bash
-$ cargo run
-First 100 bytes:
-[83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0, 
-16, 0, 1, 1, 0, 64, 32, 32, 0, 0, 0, 8, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 
-0, 0, 0, 0, 2, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 46, 1, 90]
+```sh
+cargo run
+[16, 0]
 ```
+> note these values may be different for you and that is ok
 
-Success!
+Progress! Though, what does that actually mean? If we read the rest of section 1.2, it
+continues on to describe what a page is comprised of and the maximum sqlite file size, 
+not very helpful...
 
-Now that we have read in the bytes, let's see what they are supposed to represent
+If we skip a head to section 1.3, we see a short bit of text and a long table. In the 
+short bit of text it tells us that all of the multi-byte values are "big-endian",
+if you are not familiar with this term, I wrote up a description of binary number
+representations that it would be good to look over [here](/blog/binary-pt1/index.html).
 
-The first 16 bytes should be the string `SQLite Format 3` followed by a `NUL` character, so lets try and parse that out.
-
-Looking at the last example, we want to work on this set of data
-
-`[83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0]`
-
-We could manually look up each of these using a [utf-8 table](https://en.wikipedia.org/wiki/List_of_Unicode_characters#Basic_Latin) by just matching up our numbers to the number listed like `83=S, 81=Q...` but that would take far too long. Let's let the computer do all that for us.
+Now that we know this value is big-endian we can combine these two bytes together
+using the standard library's [`u16::from_be_bytes`](https://doc.rust-lang.org/nightly/std/primitive.u16.html#method.from_be_bytes) to convert it into a single value.
 
 
 ```rust
 fn main() {
-    //create a path buffer for our file, this will help the io operations
-    //to know where to look without manually having to look up OS conventions like 
-    //the type of slash they are using
-     let path = PathBuf::from("db.sqlite");
-    //Open the file
-    let file = File::open(path).expect("Unable to open db file");
-    //creat a reader with an internal buffer of 100 bytes in length that for our file
-    let mut reader = BufReader::with_capacity(100, file);
-    //fill the internal buffer with the first 100 bytes in our file
-    let buf = reader.fill_buf().expect("Unable to fill buffer");
-    //slice off the first 16 bytes of our buffer
-    let first_16 = buf.get(0..16)
-                    .expect("Unable to slice our first 16 bytes");
-    //Try and create a string from the slice, note the from_utf8 method is expecting a vector 
-    //so we are casting our &[u8] to Vec<u8> by calling .to_vec()
-    let magic_string = String::from_utf8(first_16).to_vec())
-                    .expect("Unable to convert from utf8 to magic string");
-    println!("did it work?\n{:?}", magic_string);
+    // first, read in all the bytes of our file
+    // using unwrap to just panic if this fails
+    let contents = std::fs::read("data.sqlite").unwrap();
+    // create an array to hold a copy of our bytes
+    let mut size_bytes = [0;2];
+    // fill our array with bytes 16 and 17 of the vector
+    size_bytes.copy_from_slice(&contents[16..18]);
+    let page_size = u16::from_be_bytes(size_bytes);
+    // print the actual size
+    println!("{:?}", page_size);
 }
 ```
-When we run this, the output should look something like this.
+and when we run this, we should see something like the following.
 
-```bash
-$ cargo run
-did it work?
-"SQLite format 3\u{0}"
+```sh
+cargo run
+4096
+```
+Awesome! That looks like it is probably inside of the range we read about before
+so let's chalk this up as a win!
+
+Now that we have made it all the way to section 1.3, we can now see that 
+there is quite a bit of more information right there at the start of the file. 
+This long table tells us where we should expect to see everything. Looking it 
+over it now makes sense why the page size is at byte 16, because those first 16 
+bytes are the string "SQLite format 3\000" but wait, that string is 19
+characters long! Since SQLite is a c application, that means all of our strings
+are going to be `NULL` terminated and the `\000` is a fancy way of writing that,
+which makes it actually the expected 16 bytes. So, let's add that into our
+little page size finding application.
+
+```rust
+fn main() {
+    // first, read in all the bytes of our file
+    // using unwrap to just panic if this fails
+    let contents = std::fs::read("data.sqlite").unwrap();
+    // capture the slice of bytes for our magic string
+    let magic_bytes = &contents[0..16];
+    // use the lossy method of constructing a string
+    // incase it fails
+    let magic_string = String::from_utf8_lossy(magic_bytes);
+    // create an array to hold a copy of our bytes
+    let mut size_bytes = [0;2];
+    // fill our array with bytes 16 and 17 of the vector
+    size_bytes.copy_from_slice(&contents[16..18]);
+    let page_size = u16::from_be_bytes(size_bytes);
+    // print the magic string and page size
+    println!("{:?} {:?}", magic_string, page_size);
+}
+```
+Now when we run this we should see something like...
+
+```sh
+cargo run
+"SQLite format 3\u{0}" 4096
 ```
 
-That looks good, only what is at the end there? `\u{0}`
+Success! That is exactly what the SQLite documentation said would be there.
+So what else can we find out from this file? Looking over that table, the first
+100 bytes seems to be packed with information. Since the main goal here is to build
+a parser, we should probably stop here and refactor these into a some library functions.
 
-Well, when Rust tries to print a non-printable Unicode character like NUL it formats it
-with a leading \u to indicate its Unicode followed by the number wrapped in curly braces
-so `\u{0}` is the formatted version of `0` or `0000` or `NUL`.
+First, let's create a few new files in the src folder. They are going to be `lib.rs`,
+`error.rs`, and `header.rs`. The first of those isn't going to do much, just act as 
+way to tie all our other modules together. 
 
-According to our spec, this is exactly what we were hoping for.
+```rust
+// ./src/lib.rs
+mod error;
+mod header;
+```
 
-This seems like a good place to break, in the next post we will dig beyond the first 16 bytes and start to really get down to business.
+Next, let's setup our error. While there are a few options to take care of some of
+these things for us, we'll use a enum to represent our error. 
+
+```rust
+// ./src/error.rs
+#[derive(Debug)]
+pub enum Error {
+
+}
+impl std::fmt::Display {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match f {
+            _ => write(f, "Unknown error"),
+        }
+    }
+}
+impl std::error::Error for Error {}
+```
+
+Implementing the Error trait does require that both `Debug` and `Display` are
+implemented, so first we use the `#[derive(Debug)]` attribute to take care
+of the former. For the latter, we need to implement it explicitly. Since we haven't
+defined any errors yet we will just put in a temporary catch all case.
+
+Now, we can get started with the header module. 
+
+```rust
+// ./src/header.rs
+
+/// Byte representation of magic string 
+/// "SQLite format 3\u{0}"
+static MAGIC_STRING: &[u8] = &[
+    83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0,
+];
+
+fn parse_magic_string(buf: &[u8]) -> Result<(), Error> {
+    if buf != MAGIC_STRING {
+        Err(Error::MagicString)
+    } else {
+        Ok(())
+    }
+}
+```
+
+Notice how we used our error, we need to define that case and its display
+implementation.
+
+```rust
+enum Error {
+    /// An error with the magic string
+    /// at index 0 of all SQLite files
+    MagicString,
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Self::MagicString => write!(f, 
+                "Unexpected bytes at start of file, expected the magic string 'SQLite format 3\u{0}'"),
+        }
+    }
+}
+```
+
+Before we move beyond the page size bytes, we should look over that section's documentation.
+The issue is that the maximum page size is 65,536 bytes, but the maximum a
+2 byte integer can be is 65,535. Since the minimum size is 512, they chose to use
+a lower value as a signal of this maximum so a page size of 1 is how the 65,356 is
+represented.
+
+Next we have the Read and Write format bytes, 1 or legacy, 2 or Write Ahead Log or WAL. 
+let's create an enum to represent these values.
+
+```rust
+#[repr(u8)]
+pub enum FileFormat {
+    Legacy = 1,
+    WriteAheadLog,
+}
+```
+First we use the `repr` attribute to note that this value shouldn't get larger than 1 byte
+next we make sure to define the `Legacy` case to 1 to correspond with the actual data format.
+These steps aren't strictly required but it is nice when the in memory data matches the
+file data.
+
+
+
 
 [Part 2](/blog/sqlite2/index.html)
