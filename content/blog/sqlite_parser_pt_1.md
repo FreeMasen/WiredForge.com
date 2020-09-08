@@ -166,8 +166,7 @@ are "big-endian". If you are unfamiliar with "endianness", don't worry too much 
 Rust's standard library provides a `from_be_bytes` function for creating a bunch of the number
 types (`be` meaning big endian). Let's use the one for making a `u16`
 
-> If you wanted to learn more about binary number representation, you could check out
-> [this series](/blog/binary-pt1/index.html)
+> If you wanted to learn more about binary number representation, you could check out [this series](/blog/binary-pt1/index.html)
 
 ```rust
 // To convert from a slice to an array we
@@ -351,18 +350,18 @@ static HEADER_STRING: &[u8] = &[
     83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0,
 ];
 
-struct PageSize(u32);
+pub struct PageSize(u32);
 
 /// Validate that the bytes provided match the special string
 /// at the start of Sqlite3 files
-fn validate_header_string(bytes: &[u8]) -> Result<(), Error> {
+pub fn validate_header_string(bytes: &[u8]) -> Result<(), Error> {
     if bytes != HEADER_STRING {
         return Err(Error::HeaderString(String::from_utf8_lossy(buf).to_string()))
     }
     Ok(())
 }
 
-fn parse_page_size(bytes: &[u8]) -> Result<PageSize, Error> {
+pub fn parse_page_size(bytes: &[u8]) -> Result<PageSize, Error> {
     let page_size_bytes: [u8;2] = contents[16..18].try_into().unwrap();
     // Now we can convert the value into a `u16`
     let raw_page_size = u16::from_be_bytes(page_size_bytes);
@@ -425,7 +424,7 @@ fn main() -> Result<(), Error> {
 Notice, that we have updated `main` to return a `Result`, this will allow us
 to use the `?` operator to fail for us if we encounter an error. 
 
-At this stage, we have all the plumbing in the right place tackle the rest of
+At this stage, we have all the plumbing in the right place to tackle the rest of
 the our first 100 bytes. In the next post, we will cover the rest of the database
 header.
 
