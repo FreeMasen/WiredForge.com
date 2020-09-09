@@ -412,9 +412,10 @@ pub struct PageSize(u32);
 /// Validate that the bytes provided match the special string
 /// at the start of Sqlite3 files
 pub fn validate_header_string(bytes: &[u8]) -> Result<(), Error> {
+    let buf = &bytes[0..16];
     // if the provided bytes don't match the static HEADER_STRING,
     // we return early
-    if bytes != HEADER_STRING {
+    if buf != HEADER_STRING {
         // since we only head this way on the error case, we convert the provided
         // value into a string. We don't want to error in our error path if it isn't valid utf8
         // so we again use `from_utf8_lossy` and then convert that into a string. 
@@ -428,7 +429,7 @@ pub fn parse_page_size(bytes: &[u8]) -> Result<PageSize, Error> {
     // so we can use the `map_err` method on that to convert a possible error here
     // into _our_ error. Doing it this way allows us to use the `?` operator at the 
     // end which will return early if this fails.
-    let page_size_bytes: [u8;2] = bytes.try_into().map_err(|_e_| {
+    let page_size_bytes: [u8;2] = bytes[16..18].try_into().map_err(|_e_| {
         Error::InvalidPageSize(format!("expected a 2 byte slice, found: {:?}", bytes))
     })?;
     // Now we can convert the value into a `u16`
@@ -513,9 +514,9 @@ fn main() -> Result<(), Error> {
     // Still reading the whole file into a `Vec<u8>` and panicking if that fails
     let contents = std::fs::read("data.sqlite").expect("Failed to read data.sqlite");
     // Check that the first 16 bytes match the header string
-    validate_header_string(&contents[0..16])?;
+    validate_header_string(&contents)?;
     // capture the page size
-    let page_size = parse_page_size(&[16..18])?;
+    let page_size = parse_page_size(&contents)?;
     // print that out to the terminal
     println!("{:?}", page_size);
 }
