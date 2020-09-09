@@ -32,16 +32,16 @@ running something similar to the following.
 $ cargo new sqlite-parser
 ```
 
-This will create a new folder for us and put a simple Rust binary project in it.
-If you are new to rust, we are going be working in the `src/main.rs` for the rest
+This will create a new folder for and put a simple Rust binary project in it.
+If you are new to Rust, we are going be working in `src/main.rs` for the rest
 of this post. However we should look a little more into the Sqlite documentation
 before we start writing any code.
 
 Thankfully, the SQLite folks have an incredible amount of documentation available,
 however it is written from a very technical perspective. If you wanted to follow along,
 we will be working from [this document](https://sqlite.org/fileformat2.html) that details how 
-a Sqlite3 database file will be layed out. Very early on that page, we start to get into the
-weeds about "Hot Journal"s and "Pages", while these maybe interesting topics if we want to 
+a Sqlite3 database file will be laid out. Very early on that page, we start to get into the
+weeds about "Hot Journals", while this may be an interesting topic, if we want to 
 try and read the database file format we don't much care about that to start. Instead we can
 skip ahead to a the section 1.3, entitled "The Database Header". This will break down the
 first 100 bytes of any Sqlite3 file value by value. Our first goal is going to be able to
@@ -67,8 +67,9 @@ sqlite> .open data.sqlite
 ```
 While the cli doesn't give us any feedback, we should see that a file called
 data.sqlite was created in the current working directory (this should be the same directory as 
-our rust project). While this would probably be enough to complete or initial goal of reading 
-header, let's create a table named `user` and insert a few values into it.
+our rust project). While this would probably be enough to complete our initial goal of reading 
+the database header, let's create a table named `user` and insert a few values into it while we're
+here.
 
 ```sql
 CREATE TABLE user (
@@ -92,7 +93,7 @@ sure and run `SELECT * FROM user;` and we should see the following.
 With that out of the way, let's dig into these first few bytes. According to the table,
 our first 16 bytes will be the string `SQLite format 3\000`. You may be asking yourself
 why they would say it is 16 bytes when that string is clearly 19 characters long. Since
-Sqlite is written as a C application, all of the strings will be `NULL` terminated, and
+Sqlite is written as a C application, all of the strings will be [`NULL` terminated](https://en.wikipedia.org/wiki/Null-terminated_string), and
 that `\000` at the end of the string is one way to write a `NULL` byte. Let's see if we 
 can read that string from our newly created database file.
 
@@ -118,7 +119,7 @@ cargo run
 [83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0,]
 ```
 Ok, so that wasn't very illuminating, let's convert those bytes to something readable
-by a human;
+by a human.
 
 ```rust
 fn main() {
@@ -161,12 +162,13 @@ for your database file and that is ok.
 cargo run
 [16, 0]
 ```
-Alright, we can see there are actually two bytes there but they represent a single number, how should we combine them? The documentation tells us (in section 1.2) that all "multibyte fields"
-are "big-endian". If you are unfamiliar with "endianness", don't worry too much about it.
-Rust's standard library provides a `from_be_bytes` function for creating a bunch of the number
-types (`be` meaning big endian). Let's use the one for making a `u16`
-
-> If you wanted to learn more about binary number representation, you could check out [this series](/blog/binary-pt1/index.html)
+Alright, we can see there are actually two bytes there but they represent a single number, how should we combine them?
+The documentation tells us that all "multibyte fields"
+are "big-endian". If you are unfamiliar with "endianness", you might want to look
+over [this series](/blog/binary-pt1/index.html) on binary number representations, though
+it isn't super important since Rust's standard library provides a `from_be_bytes`
+function for creating a bunch of the number types (`be` meaning big-endian).
+Let's use the one for making a `u16`
 
 ```rust
 // To convert from a slice to an array we
@@ -177,7 +179,7 @@ use std::convert::TryInto;
 fn main() {
     //...
     // We need value to be an array so we try to convert it
-    // panicing if it fails
+    // panicking if it fails
     let page_size_bytes: [u8;2] = contents[16..18].try_into().unwrap();
     // Now we can convert the value into a `u16`
     let page_size = u16::from_be_bytes(page_size_bytes);
@@ -225,7 +227,7 @@ use std::convert::TryInto;
 fn main() {
     //...
     // We need value to be an array so we try to convert it
-    // panicing if it fails
+    // panicking if it fails
     let page_size_bytes: [u8;2] = contents[16..18].try_into().unwrap();
     // Now we can convert the value into a `u16`
     let page_size = u16::from_be_bytes(page_size_bytes);
@@ -235,23 +237,41 @@ fn main() {
 }
 ```
 
-This gets us very close, though there is one more thing that the documentation say
+This gets us very close, though there is one more thing the documentation says
 and that this value could also be 1 representing 65,536. This complicates things for us
 though, because the maximum value for a `u16` is 32,768. To handle this, we are going to
-convert this into a `u32`. So we can control the value a little more we will
+convert this into a `u32`. So we can control the value a little more, we'll
 wrap the value it its own struct and move our asserts into a constructor for it.
 
 ```rust
+/// This struct will wrap our 32bit number allowing us
+/// to control how it gets used later. this #[derive]
+/// at the top just gets allows is to print this value
+/// to the terminal using debug ({:?}) print
 #[derive(Debug)]
 struct PageSize(u32);
 
 impl PageSize {
+    /// This will convert a u16 into a valid PageSize
+    /// panicking if the input is invalid
     fn from(v: u16) -> Self {
+        // Remember 1 is our special case
+        // we return early here if we find it
         if v == 1 {
             return PageSize(65_536)
         }
+        // assert! is a standard library macro that will 
+        // panic if the input isn't `true`. We are going to
+        // use that to test for our 2 validation requirements
+
+        // Since it ins't 1, we need it to be at least 512
         assert!(v >= 512);
+        // We also check to see if it is a power of 2
         assert!(is_pow2(v));
+        // Since v can't be greater than our maximum value
+        // we can simply convert it to a u32 now
+        // by using the `into` method on u16, and wrap it
+        // in the PageSize constructor we defined above.
         return PageSize(v.into())
     }
 }
@@ -268,7 +288,7 @@ use std::convert::TryInto;
 fn main() {
     //...
     // We need value to be an array so we try to convert it
-    // panicing if it fails
+    // panicking if it fails
     let page_size_bytes: [u8;2] = contents[16..18].try_into().unwrap();
     // Now we can convert the value into a `u16`
     let raw_page_size = u16::from_be_bytes(page_size_bytes);
@@ -307,7 +327,9 @@ pub mod error;
 pub mod header;
 ```
 
-Next, let's tackle that error module.
+Here we are defining two other modules we created files for `error` and `header`. 
+Since we used the `pub` keyword on each of them, they will be exported to anyone who consumes
+our library. Next, let's fill out what our error module is going to look like.
 
 ```rust
 /// Representation of our possible errors.
@@ -321,32 +343,67 @@ pub enum Error {
     InvalidPageSize(String),
 }
 
+// impl Trait for DataStructure is a way to comply with
+// a trait's definition
 impl std::fmt::Display for Error {
+    /// This will be called whenever we use display ({}) print
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        // the write! macro here works a lot like `format!` though it takes a first argument
+        // that can be written to, which the argument `f` fulfils for us
         match self {
             Self::HeaderString(v) => write!(f, "Unexpected bytes at start of file, expected the magic string 'SQLite format 3\u{0}', found {:?}", v),
             Self::InvalidPageSize(msg) => write!(f, "Invalid page size, {}", msg),
         }
     }
 }
+// Error doesn't have any required methods
+// so we can use an empty `impl` block to satisfy
+// this trait's implementation
 impl std::error::Error for Error {}
 ```
 
-Alright, let's unpack that a bit. We are going to define our own `Error` enum, one for each,
-of our possible failure points. Each of the variants will contain a `String` so we can provide
-some context at the point we encounter an issue. To comply with the `std::error::Error` trait,
-we first need to implement `Display` and `Debug`, the latter is covered by `#[derive(Debug)]` 
-but we have to implement `Display` manually. Once those are in place, we can then add the 
-marker trait `std::error::Error`. Now that we have those, let's pull out the parsing of our
-two values into `header.rs`
+Alright, let's unpack that a bit. We are going to define our own `Error` enum, one for each
+of our possible failure points. Right now there are 2 failure points, first is if the header
+string is invalid, the second is if the page size is invalid. Each of the variants will contain
+a `String` so we can provide some context at the point we encounter an issue. For example, the
+bytes that failed to match our header string, or the u16 page size that wasn't a power of 2.
+
+Ultimately, we want to comply with the `std::error::Error` trait, and to do this 
+we first need to implement `Display` and `Debug`. These two traits control how something gets
+printed to the terminal when we use the `println!` or `format!` macros. Here is an example of each using our new `Error` enum.
+
+```rust
+// Display
+println!("{}", Error::InvalidPageSize("expected 2 bytes found []".to_string()));
+// $ Invalid page size, expected 2 bytes found []
+// Debug
+println!("{:?}", Error::InvalidPageSize("value must be >= 512, found: 11".to_string()));
+// $ InvalidPageSize("value must be >= 512, found: 11")
+```
+
+Notice though that we didn't explicitly implement the `Debug` version
+instead we used `#[derive(Debug)]`, which gets us the syntax you see above by default without having to write
+any code, which is nice.
+We do have to implement `Display` manually so, we will use an exhaustive `match` over each of our enum variants.
+Once those are in place, we can then add the trait `std::error::Error` which doesn't have any required methods,
+so it will just hang out there at the bottom. With all that done, let's get back to our parsing functions, we are going
+to move all the logic from `main.rs` into the `header.rs` file we created.
 
 ```rust
 // header.rs
+// we import that Error enum we just defined
 use crate::error::Error;
-use std::convert::TryFrom;
+// we are still going to use `TryInto` for converting
+// a slice to an array, we just move it from main.rs into here
+// however we are going to leverage `TryFrom` to convert a `u16`
+// into a `PageSize` so we bring that into scope here.
+use std::convert::{TryFrom, TryInto};
 /// The magic string at the start of all Sqlite3 database files is
-/// `Sqlite format 3\{0}`
+/// `Sqlite format 3\{0}`, we keep this as a static slice of bytes since it 
+/// shouldn't ever change and the file we are reading is already bytes so why 
+/// do the conversion
 static HEADER_STRING: &[u8] = &[
+ //  S   q   l    i    t    e  ` `   f    o    r    m   a    t  ` `  3  \u{0}
     83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0,
 ];
 
@@ -355,32 +412,63 @@ pub struct PageSize(u32);
 /// Validate that the bytes provided match the special string
 /// at the start of Sqlite3 files
 pub fn validate_header_string(bytes: &[u8]) -> Result<(), Error> {
+    // if the provided bytes don't match the static HEADER_STRING,
+    // we return early
     if bytes != HEADER_STRING {
+        // since we only head this way on the error case, we convert the provided
+        // value into a string. We don't want to error in our error path if it isn't valid utf8
+        // so we again use `from_utf8_lossy` and then convert that into a string. 
         return Err(Error::HeaderString(String::from_utf8_lossy(buf).to_string()))
     }
     Ok(())
 }
-
+/// Parse the page size bytes from a 2 byte slice into a `PageSize`
 pub fn parse_page_size(bytes: &[u8]) -> Result<PageSize, Error> {
-    let page_size_bytes: [u8;2] = contents[16..18].try_into().unwrap();
+    // first we try and covert the slice into an array. This returns a `Result`
+    // so we can use the `map_err` method on that to convert a possible error here
+    // into _our_ error. Doing it this way allows us to use the `?` operator at the 
+    // end which will return early if this fails.
+    let page_size_bytes: [u8;2] = bytes.try_into().map_err(|_e_| {
+        Error::InvalidPageSize(format!("expected a 2 byte slice, found: {:?}", bytes))
+    })?;
     // Now we can convert the value into a `u16`
     let raw_page_size = u16::from_be_bytes(page_size_bytes);
+    // lastly we are going to use the `try_into` method defined below
+    // to finish the job
     raw_page_size.try_into()
 }
 
+// Another trait implementation, similar to `Display`
+// This one though, takes a generic argument that says
+// what the input should be. 
 impl TryFrom<u16> for PageSize {
+    // We also have to add an "associated type" here that will
+    // define the error we will return from the one method we 
+    // have to define
     type Error = Error;
+    // This is the single requirement for conforming to `TryFrom`
     fn try_from(v: u16) -> Result<PageSize, Self::Error> {
+        // This looks a little different than what we had before. Instead
+        // of having a series of `if`s, we instead use a single `match` statement
         match v {
+            // if 1, we have a special case, we can return the `Ok`
+            // value with the maximum page size
             1 => Ok(PageSize(65_536u32)),
+            // If we find 0 or 2-511, we found and invalid page size
+            // we use the `format!` macro to include the provided value in the
+            // error message
             0 | 2..=511 => Err(Error::InvalidPageSize(format!(
                 "value must be >= 512, found: {}",
                 v
             ))),
+            // This will catch all values >= 512
             _ => {
-                if is_pow_2(v) {
+                // Since we know it is large enough, we check if it is a power of 2
+                if is_pow2(v) {
+                    // success, we can cast the provided value to a `u32` and be done
                     Ok(PageSize(v as u32))
                 } else {
+                    // failed, return an error with an additional explanation
                     Err(Error::InvalidPageSize(format!(
                         "value must be a power of 2 found: {}",
                         v
@@ -404,25 +492,45 @@ fn is_pow2(v: u16) -> bool {
     log2 % 1.0 == 0.0
 }
 ```
+That one was a doosy, let's go over a few of the parts. First, we had to update our imports. Primarily we are just really moving
+the logic from `main.rs` into our new file. You may have noticed though that `parse_page_size` uses `v.try_into()` at the very end,
+one of the cool things about `TryFrom` and `TryInto` is that by implementing 1 you get the other for free. This means that our
+implementation of `TryFrom<u16> for PageSize` automatically sets up `TryInto<PageSize> for u16` for us!
 
 Now that we have our library setup, lets update `main.rs` to use our library.
 
 ```rust
 // main.rs
+// First we need to import our library like it is a dependency
+// since it isn't officially part of our binary project. For right
+// now we are going to just import all of the things individually
 use sqlite_parser::{
     header::{validate_magic_string, parse_page_size},
     error::Error,  
 };
 
 fn main() -> Result<(), Error> {
+    // Still reading the whole file into a `Vec<u8>` and panicking if that fails
     let contents = std::fs::read("data.sqlite").expect("Failed to read data.sqlite");
-    validate_magic_string(&contents[0..16])?;
+    // Check that the first 16 bytes match the header string
+    validate_header_string(&contents[0..16])?;
+    // capture the page size
     let page_size = parse_page_size(&[16..18])?;
+    // print that out to the terminal
     println!("{:?}", page_size);
 }
 ```
 Notice, that we have updated `main` to return a `Result`, this will allow us
-to use the `?` operator to fail for us if we encounter an error. 
+to use the `?` operator to fail for us if we encounter an error.
+
+Let's run this and see what happens.
+
+```sh$
+$ cargo run
+PageSize(4096)
+```
+
+Success!
 
 At this stage, we have all the plumbing in the right place to tackle the rest of
 the our first 100 bytes. In the next post, we will cover the rest of the database
