@@ -199,27 +199,12 @@ cargo run
 
 Cool, we converted our 2 bytes into a single number! Let's validate the other things
 that will tell us if we did it right. The docs say it should be at least 512 and
-at most 32,768, check. The nice thing about the upper value, is that it will be the 
-maximum value for a `u16`, so we _can't_ go over that. It also says that the number must
-be a power of 2... that is work a computer is far better suited for, so let's write a
-new function that will check if a `u16` is a power of 2.
+at most 32,768, check. The next thing we need to check is if this value is a power of
+2. the nice thing about this requirement is that the largest possible power of 2 a u16 can hold, 
+is the same as our max value 32,768. 
 
-```rust
-/// Tests the provided argument to see if it is a power of 2
-fn is_pow2(v: u16) -> bool {
-    // first we need to convert the provided argument to a float
-    // because we need to perform `log2` and that is only available
-    // on floating point numbers
-    let flt: f32 = v.into();
-    // now we get the `log2` of our value
-    let log2 = flt.log2();
-    // The last step is to see if this value has any remainder
-    // if it does then it isn't a power of 2
-    log2 % 1.0 == 0.0
-}
-```
-
-With that we can now add in a couple of `assert!`s to validate our value is correct.
+To determining if our value is a power of two, the standard library provides a method on `u16` for us!
+Using that we can now add in a couple of `assert!`s to validate our value is correct.
 
 ```rust
 // To convert from a slice to an array we
@@ -238,14 +223,14 @@ fn main() {
     // panic if the input isn't `true`. We are going to
     // use that to test for our 2 validation requirements
     assert!(page_size >= 512, "Value must be at least 512");
-    assert!(is_pow2(page_size), "Value must be a power of 2");
+    assert!(page_size.is_power_of_two(), "Value must be a power of 2");
     println!("{:?}", page_size);
 }
 ```
 
 This gets us very close, though there is one more thing we need to account for. The docs say
 that this value could also be 1 representing 65,536. This complicates things for us
-though, because the maximum value for a `u16` is 32,768. To handle this, we are going to
+though, because the maximum value for a `u16` is 65,535. To handle this, we are going to
 need to convert this into a `u32`. To better control the value we'll
 wrap it its own struct and move our asserts into a constructor for that.
 
@@ -269,7 +254,7 @@ impl PageSize {
         // Since it isn't 1, we need it to be at least 512
         assert!(v >= 512);
         // We also check to see if it is a power of 2
-        assert!(is_pow2(v));
+        assert!(v.is_power_of_two());
         // Since v can't be greater than our maximum value
         // we can simply convert it to a u32 now
         // by using the `into` method on u16, and wrap it
@@ -464,7 +449,7 @@ impl TryFrom<u16> for PageSize {
             // This will catch all values >= 512
             _ => {
                 // Since we know it is large enough, we check if it is a power of 2
-                if is_pow2(v) {
+                if v.is_power_of_two() {
                     // success, we can cast the provided value to a `u32` and be done
                     Ok(PageSize(v as u32))
                 } else {
@@ -477,19 +462,6 @@ impl TryFrom<u16> for PageSize {
             }
         }
     }
-}
-
-/// Tests the provided argument to see if it is a power of 2
-fn is_pow2(v: u16) -> bool {
-    // first we need to convert the provided argument to a float
-    // because we need to perform `log2` and that is only available
-    // on floating point numbers
-    let flt: f32 = v.into();
-    // now we get the `log2` of our value
-    let log2 = flt.log2();
-    // The last step is to see if this value has any remainder
-    // if it does then it isn't a power of 2
-    log2 % 1.0 == 0.0
 }
 ```
 That one was a doosy, let's go over a few of the parts. First, we had to update our imports, bringing in our new `Error`
