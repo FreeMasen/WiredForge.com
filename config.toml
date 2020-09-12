@@ -1,6 +1,5 @@
 # The URL the site will be built for
-# base_url = "https://wiredforge.com"
-base_url = "http://localhost:3456"
+base_url = "https://freemasen.com"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
