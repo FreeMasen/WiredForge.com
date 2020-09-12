@@ -1,6 +1,6 @@
 # The URL the site will be built for
-# base_url = "http://freemasen.com"
-base_url = "http://localhost:3456"
+base_url = "http://freemasen.com"
+# base_url = "http://localhost:3456"
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
 
