@@ -10,17 +10,17 @@ compile_sass = true
 highlight_code = true
 # highlight_theme = "base16-ocean-light"
 # highlight_theme = "charcoal"
-# highlight_theme = "inspired-github"
+highlight_theme = "inspired-github" #
 # highlight_theme = "subway-madrid"
 # highlight_theme = "subway-moscow"
 
-highlight_theme = "material-light"
+# highlight_theme = "material-light"
 
 title = "Free Masen"
 description = "A blog about software development"
 language_code = "en"
 build_search_index = true
-generate_rss = true
+generate_feed = true
 
 theme = "hyde"
 
@@ -31,3 +31,5 @@ hyde_links = [
     {url = "/fun/index.html", name = "Fun"},
     {url = "/about/index.html", name = "About"},
 ]
+hyde_theme = "theme-base-0c"
+hyde_sticky = false

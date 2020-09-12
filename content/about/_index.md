@@ -13,7 +13,7 @@ You can find the source [here](https://github.com/freemasen/wiredforge.com)
 
 ## About the author
 
-![hello!](/images/me.png)
+![hello!](/images/me.jpg)
 
 My name is Robert Masen, I am a student of software development who loves to dig into (sometimes pointless)
 software problems for fun in my free time. Feel free to hit the contact tab on the left and send me a message if you 
