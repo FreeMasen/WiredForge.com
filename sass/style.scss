@@ -18,6 +18,7 @@
             }
             p {
                 font-family: 'mono';
+                color: black;
             }
         }
         .sidebar-nav {
@@ -28,4 +29,14 @@
             }
         }
     }
+}
+
+.post {
+    .post-date {
+        color: black;
+    }
+}
+
+pre {
+    overflow-x: auto !important;
 }
