@@ -1,5 +1,6 @@
 # The URL the site will be built for
-base_url = "https://wiredforge.com"
+# base_url = "https://wiredforge.com"
+base_url = "http://localhost:3456"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
@@ -15,11 +16,18 @@ highlight_code = true
 
 highlight_theme = "material-light"
 
-title = "Wired Forge"
+title = "Free Masen"
 description = "A blog about software development"
 language_code = "en"
 build_search_index = true
 generate_rss = true
 
+theme = "hyde"
+
 [extra]
 # Put all your custom variables here
+hyde_links = [
+    {url = "/utils/index.html", name = "Utils"},
+    {url = "/fun/index.html", name = "Fun"},
+    {url = "/about/index.html", name = "About"},
+]

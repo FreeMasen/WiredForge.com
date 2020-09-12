@@ -1,8 +1,8 @@
 +++
-template = "about.html"
+template = "page.html"
+title = "About"
+render = true
 +++
-
-## About this site
 
 The blog section consists of a collection of thoughts and experiments related to software development.
 Hopefully this will act as a practical application of computer science concepts.

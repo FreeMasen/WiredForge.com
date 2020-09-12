@@ -1,0 +1,13 @@
+{% macro input_group(label) %}
+    <div class="input-group">
+        <label for="{{label | replace(from=" ", to="-") | lower}}-input">{{label}}</label>
+        <input id="{{label | replace(from=" ", to="-") | lower}}-input" name="{{label | replace(from=" ", to="-") | lower}}-input" value="" />
+    </div>
+{% endmacro input_group %}
+
+{% macro area_group(label) %}
+<div class="input-group with-area">
+    <label for="{{label | replace(from=" ", to="-") | lower}}-input">{{label}}</label>
+    <textarea id="{{label | replace(from=" ", to="-") | lower}}-input" name="{{label | replace(from=" ", to="-") | lower}}-input" value="" ></textarea>
+</div>
+{% endmacro area_group %}
