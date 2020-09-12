@@ -11,7 +11,7 @@
     {% for page in pages %} 
         {% if not page.draft and not page.extra.private %}
             <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{config.base_url}}/{{page.path}}index.html"{% endif %}>
-                <h3>{{ page.title }}</h3>
+                <h2>{{ page.title }}</h2>
             </a>
             {% if page.extra.snippet %}
                 <span class="summary">

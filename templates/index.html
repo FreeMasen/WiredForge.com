@@ -29,16 +29,16 @@
         {% block sidebar %}
             <div class="sidebar">
                 <div class="container {% if config.extra.hyde_sticky %}sidebar-sticky{% endif %}">
-                    <div class="sidebar-about">
+                    <header class="sidebar-about">
                         {% block sidebar_about %}
                             <a href="{{ config.base_url }}"><h1>{{ config.title }}</h1></a>
                             {% if config.description %}
                             <p class="lead">{{config.description}}</p>
                             {% endif %}
                         {% endblock sidebar_about %}
-                    </div>
+                    </header>
 
-                    <ul class="sidebar-nav">
+                    <ul aria-roledescription="navigation" class="sidebar-nav">
                         {% block sidebar_nav %}
                         {% for link in config.extra.hyde_links %}
                         <li class="sidebar-nav-item"><a href="{{link.url}}">{{link.name}}</a></li>
