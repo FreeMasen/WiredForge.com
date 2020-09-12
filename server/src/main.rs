@@ -39,7 +39,16 @@ fn main() {
                     .or(static_route)
                     .with(warp::log("wiredforge"));
     warp::serve(routes)
-        .run(([0,0,0,0], 1111));
+        .run(([0,0,0,0], get_port()));
+}
+
+fn get_port() -> u16 {
+    if let Ok(s) = std::env::var("WIRED_FORGE_PORT") {
+        if let Ok(p) = u16::from_str_radix(&s, 10) {
+            return p
+        }
+    }
+    1111
 }
 
 fn find_static_path() -> PathBuf {
