@@ -25,14 +25,14 @@ highlight_code = true
 
 # highlight_theme = "gruvbox-dark"
 # highlight_theme = "gruvbox-light"
-highlight_theme = "idle"
+# highlight_theme = "idle"
 # highlight_theme = "inspired-github"
 # highlight_theme = "ir-white"
 # highlight_theme = "kronuz"
 # highlight_theme = "material-dark"
 # highlight_theme = "material-light"
 # highlight_theme = "monokai"
-# highlight_theme = "nord"
+# highlight_theme = "nord"##
 # highlight_theme = "nyx-bold"
 # highlight_theme = "one-dark"
 # highlight_theme = "OneHalf"
@@ -43,7 +43,7 @@ highlight_theme = "idle"
 # highlight_theme = "Tomorrow"
 # highlight_theme = "TwoDark"
 # highlight_theme = "visual-studio-dark"
-# highlight_theme = "zenburn"
+highlight_theme = "zenburn"
 
 
 # highlight_theme = "material-light"
