@@ -1,10 +1,10 @@
 +++
-title = "SQLite File Parser Pt. 1: The Header"
+title = "SQLite File Parser Pt. 1"
 date = 2020-09-11
 draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
-snippet = "This is the first in a series of posts describing the process of building a SQLite file parser"
+snippet = "The Header"
 +++
 Databases are fascinating things, a large amount of software we build is
 some kind of user interface for a database. Even though we interact with 
