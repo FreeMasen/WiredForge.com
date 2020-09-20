@@ -5,18 +5,6 @@ draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
 snippet = "This is the first in a series of posts describing the process of building a SQLite file parser"
-image = "sqlite.gif"
-image_desc = "SQLite Logo"
-date_sort = 20200908
-[[series]]
-title = "SQLite Parser Pt. 1: The Header"
-link = "/blog/sqlite_series/sqlite-parser-pt-1/index.html"
-#[[series]]
-#title = "SQLite Parser Pt. 2: The Header... continues" 
-#link = "/blog/sqlite_series/sqlite-parser-pt-2/index.html"
-#[[series]]
-#title = "SQLite Parser Pt. 3: The Header... reorganized"
-#link = "/blog/sqlite_series/sqlite-parser-pt-3/index.html"
 +++
 Databases are fascinating things, a large amount of software we build is
 some kind of user interface for a database. Even though we interact with 
@@ -200,7 +188,7 @@ cargo run
 Cool, we converted our 2 bytes into a single number! Let's validate the other things
 that will tell us if we did it right. The docs say it should be at least 512 and
 at most 32,768, check. The next thing we need to check is if this value is a power of
-2. the nice thing about this requirement is that the largest possible power of 2 a u16 can hold, 
+1. the nice thing about this requirement is that the largest possible power of 2 a u16 can hold, 
 is the same as our max value 32,768. 
 
 To determining if our value is a power of two, the standard library provides a method on `u16` for us!
@@ -315,6 +303,8 @@ our library. Next, let's fill out what our error module is going to look like, t
 are going to define all of the places that we know our parser might encounter an error.
 
 ```rust
+// error.rs
+
 /// Representation of our possible errors.
 /// Each variant will contain a string for more
 /// detailed description
