@@ -5,9 +5,6 @@ window.addEventListener('load', () => {
         notifyUser();
     }
     sendInfo().then(initialResponseHandler);
-});
-
-window.addEventListener('DOMContentLoaded', () => {
     setup_click_watcher();
 });
 
