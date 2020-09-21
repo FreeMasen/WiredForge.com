@@ -11,10 +11,10 @@
       <title>{% block title %}{{ config.title }}{% endblock title %}</title>
 
       <!-- CSS -->
+      <link rel="stylesheet" href="{{ get_url(path="font.css", trailing_slash=false) }}">
       <link rel="stylesheet" href="{{ get_url(path="print.css", trailing_slash=false) }}" media="print">
       <link rel="stylesheet" href="{{ get_url(path="poole.css", trailing_slash=false) }}">
       <link rel="stylesheet" href="{{ get_url(path="hyde.css", trailing_slash=false) }}">
-      <link rel="stylesheet" href="{{ get_url(path="font.css", trailing_slash=false) }}">
       <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
 
       {% if config.generate_feed %}
