@@ -235,7 +235,7 @@ Now we are moving right a long! Our next value is going to be 4 bytes wide and r
 the file change counter. This is used by a Sqlite to detect if the database has been modified
 and it needs to re-fetch the data from the disk. There is a note in the docs that if you are
 in WAL mode, the counter may not be updated because that system doesn't require it. 
-Let's get to parsing 4 bytes wide means it is going to be a `u32`, in fact, all of the
+Let's get to parsing, 4 bytes wide means it is going to be a `u32`, in fact, all of the
 remaining values we have to parse are going to end up being `u32`s, let's generalize this
 process in our `lib.rs` file.
 
@@ -264,4 +264,46 @@ fn try_parse_u32(bytes: &[u8]) -> Result<u32, String> {
 
 ```
 
+That looks pretty good, we still might run into an issue with the slice passed in being the wrong size
+so we set that up as the error case in our return value. Lets start using it for the change counter. 
 
+```rust
+// header.rs
+
+fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u32), Error> {
+    //...
+    let change_counter = crate::try_parse_u32(&mbytes[24..28])?;
+    Ok((page_size, write_version, read_version, change_counter))
+}
+```
+
+oof, that return value is starting to get a little unwieldy, let's setup a struct that we can
+put all these values into.
+
+```rust
+// header.rs
+
+pub struct DatabaseHeader {
+    pub page_size: PageSize,
+    pub write_version: FormatVersion,
+    pub read_version: FormatVersion,
+    pub change_counter: u32,
+} 
+
+```
+
+with this, we can update our `parse_header` to return this instead of that giant tuple.
+
+```rust
+// header.rs 
+
+fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
+    // ...
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+    })
+}
+```
