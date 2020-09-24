@@ -265,24 +265,48 @@ fn try_parse_u32(bytes: &[u8]) -> Result<u32, String> {
 ```
 
 That looks pretty good, we still might run into an issue with the slice passed in being the wrong size
-so we set that up as the error case in our return value. Lets start using it for the change counter. 
+so we set that up as the error case in our return value. Let's update our error
+enum to handle this new change counter error.
+
+```rust
+// error.rs
+
+pub enum Error {
+	//...
+	InvalidChangeCounter(String),
+}
+impl std::fmt::Display for Error {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		//...
+		Self::InvalidChangeCounter(msg) => write!("Invalid change counter: {}", msg),
+	}
+}
+```
+Lets start using it for the change counter. 
 
 ```rust
 // header.rs
 
 fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u32), Error> {
     //...
-    let change_counter = crate::try_parse_u32(&mbytes[24..28])?;
+    // we'll use our helper from the `crate` to try and parse
+    // these 4 bytes as the change counter. If that fails, we
+    // put the message inside of our `Error` using the `map_err`
+    // method on `Result`. This allows us to again use the 
+    // ? to short circuit if it fails
+    let change_counter = crate::try_parse_u32(&mbytes[24..28])
+    	.map_err(|msg| Error::InvalidChangeCounter(msg))?;
     Ok((page_size, write_version, read_version, change_counter))
 }
 ```
 
-oof, that return value is starting to get a little unwieldy, let's setup a struct that we can
-put all these values into.
+That looks like what we are after but oof, that return value is starting to get a little unwieldy,
+let's setup a struct that we can put all these values into.
 
 ```rust
 // header.rs
 
+#[derive(Debug)]
 pub struct DatabaseHeader {
     pub page_size: PageSize,
     pub write_version: FormatVersion,
@@ -307,3 +331,80 @@ fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
     })
 }
 ```
+
+This is quite a bit nicer, let's update our main.rs now to use this new struct.
+
+```rust
+fn main() -> Result<(), Error> {
+    //...
+    let db_header = parse_header(&contents[0..100])?;
+    // Using the format placeholder {:#?} gives us the 
+    // debug print but pretty printed.
+    println!("{:#?}", db_header)
+}
+``` 
+
+And if we run this, it should print something like the following.
+
+```sh
+$ cargo run
+DatabaseHeader {
+    page_size: PageSize(4096),
+    write_version: Legacy,
+    read_version: Legacy,
+    change_counter: 1
+}
+```
+
+Nice, that looks pretty good so far! Up next is another `u32`, this one
+will represent our database size in pages. With this value we would be
+able to determine the total size of the database by multiplying it by
+the `page_size`. The unfortunate truth about this value though is that
+older version of Sqlite do not use this value, which for us means that
+it will often be invalid. If the value here isn't valid, we would ask
+the operating system to tell us what size the file is. We can detect
+if this number is invalid if it is zero or by looking at the change counter value we
+just parsed, it should match a value we will parse when we get to byte 
+92 called the version-valid-for-number. 
+
+The strange thing here is that the documentation _just_ told us that
+the change counter may not be updated if we are in Write Ahead Log 
+mode. This still works because the Write Ahead Log mode and the
+version-valid-for-number were both added in version 3.7.0. That means
+if we were to use an older version of sqlite to modify our database
+it couldn't be in WAL mode, and would always update the change counter
+at the same time, it will not know about the version-valid-for-number
+which will cause these to fall out of sync. 
+
+For us, that means we are going to need to hold off on an additional
+piece of validation for this number until we get almost to the end
+of our header. For right now, we will use an `Option` to represent
+this value, if it was invalid, there is no point in filling the value
+into our struct. We can also use a standard library type `NonZeroU32`
+to enforce the fact that our value cannot be zero. Let's update our
+struct to hold this new value.
+
+```rust
+// header.rs
+use std::num::NonZeroU32;
+pub struct DatabaseHeader {
+	//...
+	pub size: Option<NonZeroU32>,
+}
+
+```
+
+Finally, we can update `parse_header` to capture this valued.
+
+```rust
+    //..
+   // since parsing a u32 would indicate a much larger error
+   // than this value just being invalid, we will still
+   // return early if this fails
+   let raw_size = crate::try_parse_u32(&bytes[28..32])?;
+   // this constructor will return an Option
+   // for us already!
+   let size = NonZeroU32::new(raw_size);
+```
+
+
