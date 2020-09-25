@@ -21,7 +21,7 @@ This is the second time we have seen the term "journal", let's go over what it m
 A Sqlite journal is a separate file used to allow for recovering after something goes wrong
 while making a change to the database. Sqlite supports 2 different versions of this file.
 
-### Rollback Journal
+## Rollback Journal
 
 With this method of journalling, any time a process wants to change the data in the database
 Sqlite will make a copy of all of the pages that would be affected before it changes the
@@ -30,7 +30,7 @@ the change was complete, Sqlite would copy those pages from the journal and over
 any possible changes made to the main database file. When the change is complete, it will
 either delete the journal file or just delete the contents in the journal file.
 
-### Wite Ahead Log
+## Wite Ahead Log
 
 With this method of journalling, any time a process wants to change the database, Sqlite
 will make a copy of the pages being changed and again put them in the journal file.
@@ -387,10 +387,14 @@ struct to hold this new value.
 ```rust
 // header.rs
 use std::num::NonZeroU32;
+
+#[derive(Debug)]
 pub struct DatabaseHeader {
-	//...
-	pub size: Option<NonZeroU32>,
-}
+    pub page_size: PageSize,
+    pub write_version: FormatVersion,
+    pub read_version: FormatVersion,
+    pub change_counter: u32,
+} 
 
 ```
 

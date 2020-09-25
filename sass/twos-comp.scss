@@ -12,7 +12,7 @@
     box-shadow: 1px 1px 3px 1px $grey;
     #twos-comp-slider-title {
         span {
-            font-family: 'mono', monospace;
+            font-family: 'mono' monospace;
             font-size: 18pt;
             font-weight: bold;
         }
@@ -51,7 +51,7 @@
     #twos-comp-slider-title-unsigned {
         grid-area: t-unsigned;
         text-align: center;
-        font-family: 'mono', monospace;
+        font-family: 'mono' monospace;
         color: #fff;
         background: $blue;
         font-size: 16pt;
@@ -59,12 +59,12 @@
     #twos-comp-slider-unsigned {
         grid-area: unsigned;
         text-align: center;
-        font-family: 'mono', monospace;
+        font-family: 'mono' monospace;
     }
     #twos-comp-slider-title-signed {
         grid-area: t-signed;
         text-align: center;
-        font-family: 'mono', monospace;
+        font-family: 'mono' monospace;
         color: #fff;
         background: $blue;
         font-size: 16pt;
@@ -72,12 +72,12 @@
     #twos-comp-slider-signed {
         grid-area: signed;
         text-align: center;
-        font-family: 'mono', monospace;
+        font-family: 'mono' monospace;
     }
     #twos-comp-slider-title-bin {
         grid-area: t-bin;
         text-align: center;
-        font-family: 'mono', monospace;
+        font-family: 'mono' monospace;
         color: #fff;
         background: $blue;
         font-size: 16pt;
@@ -88,7 +88,7 @@
         .nibble {
             margin: 5px;
             text-align: center;
-            font-family: 'mono', monospace;
+            font-family: 'mono' monospace;
         }
     }
 }

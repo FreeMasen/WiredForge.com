@@ -13,18 +13,18 @@
         .sidebar-about {
             a {
                 h1 {
-                    font-family: 'mono';
+                    font-family: 'mono', monospace;
                 }
             }
             p {
-                font-family: 'mono';
+                font-family: 'mono', monospace;
                 color: black;
             }
         }
         .sidebar-nav {
             .sidebar-nav-item {
                 a {
-                    font-family: 'mono';
+                    font-family: 'mono', monospace;
                 }
             }
         }
