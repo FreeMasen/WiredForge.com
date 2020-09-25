@@ -1,48 +1,28 @@
 # The URL the site will be built for
-base_url = "http://localhost:8080"
-
+base_url = "http://localhost:3456"
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
 
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
 highlight_code = true
-# highlight_theme = "1337"
-highlight_theme = "agola-dark"
-# highlight_theme = "ascetic-white"
-# highlight_theme = "axar"
-# highlight_theme = "base16-ocean-dark"
-# highlight_theme = "base16-ocean-light"
-# highlight_theme = "bbedit"
-# highlight_theme = "boron"
-# highlight_theme = "charcoal"
-# highlight_theme = "cheerfully-light"
-# highlight_theme = "classic-modified"
-# highlight_theme = "demain"
-# highlight_theme = "dimmed-fluid"
-# highlight_theme = "gray-matter-dark"
-# highlight_theme = "gruvbox-dark"
-# highlight_theme = "gruvbox-light"
-# highlight_theme = "idle"
-# highlight_theme = "inspired-github"
-# highlight_theme = "ir-white"
-# highlight_theme = "kronuz"
-# highlight_theme = "material-dark"
-# highlight_theme = "material-light"
-# highlight_theme = "monokai"
-# highlight_theme = "solarized-dark"
-# highlight_theme = "solarized-light"
-# highlight_theme = "subway-madrid"
-# highlight_theme = "subway-moscow"
-# highlight_theme = "visual-studio-dark"
 
-
-
-title = "Wired Forge"
+title = "Free Masen"
 description = "A blog about software development"
 language_code = "en"
 build_search_index = true
-generate_rss = true
+generate_feed = true
+
+theme = "hyde"
+highlight_theme = "zenburn"
 
 [extra]
 # Put all your custom variables here
+hyde_links = [
+    {url = "/utils/index.html", name = "Utils"},
+    {url = "/fun/index.html", name = "Fun"},
+    {url = "/about/index.html", name = "About"},
+]
+hyde_theme = "theme-base-0c"
+hyde_sticky = false
+

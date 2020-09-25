@@ -37,14 +37,15 @@
                             {% endif %}
                         {% endblock sidebar_about %}
                     </header>
-
-                    <ul aria-roledescription="navigation" class="sidebar-nav">
-                        {% block sidebar_nav %}
-                        {% for link in config.extra.hyde_links %}
-                        <li class="sidebar-nav-item"><a href="{{link.url}}">{{link.name}}</a></li>
-                        {% endfor %}
-                        {% endblock sidebar_nav %}
-                    </ul>
+                    <nav>
+                      <ul class="sidebar-nav">
+                          {% block sidebar_nav %}
+                          {% for link in config.extra.hyde_links %}
+                          <li class="sidebar-nav-item"><a href="{{link.url}}">{{link.name}}</a></li>
+                          {% endfor %}
+                          {% endblock sidebar_nav %}
+                      </ul>
+                    </nav>
                 </div>
             </div>
         {% endblock sidebar %}
