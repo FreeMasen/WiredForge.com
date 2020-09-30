@@ -1,6 +1,6 @@
 +++
 title = "SQLite Parser Pt. 2"
-date = 2017-12-29
+date = 2020-10-01
 draft = true
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
@@ -163,6 +163,8 @@ and say they have no interest in implementing it. Their values will always be
 `error` module.
 
 ```rust
+// error.rs
+
 /// Representation of our possible errors.
 /// Each variant will contain a string for more
 /// detailed description
@@ -234,9 +236,13 @@ pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVers
 Now we are moving right a long! Our next value is going to be 4 bytes wide and represents
 the file change counter. This is used by a Sqlite to detect if the database has been modified
 and it needs to re-fetch the data from the disk. There is a note in the docs that if you are
-in WAL mode, the counter may not be updated because that system doesn't require it. 
+in WAL mode, the counter may not be updated because that system doesn't require it. This ends
+up being true because, in WAL mode, a sqlite process will have to check the write ahead log
+for any changes before it will read anything currently held in memory.
+
+
 Let's get to parsing, 4 bytes wide means it is going to be a `u32`, in fact, all of the
-remaining values we have to parse are going to end up being `u32`s, let's generalize this
+remaining values we have to parse are going to end up being `u32`s, so we can generalize this
 process in our `lib.rs` file.
 
 ```rust
@@ -264,15 +270,26 @@ fn try_parse_u32(bytes: &[u8]) -> Result<u32, String> {
 
 ```
 
-That looks pretty good, we still might run into an issue with the slice passed in being the wrong size
-so we set that up as the error case in our return value. Let's update our error
-enum to handle this new change counter error.
+That looks pretty good, we still might run into an issue with the slice passed in
+being the wrong size so we set that up as the error case in our return value.
+Let's update our error enum to handle this new change counter error.
 
 ```rust
 // error.rs
 
+/// Representation of our possible errors.
+/// Each variant will contain a string for more
+/// detailed description
+#[derive(Debug)]
 pub enum Error {
-	//...
+    /// An error related to the first 16 bytes in a Sqlite3 file
+    HeaderString(String),
+    /// An error parsing the PageSize of a Sqlite3
+    InvalidPageSize(String),
+    /// An error parsing the maximum/ payload fraction
+    /// or leaf fraction
+    InvalidFraction(String),
+    /// The change counter failed to parse
 	InvalidChangeCounter(String),
 }
 impl std::fmt::Display for Error {
@@ -287,16 +304,23 @@ Lets start using it for the change counter.
 ```rust
 // header.rs
 
-fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u32), Error> {
-    //...
+fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u8, u32), Error> {
+    validate_header_string(&contents)?;
+    let page_size = parse_page_size(&contents)?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[21], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[21], 32, "Leaf fraction")?;
     // we'll use our helper from the `crate` to try and parse
     // these 4 bytes as the change counter. If that fails, we
     // put the message inside of our `Error` using the `map_err`
     // method on `Result`. This allows us to again use the 
     // ? to short circuit if it fails
-    let change_counter = crate::try_parse_u32(&mbytes[24..28])
+    let change_counter = crate::try_parse_u32(&bytes[24..28])
     	.map_err(|msg| Error::InvalidChangeCounter(msg))?;
-    Ok((page_size, write_version, read_version, change_counter))
+    Ok((page_size, write_version, read_version, reserved_bytes, change_counter))
 }
 ```
 
@@ -322,11 +346,21 @@ with this, we can update our `parse_header` to return this instead of that giant
 // header.rs 
 
 fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
-    // ...
+    validate_header_string(&contents)?;
+    let page_size = parse_page_size(&contents)?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[21], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[21], 32, "Leaf fraction")?;
+    let change_counter = crate::try_parse_u32(&bytes[24..28])
+    	.map_err(|msg| Error::InvalidChangeCounter(msg))?;
     Ok(DatabaseHeader {
         page_size,
         write_version,
         read_version,
+        reserved_bytes,
         change_counter,
     })
 }
@@ -352,6 +386,7 @@ DatabaseHeader {
     page_size: PageSize(4096),
     write_version: Legacy,
     read_version: Legacy,
+    reserved_bytes: 0,
     change_counter: 1
 }
 ```
@@ -401,7 +436,22 @@ pub struct DatabaseHeader {
 Finally, we can update `parse_header` to capture this valued.
 
 ```rust
-    //..
+fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
+    validate_header_string(&contents)?;
+    let page_size = parse_page_size(&contents)?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[21], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[21], 32, "Leaf fraction")?;
+    // we'll use our helper from the `crate` to try and parse
+    // these 4 bytes as the change counter. If that fails, we
+    // put the message inside of our `Error` using the `map_err`
+    // method on `Result`. This allows us to again use the 
+    // ? to short circuit if it fails
+    let change_counter = crate::try_parse_u32(&bytes[24..28])
+    	.map_err(|msg| Error::InvalidChangeCounter(msg))?;
    // since parsing a u32 would indicate a much larger error
    // than this value just being invalid, we will still
    // return early if this fails
@@ -409,6 +459,12 @@ Finally, we can update `parse_header` to capture this valued.
    // this constructor will return an Option
    // for us already!
    let size = NonZeroU32::new(raw_size);
+   Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        reserved_bytes,
+   })
 ```
 
 
