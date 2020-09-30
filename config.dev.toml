@@ -13,7 +13,6 @@ language_code = "en"
 build_search_index = true
 generate_feed = true
 
-theme = "hyde"
 highlight_theme = "zenburn"
 
 [extra]
@@ -25,4 +24,4 @@ hyde_links = [
 ]
 hyde_theme = "theme-base-0c"
 hyde_sticky = false
-
+env = "dev"
