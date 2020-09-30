@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "build": "webpack --env prod"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
