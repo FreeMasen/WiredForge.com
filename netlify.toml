@@ -1,4 +1,0 @@
-[build]
-
-publish = "public/"
-command = "zola -c config.stage.toml build --drafts"
