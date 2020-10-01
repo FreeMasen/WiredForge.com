@@ -1,5 +1,5 @@
 # The URL the site will be built for
-base_url = "http://elegant-bardeen-1b9596.netlify.app"
+base_url = "https://elegant-bardeen-1b9596.netlify.app"
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
 
