@@ -1,4 +1,4 @@
 [build]
 
-
-command = "npm run build && zola -c config.stage.toml build --drafts"
+publish = "public/"
+command = "zola -c config.stage.toml build --drafts"
