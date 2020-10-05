@@ -18,7 +18,7 @@ class BinaryNot {
 
     valueChanged() {
         let val = this.getValue();
-        let bits = document.querySelector('#not-wrapper > .values > .representation . bits');
+        let bits = document.querySelector('#not-wrapper > .values > .representation > #bits');
         if (!bits) return console.error('unable to find input bits');
         bits.innerHTML = Converter.bit_string(val);
     }

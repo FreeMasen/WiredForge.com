@@ -57,7 +57,7 @@ pre {
 
 code {
     background-color: white;
-    font-family: 'mono';
+    font-family: 'mono' monospace;
     border: 1px solid #fafafa;
     color: rgba(0, 180, 255, 0.5);
     border-radius: 2px;
@@ -122,7 +122,7 @@ table {
         border: 1px solid $grey;
         td,th {
             border: 1px solid $grey;
-            font-family: 'mono';
+            font-family: 'mono' monospace;
             padding: 2px 5px;
         }
         th {

@@ -1,4 +1,4 @@
-use lettre::{EmailTransport, SmtpTransport};
+use lettre::{SmtpClient, SmtpTransport, Transport};
 use lettre_email::EmailBuilder;
 use models::Email;
 use error::Res;
@@ -17,9 +17,8 @@ pub fn send(email: Email) -> Res<String>{
         .build()?;
 
     // Open a local connection on port 25
-    let mut mailer =
-        SmtpTransport::builder_unencrypted_localhost()?.build();
+    let mut mailer = SmtpTransport::new(SmtpClient::new_unencrypted_localhost()?);
     // Send the email
-    mailer.send(&msg)?;
+    mailer.send(msg.into())?;
     Ok(String::from("Sent message successfully"))
 }

@@ -1,25 +1,27 @@
 # The URL the site will be built for
-base_url = "https://wiredforge.com"
-
+base_url = "http://freemasen.com"
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
 
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
 highlight_code = true
-# highlight_theme = "base16-ocean-light"
-# highlight_theme = "charcoal"
-# highlight_theme = "inspired-github"
-# highlight_theme = "subway-madrid"
-# highlight_theme = "subway-moscow"
+highlight_theme = "zenburn"
 
-highlight_theme = "material-light"
-
-title = "Wired Forge"
+title = "Free Masen"
 description = "A blog about software development"
 language_code = "en"
 build_search_index = true
-generate_rss = true
+generate_feed = true
+
 
 [extra]
 # Put all your custom variables here
+hyde_links = [
+    {url = "/utils/index.html", name = "Utils"},
+    {url = "/fun/index.html", name = "Fun"},
+    {url = "/about/index.html", name = "About"},
+]
+hyde_theme = "theme-base-0c"
+hyde_sticky = false
+env = "prod"

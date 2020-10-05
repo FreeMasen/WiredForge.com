@@ -5,13 +5,15 @@
     font-size: 18pt;
     margin-bottom: 10px;
     .title {
-        background: $grey;
+        td {
+            background: $grey;
+        }
         color: #fff;
         font-size: 18pt;
     }
     tr {
         * {
-            font-family: 'mono';
+            font-family: 'mono' monospace;
             text-align: center;
         }
         th {

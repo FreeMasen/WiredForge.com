@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="/page.css" />
+{% if page.draft %}
+    <h2 class="draft-message">This is a work in progress.</h2>
+    {% endif %}
+    <h2>{{page.title}}</h2>
+    {% if page.extra.series %}
+        <ul class="series-list">
+            {% for post in page.extra.series %}
+                <li class="series-entry">
+                    {% if post.title == page.title %}
+                        <span>{{post.title}}</span>
+                    {% else %}
+                        <a href="{{post.link}}">{{post.title}}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <span class="date-string">{{page.date}}</span>
+        {{page.content | safe}}
+    <div class="tags">
+    </div>
+{% endblock content %}

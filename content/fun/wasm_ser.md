@@ -8,6 +8,7 @@ image = "rust-wasm-logo-purple.png"
 +++
 
 <link type="text/css" rel="stylesheet" href="ser_test.css"/>
+
 # Results
 <div id="tests">
     <div id="native" class="result-list">
@@ -15,7 +16,7 @@ image = "rust-wasm-logo-purple.png"
     <div id="wasm"class="result-list">
     </div>
 </div>
-<script src="js/wasm_ser.js" type="text/javascript"></script>
+<script src="/js/wasm_ser.js" type="text/javascript"></script>
 
 # Tests
 

@@ -1,4 +1,5 @@
 @import 'colors';
+@import 'font';
 
 #xor {
     width: 400px;
@@ -9,7 +10,7 @@
     box-shadow: 1px 1px 3px 1px $grey;
     padding-bottom: 5px;
     * {
-        font-family: 'mono';
+        font-family: 'mono' monospace;
         font-size: 14pt;
     }
     .title {

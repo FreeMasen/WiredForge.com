@@ -1,28 +1,25 @@
-{% extends "base.html" %} {% block content %}
-<link type="text/css" rel="stylesheet" href="/index.css" />
+{% extends "index.html" %}
+
+{% block content %}
+
 <div class="page-list">
     {% set pages = section.pages %}
     {% for sub in section.subsections %}
-    {% set sub = get_section(path=sub) %}
-    {% set_global pages = pages | concat(with=sub.pages) %}
+        {% set sub = get_section(path=sub) %}
+        {% set_global pages = pages | concat(with=sub.pages) %}
     {% endfor %}
-    {% for page in pages %} {% if not page.draft and not page.extra.private %}
-    <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"/{{page.path}}index.html"{% endif %}>
-        <h3>{{ page.title }}</h3>
-        {% if page.date %}
-        <span class="sub-title">
-            {{ page.date }}
-        </span>
-        {% endif %}
-        {% if page.extra.image %}
-        <img src="/images/{{page.extra.image}}" {% if page.extra.image_desc %} alt="{{page.extra.image_desc}}" {% endif %} height="100"
-        /> {% endif %}
-        {% if page.extra.snippet %}
-        <span class="summary">
-            {{page.extra.snippet}}
-        </span>
-        {% endif %}
-    </a>
-    {% endif %} {% endfor %}
+    {% for page in pages %}
+        {% set render = config.extra.env == "dev" or not page.draft and not page.extra.private %}
+        {% if render %}
+            <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{config.base_url}}/{{page.path}}index.html"{% endif %}>
+                <h2>{{ page.title }}</h2>
+            </a>
+            {% if page.extra.snippet %}
+                <span class="summary">
+                    {{page.extra.snippet}}
+                </span>
+            {% endif %}
+        {% endif %}     
+    {% endfor %}
 </div>
 {% endblock content %}
