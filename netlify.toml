@@ -1,0 +1,7 @@
+[build]
+
+publish = "public"
+command = "npm run build && zola build -u $DEPLOY_PRIME_URL --drafts"
+
+[context.production]
+command = "npm run build && zola build"
