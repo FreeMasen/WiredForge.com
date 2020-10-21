@@ -16,8 +16,8 @@ Our next entry in the header is called the "file format write version".
 That is a pretty vague name...
 
 According to the docs, this byte and the next byte ("file format read version")
-will control if the database will use "rollback journalling" or a "write ahead log".
-This is the second time we have seen the term "journal", let's go over what it means.
+will control if the database uses "rollback journalling" or a "write ahead log".
+This is the second time we have seen the term "journal", so let's go over what it means.
 
 A Sqlite journal is a separate file used to allow for recovering after something goes wrong
 when making a change to the database. Sqlite supports 2 different versions of this file.
@@ -121,12 +121,18 @@ use sqlite_parser::{
 };
 
 fn main() -> Result<(), Error> {
-    // Still reading the whole file into a `Vec<u8>` and panicking if that fails
-    let contents = std::fs::read("data.sqlite").expect("Failed to read data.sqlite");
-    // We call our new `parse_header` function providing only the first 100 bytes
-    // since that is the exact size of our header. We "destructure" the tuple
+    // Still reading the whole file into a `Vec<u8>`
+    // and panicking if that fails
+    let contents = std::fs::read("data.sqlite")
+        .expect("Failed to read data.sqlite");
+    // We call our new `parse_header` function
+    // providing only the first 100 bytes
+    // since that is the exact size of our header.
+    // We "destructure" the tuple
     // returned into 3 variables.
-    let (page_size, write_format, read_format) = parse_header(&contents[0..100])?;
+    let (page_size,
+        write_format,
+        read_format) = parse_header(&contents[0..100])?;
     println!("page_size {:?}, write_format {:?}, read_format {:?}");
 }
 
@@ -189,9 +195,14 @@ pub enum Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::HeaderString(v) => write!(f, "Unexpected bytes at start of file, expected the magic string 'SQLite format 3\u{0}', found {:?}", v),
-            Self::InvalidPageSize(msg) => write!(f, "Invalid page size, {}", msg),
-            // For our new case, we are just going to print the inner message
+            Self::HeaderString(v) => write!(f,
+                "Unexpected bytes at start of file, \
+                expected the magic string 'SQLite format 3\u{0}',\
+                found {:?}", v),
+            Self::InvalidPageSize(msg) => write!(f,
+                "Invalid page size, {}", msg),
+            // For our new case, we are just
+            // going to print the inner message
             Self::InvalidFraction(msg) => write!(f, "{}", msg),
         }
     }
@@ -208,7 +219,9 @@ With that defined we can implement a function to parse our next 3 values.
 /// target will create an error with the provided name.
 fn validate_fraction(byte: u8, target: u8, name: &str) -> Result<(), Error> {
     if byte != target {
-        Err(Error::InvalidFraction(format!("{} must be {}, found: {}", name, target, byte)))
+        Err(Error::InvalidFraction(format!(
+            "{} must be {}, found: {}", name, target, byte
+        )))
     } else {
         Ok(())
     }
@@ -269,7 +282,9 @@ fn try_parse_u32(bytes: &[u8]) -> Result<u32, String> {
     // it fails
     let arr: [u8;4] = bytes.try_into()
         .map_err(|_| {
-            format!("expected a 4 byte slice, found a {} byte slice", bytes.len())
+            format!(
+                "expected a 4 byte slice, found a {} byte slice",
+                bytes.len())
         })?;
     // Finally we use the `from_be_bytes` constructor for a u32
     Ok(u32::from_be_bytes(arr))
@@ -327,7 +342,8 @@ fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u8, u3
     // ? to short circuit if it fails
     let change_counter = crate::try_parse_u32(&bytes[24..28])
     	.map_err(|msg| Error::InvalidChangeCounter(msg))?;
-    Ok((page_size, write_version, read_version, reserved_bytes, change_counter))
+    Ok((page_size, write_version,
+        read_version, reserved_bytes, change_counter))
 }
 ```
 
