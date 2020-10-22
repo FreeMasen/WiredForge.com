@@ -210,7 +210,9 @@ impl std::fmt::Display for Error {
 ```
 
 With that defined we can implement a function to parse our next 3 values.
-
+Instead of writing 3 separate functions or if statements, we can easily perform all three
+validations in a single function. We just need to past the name as a `&str` to build our
+error if something has gone wrong. 
 
 ```rust
 // header.rs
@@ -228,9 +230,7 @@ fn validate_fraction(byte: u8, target: u8, name: &str) -> Result<(), Error> {
 }
 ```
 
-Instead of writing 3 separate functions or if statements, we can easily perform all three
-validations in a single function. We just need to past the name as a `&str` to build our
-error if something has gone wrong. Let's add those to our `parse_header` function.
+Let's add that to our `parse_header` function.
 
 ```rust
 // header.rs
@@ -316,8 +316,17 @@ pub enum Error {
 }
 impl std::fmt::Display for Error {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-		//...
-		Self::InvalidChangeCounter(msg) => write!(f, "Invalid change counter: {}", msg),
+		Self::HeaderString(v) => write!(f,
+                "Unexpected bytes at start of file, \
+                expected the magic string 'SQLite format 3\u{0}',\
+                found {:?}", v),
+            Self::InvalidPageSize(msg) => write!(f,
+                "Invalid page size, {}", msg),
+            // For our new case, we are just
+            // going to print the inner message
+            Self::InvalidFraction(msg) => write!(f, "{}", msg),
+            Self::InvalidChangeCounter(msg) => write!(f, 
+                "Invalid change counter: {}", msg),
 	}
 }
 ```
@@ -394,7 +403,8 @@ This is quite a bit nicer, let's update our main.rs now to use this new struct.
 
 ```rust
 fn main() -> Result<(), Error> {
-    //...
+     let contents = std::fs::read("data.sqlite")
+        .expect("Failed to read data.sqlite");
     let db_header = parse_header(&contents[0..100])?;
     // Using the format placeholder {:#?} gives us the 
     // debug print but pretty printed.
@@ -456,6 +466,8 @@ pub struct DatabaseHeader {
     pub read_version: FormatVersion,
     pub change_counter: u32,
     pub reserved_bytes: u8,
+    /// If populated, the number of pages
+    /// in this database
     pub database_size: Option<NonZeroU32>,
 } 
 
