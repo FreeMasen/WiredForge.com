@@ -1,7 +1,10 @@
 [build]
 
 publish = "public"
-command = "npm run build && zola build -u $DEPLOY_PRIME_URL --drafts"
+command = "npm run build && zola build -u http://freemasen.com"
 
 [context.production]
 command = "npm run build && zola build"
+
+[context.deploy-preview]
+command = "npm run build && zola build -u $DEPLOY_PRIME_URL --drafts"
