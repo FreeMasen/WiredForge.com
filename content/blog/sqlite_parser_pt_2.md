@@ -211,7 +211,7 @@ impl std::fmt::Display for Error {
 
 With that defined we can implement a function to parse our next 3 values.
 Instead of writing 3 separate functions or if statements, we can easily perform all three
-validations in a single function. We just need to past the name as a `&str` to build our
+validations in a single function. We just need to pass the name as a `&str` to build our
 error if something has gone wrong. 
 
 ```rust
@@ -236,9 +236,9 @@ Let's add that to our `parse_header` function.
 // header.rs
 pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVersion), Error> {
     // Check that the first 16 bytes match the header string
-    validate_header_string(&contents)?;
+    validate_header_string(&bytes)?;
     // capture the page size
-    let page_size = parse_page_size(&contents)?;
+    let page_size = parse_page_size(&bytes)?;
     // capture the write format version
     let write_version = FormatVersion::from(bytes[18]);
     // capture the read format version
@@ -473,7 +473,9 @@ pub struct DatabaseHeader {
 
 ```
 
-And again, we can update `parse_header` to capture this value.
+
+
+Lastly, we can update `parse_header` to capture this value.
 
 ```rust
 fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
@@ -487,13 +489,18 @@ fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
     validate_fraction(bytes[21], 32, "Leaf fraction")?;
     let change_counter = crate::try_parse_u32(&bytes[24..28])
     	.map_err(|msg| Error::InvalidChangeCounter(msg))?;
-   // since parsing a u32 would indicate a much larger error
-   // than this value just being invalid, we will still
-   // return early if this fails
-   let raw_size = crate::try_parse_u32(&bytes[28..32])?;
-   // this constructor will return an Option
-   // for us already!
-   let database_size = NonZeroU32::new(raw_size);
+    // since parsing a u32 would indicate a much larger error
+    // than this value just being invalid, we will still
+    // return early if this fails
+    let database_size = crate::try_parse_u32(&bytes[28..32])
+        // Passing NonZeroU32::new to map will get us a Result<Option<NonZeroU32>>
+        .map(NonZeroU32::new)
+        // Ok will convert the outer Result to an Option<Option<NonZeroU32>>
+        .ok()
+        // Lastly flatten, will automatically reduce this to Option<NonZeroU32>
+        // So if we encounter Some(None) we would get None while Some(Some(NonZeroU32))
+        // would become Some(NonZeroU32) which is exactly what we want!
+        .flatten();
    Ok(DatabaseHeader {
         page_size,
         write_version,
