@@ -1,10 +1,10 @@
 +++
-title = "SQLite Parser Pt. 2"
+title = "SQLite Parser Pt. 2: The Header... continues"
 date = 2020-10-01
 draft = true
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
-snippet = "The Header... continues"
+snippet = ""
 +++
 
 This is the second in a series of posts describing the process of building a SQLite file parser. 
