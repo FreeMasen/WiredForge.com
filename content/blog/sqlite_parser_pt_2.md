@@ -96,7 +96,9 @@ add a main entry point for this module called `parse_header`.
 ```rust
 // header.rs
 
-pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVersion), Error> {
+pub fn parse_header(
+        bytes: &[u8]
+    ) -> Result<(PageSize, FormatVersion, FormatVersion), Error> {
     // Check that the first 16 bytes match the header string
     validate_header_string(&contents)?;
     // capture the page size
@@ -154,7 +156,9 @@ Since this value is a single entry in our slice we'll just add this as a variabl
 ```rust
 // header.rs
 
-pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVersion, u8), Error> {
+pub fn parse_header(
+        bytes: &[u8]    
+    ) -> Result<(PageSize, FormatVersion, FormatVersion, u8), Error> {
     // Check that the first 16 bytes match the header string
     validate_header_string(&contents)?;
     // capture the page size
@@ -218,7 +222,11 @@ error if something has gone wrong.
 
 /// Validate one of the payload/leaf fractions. If byte doesn't match
 /// target will create an error with the provided name.
-fn validate_fraction(byte: u8, target: u8, name: &str) -> Result<(), Error> {
+fn validate_fraction(
+        byte: u8,
+        target: u8,
+        name: &str
+    ) -> Result<(), Error> {
     if byte != target {
         Err(Error::InvalidFraction(format!(
             "{} must be {}, found: {}", name, target, byte
@@ -233,7 +241,9 @@ Let's add that to our `parse_header` function.
 
 ```rust
 // header.rs
-pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVersion), Error> {
+pub fn parse_header(
+        bytes: &[u8]
+    ) -> Result<(PageSize, FormatVersion, FormatVersion), Error> {
     // Check that the first 16 bytes match the header string
     validate_header_string(&bytes)?;
     // capture the page size
@@ -334,7 +344,9 @@ Lets start using it for the change counter.
 ```rust
 // header.rs
 
-fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u8, u32), Error> {
+fn parse_header(
+        contents: &[u8]
+    ) -> Result<(PageSize, FormatVersion, FormatVersion, u8, u32), Error> {
     validate_header_string(&contents)?;
     let page_size = parse_page_size(&contents)?;
     let write_version = FormatVersion::from(bytes[18]);
