@@ -501,13 +501,17 @@ fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
     // than this value just being invalid, we will still
     // return early if this fails
     let database_size = crate::try_parse_u32(&bytes[28..32])
-        // Passing NonZeroU32::new to map will get us a Result<Option<NonZeroU32>>
+        // Passing NonZeroU32::new to map will get
+        // us a Result<Option<NonZeroU32>>
         .map(NonZeroU32::new)
-        // Ok will convert the outer Result to an Option<Option<NonZeroU32>>
+        // Ok will convert the outer Result to an
+        // Option<Option<NonZeroU32>>
         .ok()
-        // Lastly flatten, will automatically reduce this to Option<NonZeroU32>
-        // So if we encounter Some(None) we would get None while Some(Some(NonZeroU32))
-        // would become Some(NonZeroU32) which is exactly what we want!
+        // Lastly flatten, will automatically reduce this to
+        // Option<NonZeroU32> So if we encounter Some(None)
+        // we would get None while Some(Some(NonZeroU32))
+        // would become Some(NonZeroU32) which is exactly
+        // what we want!
         .flatten();
    Ok(DatabaseHeader {
         page_size,
