@@ -1,10 +1,10 @@
 +++
-title = "SQLite Parser Pt. 2: The Header... continues"
+title = "SQLite Parser Pt. 2"
 date = 2020-10-01
 draft = true
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
-snippet = ""
+snippet = "The Header... continues"
 +++
 
 This is the second in a series of posts describing the process of building a SQLite file parser. 
@@ -16,7 +16,7 @@ Our next entry in the header is called the "file format write version".
 That is a pretty vague name...
 
 According to the docs, this byte and the next byte ("file format read version")
-will control if the database uses "rollback journalling" or a "write ahead log".
+will control if the database uses "rollback journaling" or a "write ahead log".
 This is the second time we have seen the term "journal", so let's go over what it means.
 
 A Sqlite journal is a separate file used to allow for recovering after something goes wrong
@@ -24,8 +24,8 @@ when making a change to the database. Sqlite supports 2 different versions of th
 
 ## Rollback Journal
 
-With this method of journalling, any time a process wants to change the data in the database
-Sqlite will make a copy of all of the pages that would be affected. It then writes those
+With this method of journaling, any time a process wants to change the data in the database
+Sqlite will make a copy of all of the pages that would be effected. It then writes those
 pages into a "journal" file, typically next to where your database lives. Once the copy
 is made, the original database is updated. If something were to go wrong before the change was complete,
 Sqlite would "rollback" by re-copying the pages in the journal file over any partial changes made
@@ -34,10 +34,10 @@ either delete the journal file or just delete the contents in the journal file.
 
 ## Write Ahead Log
 
-With this method of journalling, any time a process wants to change the database, Sqlite
+With this method of journaling, any time a process wants to change the database, Sqlite
 will make a copy of the pages being changed and again put them in the journal file.
-The main difference is that it will not actually change the main database file but instead
-change the journal file. This means that any time someone wants to read information from
+The main difference is it will not actually change the main database file but instead
+change the journal file. This means any time someone wants to read information from
 the database, Sqlite first has to check if the data being requested is on a page that has changes
 in the journal before looking in the main database file. When all database connections
 are closed, or a configurable number of pages are modified, the changes are then
@@ -45,8 +45,8 @@ applied to the main database file. This is scheme is sometimes referred to as
 [append only](https://en.wikipedia.org/wiki/Append-only), by other databases.
 
 Now that we have covered what these next 2 bytes mean, let's setup our library to 
-parse them. Right now, Sqlite supports 2 values here, 1 for rollback journalling
-or "legacy mode" and 2 for write ahead log or WAL mode. The docs say that
+parse them. Right now, Sqlite supports 2 values here, 1 for rollback journaling
+or "legacy mode" and 2 for write ahead log or WAL mode. The docs say
 this could be extended to include additional values in the future. In our `header.rs`
 let's start with setting up an enum to represent this value.
 
@@ -81,7 +81,7 @@ impl From<u8> for FormatVersion {
 Let's just check in on a few things here. First we are `derive`ing a few more items,
 `PartialEq` and `Eq` allow for using the `==` operator with 2 `FormatVersion`s while
 the `PartialOrd` and `Ord` allow for the use of `>`, `<`, `<=`, or `>=`. We want to 
-go the extra mile here because the docs tell us that if the read format is 1 or 2
+go the extra mile here because the docs tell us if the read format is 1 or 2
 but the write format is greater than 2 we have a read only database, when we get to 
 that validation it will be nice to use these operators.
 
@@ -138,14 +138,14 @@ fn main() -> Result<(), Error> {
 
 ```
 
-Notice, we don't have to import as much from our library, when we get beyond the header
+Notice, we don't have to import as much from our library. When we get beyond the header
 it will be nice to have this encapsulated.
 
 Moving right along, we have a few more single byte entries. The first is the number of
 reserved bytes on each page. This is to allow extensions to Sqlite to reserve space
 to store additional information. Some examples of extensions include [json1](https://www.sqlite.org/json1.html),
 to query json from a `TEXT` field or [full text search](https://www.sqlite.org/fts5.html) for performing full text
-search. Sometimes authors of these extensions need to store additional information about the data on any particular
+search. Sometimes authors of these extensions may need to store additional information about the data on a
 page and this value would tell us how much of each page has been reserved for that purpose. 
 
 
@@ -170,8 +170,7 @@ pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVers
 
 The next 3 bytes are quite uninteresting, they are the maximum and minimum
 "embedded payload fraction", and the "leaf payload fraction". Originally the
-Sqlite authors had expected these values to be configurable but gave up on that
-and say they have no interest in implementing it. Their values will always be
+Sqlite authors had expected these values to be configurable but gave up on that, saying they have no interest in implementing it. Their values will always be
 64 (max), 32 (min), and 32 (leaf). Let's add an error case for this to our
 `error` module.
 
@@ -253,7 +252,7 @@ pub fn parse_header(bytes: &[u8]) -> Result<(PageSize, FormatVersion, FormatVers
 
 ```
 
-Now we are moving right a long! Our next value is going to be 4 bytes wide and represents
+Now we are moving right along! Our next value is going to be 4 bytes wide and represents
 the file change counter. This is used by a Sqlite to detect if the database has been modified
 and it needs to re-fetch the data from the disk. There is a note in the docs that if you are
 in WAL mode, the counter may not be updated because that system doesn't require it. This ends
@@ -261,7 +260,7 @@ up working because, in WAL mode, a sqlite process will have to check the write a
 for any changes before it will read anything currently held in memory.
 
 
-Let's get to parsing, 4 bytes wide means it is going to be a `u32`, in fact, all of the
+Let's get to parsing. 4 bytes wide means it is going to be a `u32`, in fact, all of the
 remaining values we have to parse are going to end up being `u32`s, so we can generalize this
 process in our `lib.rs` file.
 
@@ -293,7 +292,7 @@ fn try_parse_u32(bytes: &[u8]) -> Result<u32, String> {
 ```
 
 That looks pretty good, we still might run into an issue with the slice passed in
-being the wrong size so we set that up as the error case in our return value.
+being the wrong size, so we set that up as the error case in our return value.
 Let's update our error enum to handle this new change counter error.
 
 ```rust
@@ -356,8 +355,8 @@ fn parse_header(bytes) -> Result<(PageSize, FormatVersion, FormatVersion, u8, u3
 }
 ```
 
-That looks like what we are after but oof, that return value is starting to get a little unwieldy,
-let's setup a `struct` that we can put all these values into.
+That looks like what we are after but oof, that return value is starting to get a little unwieldy.
+Let's setup a `struct` that we can put all these values into.
 
 ```rust
 // header.rs
@@ -373,7 +372,7 @@ pub struct DatabaseHeader {
 
 ```
 
-with this, we can update our `parse_header` to return this instead of that giant tuple.
+With this, we can update our `parse_header` to return our new struct instead of that giant tuple.
 
 ```rust
 // header.rs 
@@ -428,29 +427,28 @@ DatabaseHeader {
 Nice, that looks pretty good so far! Up next is another `u32`, this one
 will represent our database size in pages. With this value we would be
 able to determine the total size of the database by multiplying it by
-the `page_size`. The unfortunate truth about this value though is that
-older version of Sqlite do not use this value, which for us means that
-it will often be invalid. Previous version of Sqlite would examine the
+the `page_size`. The unfortunate truth about this value is that
+older version of Sqlite do not use it, which for us means that
+it will often be invalid. Previous versions of Sqlite would examine the
 file directly to determine its size so it doesn't invalidate the whole
-file for this to be invalid. There are
-two ways to tell if this value is invalid, first if it is zero otherwise
-we need to look forward to a value called the "version valid for number"
-this will be at byte 92, it should match the value held in `change_counter`
-we've already parsed
+file when this is invalid. There are two ways to tell if this value is invalid,
+the first being if it is zero. The second way is going to have to wait until
+we reach byte 92 because we don't have all the information yet.
+The value at byte 92 there is supposed to match our `change_counter` value.
 
 The strange thing here is that the documentation _just_ told us that
 the change counter may not be updated if we are in Write Ahead Log 
 mode. This still works because the Write Ahead Log mode and the
 version-valid-for-number were both added in version 3.7.0. That means
 if we were to use an older version of sqlite to modify our database
-it couldn't be in WAL mode, and would always update the change counter.
-At the same time, it will not know about the "version valid for number"
+it couldn't be in WAL mode and would always update the change counter.
+At the same time, it will not know about the "version valid for number",
 which will cause these to fall out of sync. 
 
 For us, that means we are going to need to hold off on an additional
 piece of validation for this number until we get almost to the end
 of our header. For right now, we will use an `Option` to represent
-this value, if it was invalid, there is no point in filling the value
+this value because if it was invalid, there is no point in filling the value
 into our struct. We can also use a standard library type `NonZeroU32`
 to enforce the fact that our value cannot be zero. Let's update our
 struct to hold this new value.
@@ -472,8 +470,6 @@ pub struct DatabaseHeader {
 } 
 
 ```
-
-
 
 Lastly, we can update `parse_header` to capture this value.
 
@@ -511,7 +507,7 @@ fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
    })
 ```
 
-With that, we can again run this an get something like the following.
+With that, we can again run this and get something like the following.
 
 ```sh
 $ cargo run

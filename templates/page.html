@@ -11,6 +11,9 @@
   {% elif section.title %}
   <h1 class="post-title">{{ section.title }}</h1>
   {% endif %}
+  {% if page.extra and page.extra.snippet %}
+  <h2 class="post-subtitle">{{ page.extra.snippet }}</h2>
+  {% endif %}
 
   {% if page.date %}
   <span class="post-date">{{ page.date | date(format="%Y-%m-%d") }}</span>
