@@ -1,7 +1,7 @@
 +++
 title = "SQLite Parser Pt. 2"
 date = 2020-10-01
-draft = true
+draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
 snippet = "The Header... continues"
