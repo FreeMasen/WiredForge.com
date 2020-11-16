@@ -522,6 +522,7 @@ fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
         change_counter,
         database_size,
    })
+}
 ```
 
 With that, we can again run this and get something like the following.
