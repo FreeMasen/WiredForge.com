@@ -4,7 +4,7 @@ date = 2018-01-02
 draft = true
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
-snippet = "The Header... finally"
+snippet = "The Header... keeps going"
 +++
 
 This is the third in a series of posts describing the process of building a SQLite file parser. 
@@ -217,35 +217,484 @@ DatabaseHeader {
 }
 ```
 
+Notice that our database size is now 2 pages larger and the free_page_list_info's length
+is 2 which is exactly what we want!
+
+Our next byte is the "schema cookie", this is a counter that gets increased every time
+a change is made to the database "schema". A database schema is the current set of tables
+_and_ their respective columns. This means we should see this number change when we execute
+a `CREATE TABLE`, `DROP TABLE`, or `ALTER TABLE` statement.
+
+The reason we need to keep track of this value is because the the sqlite C API allows
+for preparing sqlite statements in advance. The process of preparing a statement converts it into a [bytecode](https://en.wikipedia.org/wiki/Bytecode) which will be used for executing.
+In truth, all sqlite statements have to go through this process so a preparing a statement
+saves some time and energy if you were to use it more than once. The important part of all
+this is, a prepared statement might not be valid any longer if the database's schema has
+changed. Let's go over an example, first say we want to use the following sql as a prepared
+statement.
+
+```sql
+INSERT INTO user (name, email)
+-- The ?s here allow us to provide values as arguments
+-- when we execute
+VALUES (?, ?)
+```
+
+This is a pretty useful query to have prepared, if we were creating users often, it 
+would be unfortunate to have to pay for the text to bytecode processing each time.
+But now what happens if we wanted to add a new column our user table.
 
 
+```sql
+ALTER TABLE user ADD COLUMN deleted BOOL DEFAULT 0;
+```
 
-<!-- 1.3.9. Schema cookie
+This might cause a problem with our prepared statement since it wouldn't know what
+to do with this new column. To handle this sqlite will automatically recompile to
+prepared statement if this number has changed since it was last used.
 
-The schema cookie is a 4-byte big-endian integer at offset 40 that is incremented whenever the database schema changes. A prepared statement is compiled against a specific version of the database schema. When the database schema changes, the statement must be reprepared. When a prepared statement runs, it first checks the schema cookie to ensure the value is the same as when the statement was prepared and if the schema cookie has changed, the statement either automatically reprepares and reruns or it aborts with an SQLITE_SCHEMA error. -->
+Alright, now we know what it does, let's parse it. This one is going to again use
+our helper since it is another `u32`, we first want to add that to our struct
+and then to `parse_header`.
 
-<!-- 1.3.10. Schema format number
+```rust
+// header.rs
 
-The schema format number is a 4-byte big-endian integer at offset 44. The schema format number is similar to the file format read and write version numbers at offsets 18 and 19 except that the schema format number refers to the high-level SQL formatting rather than the low-level b-tree formatting. Four schema format numbers are currently defined:
+#[derive(Debug)]
+pub struct DatabaseHeader {
+    pub page_size: PageSize,
+    pub write_version: FormatVersion,
+    pub read_version: FormatVersion,
+    pub reserved_bytes: u8,
+    pub change_counter: u32,
+    pub database_size: Option<NonZeroU32>,
+    pub free_page_list_info: Option<FreePageListInfo>,
+    pub schema_cookie: u32,
+}
 
-    Format 1 is understood by all versions of SQLite back to version 3.0.0 (2004-06-18).
-    Format 2 adds the ability of rows within the same table to have a varying number of columns, in order to support the ALTER TABLE ... ADD COLUMN functionality. Support for reading and writing format 2 was added in SQLite version 3.1.3 on 2005-02-20.
-    Format 3 adds the ability of extra columns added by ALTER TABLE ... ADD COLUMN to have non-NULL default values. This capability was added in SQLite version 3.1.4 on 2005-03-11.
-    Format 4 causes SQLite to respect the DESC keyword on index declarations. (The DESC keyword is ignored in indexes for formats 1, 2, and 3.) Format 4 also adds two new boolean record type values (serial types 8 and 9). Support for format 4 was added in SQLite 3.3.0 on 2006-01-10.
+pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
+    validate_header_string(&bytes[0..16])?;
+    let page_size = parse_page_size(&bytes[16..18])?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[22], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[23], 32, "Leaf fraction")?;
+    let change_counter =
+        crate::try_parse_u32(&bytes[24..28], "change counter")?;
+    let database_size = crate::try_parse_u32(&bytes[28..32], "database size")
+        .map(NonZeroU32::new)
+        .ok()
+        .flatten();
+    let first_free_page = crate::try_parse_u32(&bytes[32..36], "first free page")?;
+    let free_page_len = crate::try_parse_u32(&bytes[36..40], "free page list length")?;
+    let free_page_list_info = FreePageListInfo::new(first_free_page, free_page_len);
+    // New stuff!
+    let schema_cookie = crate::try_parse_u32(&bytes[40..44], "schema cookie")?;
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+        reserved_bytes,
+        database_size,
+        free_page_list_info,
+        schema_cookie,
+    })
+}
+```
 
-New database files created by SQLite use format 4 by default. The legacy_file_format pragma can be used to cause SQLite to create new database files using format 1. The format version number can be made to default to 1 instead of 4 by setting SQLITE_DEFAULT_FILE_FORMAT=1 at compile-time. -->
+Our next value is going to be the schema format number, this will indicate what version
+of sqlite was used to create the file and is used by sqlite to determine if the version
+running can understand the file. Currently, there are only 4 schema format numbers (1-4)
+and the default has been 4 since 2006. In is possible to set the default to 1 by either
+compiling sqlite directly or running a special statement but versions 2 and 3 would only
+be found if you were using an an older version of sqlite. Version 1 is going to be the
+baseline all versions of sqlite can handle this format. Version 2 adds the ability
+for a table's rows to each have their own number of columns. The docs say that this
+is what enables `ALTER TABLE ... ADD COLUMN`, which would mean those statements
+aren't available in Version 1 database files. Version 3 builds upon the changes in
+version 2 by allowing declaring default values when using this new all column statement.
+Version 4 adds the ability for indexes to be created in descending order, previous to this
+version, indexes were _always_ ascending.
 
-<!-- 1.3.11. Suggested cache size
+Just like we did with the read/write format version, let's create an enum for representing
+this value. Unlike the previous, a zero here would be an error, so let's add a new variant
+to our `Error` enum. Similar to our `Error::InvalidU32`, let's generalize for an unexpected
+zero, we will have it carry a string for the name of the value that caused the error.
 
-The 4-byte big-endian signed integer at offset 48 is the suggested cache size in pages for the database file. The value is a suggestion only and SQLite is under no obligation to honor it. The absolute value of the integer is used as the suggested size. The suggested cache size can be set using the default_cache_size pragma. -->
+```rust
+// error.rs
 
-<!-- 1.3.12. Incremental vacuum settings
+#[derive(Debug)]
+pub enum Error {
+    /// An error with the magic string
+    /// at index 0 of all SQLite 3 files
+    HeaderString(String),
+    /// An error with the page size
+    InvalidPageSize(String),
+    /// An error parsing the maximum/minimum payload fraction
+    /// or leaf fraction
+    InvalidFraction(String),
+    /// An invalide u32 was found
+    InvalidU32(String),
+    /// Encountered a 0 when NonZero was expected
+    UnexpectedZero(String),
+}
 
-The two 4-byte big-endian integers at offsets 52 and 64 are used to manage the auto_vacuum and incremental_vacuum modes. If the integer at offset 52 is zero then pointer-map (ptrmap) pages are omitted from the database file and neither auto_vacuum nor incremental_vacuum are supported. If the integer at offset 52 is non-zero then it is the page number of the largest root page in the database file, the database file will contain ptrmap pages, and the mode must be either auto_vacuum or incremental_vacuum. In this latter case, the integer at offset 64 is true for incremental_vacuum and false for auto_vacuum. If the integer at offset 52 is zero then the integer at offset 64 must also be zero. -->
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Self::HeaderString(v) => write!(f, "Unexpected bytes at start of file, expected the magic string 'SQLite format 3\u{0}', found {:?}", v),
+            Self::InvalidPageSize(msg) => write!(f, "Invalid page size, {}", msg),
+            Self::InvalidFraction(msg) => write!(f, "{}", msg),
+            Self::InvalidU32(msg) => write!(f, "{}", msg),
+            Self::UnexpectedZero(what) => write!(f, "Expected non-zero value for {}", what),
+        }
+    }
+}
+
+```
+
+With that we can now define our enum and the `TryFrom` implementation we are going to use
+to create this value.
+
+```rust
+// header.rs
+use crate::error::Error;
+// First we need to update our imports to include
+// TryFrom
+use std::{convert::TryFrom, num::NonZeroU32};
+
+#[derive(Debug)]
+pub enum SchemaVersion {
+    /// Baseline usable by all sqlite versions
+    One,
+    /// Usable from version 3.1.3 and above
+    Two,
+    /// Usable from version 3.1.4 and above
+    Three,
+    /// Usable from version 3.3.0 and above
+    Four,
+    /// Version > 4
+    Unknown(NonZeroU32),
+}
+
+impl TryFrom<u32> for SchemaVersion {
+    type Error = Error;
+    fn try_from(v: u32) -> Result<Self, Self::Error> { 
+        Ok(match v {
+            1 => Self::One,
+            2 => Self::Two,
+            3 => Self::Three,
+            4 => Self::Four,
+            _ => {
+                let value = NonZeroU32::new(v)
+                    // ok_or_else will convert our Option to a Result
+                    .ok_or_else(|| {
+                        Error::UnexpectedZero("Schema Version".to_string())
+                    })?;
+                Self::Unknown(value)
+            },
+        })
+    }
+}
+
+```
+
+Now the last step, is to add it to our struct and parsing function.
+
+```rust
+// header.rs
+
+#[derive(Debug)]
+pub struct DatabaseHeader {
+    pub page_size: PageSize,
+    pub write_version: FormatVersion,
+    pub read_version: FormatVersion,
+    pub reserved_bytes: u8,
+    pub change_counter: u32,
+    pub database_size: Option<NonZeroU32>,
+    pub free_page_list_info: Option<FreePageListInfo>,
+    pub schema_cookie: u32,
+    pub schema_version: SchemaVersion,
+}
+
+pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
+    validate_header_string(&bytes[0..16])?;
+    let page_size = parse_page_size(&bytes[16..18])?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[22], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[23], 32, "Leaf fraction")?;
+    let change_counter =
+        crate::try_parse_u32(&bytes[24..28], "change counter")?;
+    let database_size = crate::try_parse_u32(&bytes[28..32], "database size")
+        .map(NonZeroU32::new)
+        .ok()
+        .flatten();
+    let first_free_page = crate::try_parse_u32(&bytes[32..36], "first free page")?;
+    let free_page_len = crate::try_parse_u32(&bytes[36..40], "free page list length")?;
+    let free_page_list_info = FreePageListInfo::new(first_free_page, free_page_len);
+    let schema_cookie = crate::try_parse_u32(&bytes[40..44], "schema cookie")?;
+    // Our new value is here
+    let raw_schema_version = crate::try_parse_u32(&bytes[44..48], "schema format version")?;
+    let schema_version = SchemaVersion::try_from(raw_schema_version)?;
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+        reserved_bytes,
+        database_size,
+        free_page_list_info,
+        schema_cookie,
+        schema_version,
+    })
+}
+```
+And now let's see what that looks like.
+
+```sh
+$ cargo run
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 5,
+    database_size: Some(
+        6,
+    ),
+    free_page_list_info: Some(
+        FreePageListInfo {
+            start_page: 5,
+            length: 1,
+        },
+    ),
+    schema_cookie: 4,
+    schema_version: Four,
+}
+```
+
+That is exactly what we were expecting!
+
+Our next value is going to be the suggested cache size, which is a value that can be set
+by the user with something called a "pragma". A pragma is a a special sqlite statement for
+configuring a database. We have covered a few values that can be adjusted by pragmas
+so its high time we covered them. As of now there are a
+[total of 73](https://sqlite.org/pragma.html) pragmas, 7 of these are deprecated,
+5 are only available with custom build options and 3 are only for testing. 
+An example of a pragma statement that adjusts our suggested cache size would look like this.
+
+```sql
+-- Set the cache size to 10 pages
+PRAGMA default_cache_size = 10
+```
+
+Interestingly enough, `default_cache_size` is one of those 7 deprecated pragmas, regardless
+we need to parse it anyway. This one is going to just be a simple `u32`, let's add that
+to our struct and `parse_header`.
+
+```rust
+// header.rs
+#[derive(Debug)]
+pub struct DatabaseHeader {
+    pub page_size: PageSize,
+    pub write_version: FormatVersion,
+    pub read_version: FormatVersion,
+    pub reserved_bytes: u8,
+    pub change_counter: u32,
+    pub database_size: Option<NonZeroU32>,
+    pub free_page_list_info: Option<FreePageListInfo>,
+    pub schema_cookie: u32,
+    pub schema_version: SchemaVersion,
+    pub cache_size: u32,
+}
+
+pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
+    validate_header_string(&bytes[0..16])?;
+    let page_size = parse_page_size(&bytes[16..18])?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[22], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[23], 32, "Leaf fraction")?;
+    let change_counter =
+        crate::try_parse_u32(&bytes[24..28], "change counter")?;
+    let database_size = crate::try_parse_u32(&bytes[28..32], "")
+        .map(NonZeroU32::new)
+        .ok()
+        .flatten();
+    let first_free_page = crate::try_parse_u32(&bytes[32..36], "first free page")?;
+    let free_page_len = crate::try_parse_u32(&bytes[36..40], "free page list length")?;
+    let free_page_list_info = FreePageListInfo::new(first_free_page, free_page_len);
+    let schema_cookie = crate::try_parse_u32(&bytes[40..44], "schema cookie")?;
+    let raw_schema_version = crate::try_parse_u32(&bytes[44..48], "schema format version")?;
+    let schema_version = SchemaVersion::try_from(raw_schema_version)?;
+    // New value!
+    let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+        reserved_bytes,
+        database_size,
+        free_page_list_info,
+        schema_cookie,
+        schema_version,
+        cache_size,
+    })
+}
+```
+
+and when we run it.
+
+```rust
+$ cargo run
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 5,
+    database_size: Some(
+        6,
+    ),
+    free_page_list_info: Some(
+        FreePageListInfo {
+            start_page: 5,
+            length: 1,
+        },
+    ),
+    schema_cookie: 4,
+    schema_version: Four,
+    cache_size: 0,
+}
+```
+
+Looking good!
+
+Up next, we have the auto vacuum setting. Auto vacuum is a setting that will allow for 
+automatically deleting unused pages. Vacuuming is a term used here to mean that all of
+the free pages will be moved to the end of the file and the file will be shrunk (or
+"truncated") to remove them. 
+
+If this value is zero, that means that pages which
+become free will not be deleted, instead we will keep track of them on the free page list.
+If this value isn't zero, then it will be the page number of the "largest root page".
+We are going to cover pages explicitly and in detail after we make it through the header, so
+this is going to have to remain vague for right now. The other thing that this value not being
+zero indicates is that we will need something called a "pointer map pages", the first of which
+will always be page 2. 
+
+For this value, we are going to wrap the value in our own enum, that will have 1 variant for 
+right now. This is going to come up again very soon, so don't put it entirely out of
+your mind.
+
+We will also add that to our `DatabaseHeader` struct while we are at it.
+
+```rust
+// header.rs
+
+#[derive(Debug, Clone, Copy)]
+pub enum VacuumSetting {
+    /// Incremental vacuum is set to full
+    Full(NonZeroU32)
+}
+
+impl VacuumSetting {
+    /// A constructor that returns an optional
+    /// VacuumSetting
+    pub fn full(v: u32) -> Option<Self> {
+        let non_zero = NonZeroU32::new(v)?;
+        Some(VacuumSetting::Full(non_zero))
+    }
+}
+
+#[derive(Debug)]
+pub struct DatabaseHeader {
+    pub page_size: PageSize,
+    pub write_version: FormatVersion,
+    pub read_version: FormatVersion,
+    pub reserved_bytes: u8,
+    pub change_counter: u32,
+    pub database_size: Option<NonZeroU32>,
+    pub free_page_list_info: Option<FreePageListInfo>,
+    pub schema_cookie: u32,
+    pub schema_version: SchemaVersion,
+    pub cache_size: u32,
+    pub vacuum_setting: Option<VacuumSetting>,
+}
+
+pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
+    validate_header_string(&bytes[0..16])?;
+    let page_size = parse_page_size(&bytes[16..18])?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[22], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[23], 32, "Leaf fraction")?;
+    let change_counter =
+        crate::try_parse_u32(&bytes[24..28], "change counter")?;
+    let database_size = crate::try_parse_u32(&bytes[28..32], "")
+        .map(NonZeroU32::new)
+        .ok()
+        .flatten();
+    let first_free_page = crate::try_parse_u32(&bytes[32..36], "first free page")?;
+    let free_page_len = crate::try_parse_u32(&bytes[36..40], "free page list length")?;
+    let free_page_list_info = FreePageListInfo::new(first_free_page, free_page_len);
+    let schema_cookie = crate::try_parse_u32(&bytes[40..44], "schema cookie")?;
+    let raw_schema_version = crate::try_parse_u32(&bytes[44..48], "schema format version")?;
+    let schema_version = SchemaVersion::try_from(raw_schema_version)?;
+    let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
+    // new!
+    let raw_vacuum = crate::try_parse_u32(&bytes[52..56], "auto vacuum")?;
+    let vacuum_setting = VacuumSetting::full(raw_vacuum);
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+        reserved_bytes,
+        database_size,
+        free_page_list_info,
+        schema_cookie,
+        schema_version,
+        cache_size,
+        vacuum_setting,
+    })
+}
+
+```
+
+One of the keys to how auto vacuum works is that it has to be setup _before_ any tables
+are created and by default it is turned off. This means that if we were to run our
+program it would always be `None`, so we can skip that step this time.
+
+Our next value, is going to tell us how the text is encoded in our database,
+it will have to be either 1, 2, or 3. If 1 then the text is encoded as [UTF-8](https://en.wikipedia.org/wiki/UTF-8). If it isn't 1 will be [UTF-16](https://en.wikipedia.org/wiki/UTF-16)
+
+
 
 <!-- 1.3.13. Text encoding
 
 The 4-byte big-endian integer at offset 56 determines the encoding used for all text strings stored in the database. A value of 1 means UTF-8. A value of 2 means UTF-16le. A value of 3 means UTF-16be. No other values are allowed. The sqlite3.h header file defines C-preprocessor macros SQLITE_UTF8 as 1, SQLITE_UTF16LE as 2, and SQLITE_UTF16BE as 3, to use in place of the numeric codes for the text encoding. -->
+
+<!-- 1.3.12. Incremental vacuum settings
+
+The two 4-byte big-endian integers at offsets 52 and 64 are used to manage the auto_vacuum and incremental_vacuum modes. If the integer at offset 52 is zero then pointer-map (ptrmap) pages are omitted from the database file and neither auto_vacuum nor incremental_vacuum are supported. If the integer at offset 52 is non-zero then it is the page number of the largest root page in the database file, the database file will contain ptrmap pages, and the mode must be either auto_vacuum or incremental_vacuum. In this latter case, the integer at offset 64 is true for incremental_vacuum and false for auto_vacuum. If the integer at offset 52 is zero then the integer at offset 64 must also be zero. 
+-->
 
 <!-- 1.3.14. User version number
 
