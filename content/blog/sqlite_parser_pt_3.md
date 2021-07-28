@@ -86,15 +86,13 @@ impl std::fmt::Display for Error {
                 found {:?}", v),
             Self::InvalidPageSize(msg) => write!(f,
                 "Invalid page size, {}", msg),
-            // For our new case, we are just
-            // going to print the inner message
             Self::InvalidFraction(msg) => write!(f, "{}", msg),
             Self::InvalidU32(msg) => write!(f, "Invalid u32: {}", msg),
 	}
 }
 ```
 
-Now we can update our `try_parse_u32` to return a proper `Result`
+Now we can update our `try_parse_u32` to return the proper `Result`
 
 ```rust
 // lib.rs
@@ -315,7 +313,7 @@ baseline all versions of sqlite can handle this format. Version 2 adds the abili
 for a table's rows to each have their own number of columns. The docs say that this
 is what enables `ALTER TABLE ... ADD COLUMN`, which would mean those statements
 aren't available in Version 1 database files. Version 3 builds upon the changes in
-version 2 by allowing declaring default values when using this new all column statement.
+version 2 by allowing declaring default values when using this new add column statement.
 Version 4 adds the ability for indexes to be created in descending order, previous to this
 version, indexes were _always_ ascending.
 
@@ -382,7 +380,9 @@ pub enum SchemaVersion {
 }
 
 impl TryFrom<u32> for SchemaVersion {
+    // Set the associated type to our error enum
     type Error = Error;
+
     fn try_from(v: u32) -> Result<Self, Self::Error> { 
         Ok(match v {
             1 => Self::One,
@@ -497,9 +497,10 @@ An example of a pragma statement that adjusts our suggested cache size would loo
 PRAGMA default_cache_size = 10
 ```
 
-Interestingly enough, `default_cache_size` is one of those 7 deprecated pragmas, regardless
-we need to parse it anyway. This one is going to just be a simple `u32`, let's add that
-to our struct and `parse_header`.
+This value will be used as part of the calculation of how many pages should be kept
+in memory at a given time. Interestingly enough, `default_cache_size` is one of those
+7 deprecated pragmas, regardless we need to parse it anyway. This one is going to
+just be a simple `u32`, let's add that to our struct and `parse_header`.
 
 ```rust
 // header.rs
@@ -589,15 +590,13 @@ automatically deleting unused pages. Vacuuming is a term used here to mean that 
 the free pages will be moved to the end of the file and the file will be shrunk (or
 "truncated") to remove them. 
 
-If this value is zero, that means that pages which
-become free will not be deleted, instead we will keep track of them on the free page list.
-If this value isn't zero, then it will be the page number of the "largest root page".
-We are going to cover pages explicitly and in detail after we make it through the header, so
-this is going to have to remain vague for right now. The other thing that this value not being
-zero indicates is that we will need something called a "pointer map pages", the first of which
-will always be page 2. 
+When a page becomes empty (aka "free"), there are a few options for what might happen, if auto vacuum is
+set to 0, the free list will be updated to include this new free page and nothing is deleted;
+if auto vacuum is not zero then the page is moved to the end and the file is truncated. 
+Moving things around can get kind of messy so this value is used to keep track of the "largest
+root page" allowing SQLite to know where to look after things got moved around.
 
-For this value, we are going to wrap the value in our own enum, that will have 1 variant for 
+To parse this, we are going to wrap the value in our own enum which will have 1 variant for 
 right now. This is going to come up again very soon, so don't put it entirely out of
 your mind.
 
@@ -683,7 +682,44 @@ are created and by default it is turned off. This means that if we were to run o
 program it would always be `None`, so we can skip that step this time.
 
 Our next value, is going to tell us how the text is encoded in our database,
-it will have to be either 1, 2, or 3. If 1 then the text is encoded as [UTF-8](https://en.wikipedia.org/wiki/UTF-8). If it isn't 1 will be [UTF-16](https://en.wikipedia.org/wiki/UTF-16)
+it will have to be either 1, 2, or 3. If 1 then the text is encoded as [UTF-8](https://en.wikipedia.org/wiki/UTF-8). If it isn't 1 will be [UTF-16](https://en.wikipedia.org/wiki/UTF-16) with 2 being 
+the UTF-16 is layed out as little endian while 3 is layed out as big endian. 
+
+Once again we will use an enum to capture this value, 
+
+```rust
+enum TextEncoding {
+    Utf8,
+    Utf16Le,
+    Utg16Be,
+    Unknown(u32),
+}
+
+impl TryFrom<u32> for TextEncoding {
+    type Error = Error;
+    
+    fn try_from(v: u32) -> Result<Self, Self::Error> {
+        match v {
+            1 => Ok(Self::Utf8),
+            2 => Ok(Self::Utf16Le),
+            3 => Ok(Self::Utf16Be),
+            _ => Ok(Self::Unknown(v)),
+        }
+    }
+}
+
+struct DatabaseHeader {
+    // ...
+    text_encoding: TextEncoding,
+}
+
+pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
+    // ...
+    let raw_text_enc = try_parse_u32(&bytes[56..60])?;
+    let text_encoding = TextEncodeing::try_from(raw_text_enc)?;
+    //...
+}
+```
 
 
 
@@ -691,14 +727,52 @@ it will have to be either 1, 2, or 3. If 1 then the text is encoded as [UTF-8](h
 
 The 4-byte big-endian integer at offset 56 determines the encoding used for all text strings stored in the database. A value of 1 means UTF-8. A value of 2 means UTF-16le. A value of 3 means UTF-16be. No other values are allowed. The sqlite3.h header file defines C-preprocessor macros SQLITE_UTF8 as 1, SQLITE_UTF16LE as 2, and SQLITE_UTF16BE as 3, to use in place of the numeric codes for the text encoding. -->
 
+
+
+
 <!-- 1.3.12. Incremental vacuum settings
 
 The two 4-byte big-endian integers at offsets 52 and 64 are used to manage the auto_vacuum and incremental_vacuum modes. If the integer at offset 52 is zero then pointer-map (ptrmap) pages are omitted from the database file and neither auto_vacuum nor incremental_vacuum are supported. If the integer at offset 52 is non-zero then it is the page number of the largest root page in the database file, the database file will contain ptrmap pages, and the mode must be either auto_vacuum or incremental_vacuum. In this latter case, the integer at offset 64 is true for incremental_vacuum and false for auto_vacuum. If the integer at offset 52 is zero then the integer at offset 64 must also be zero. 
 -->
 
+Up next we have the User Version Number, this value is not actually used by SQLite at all but instead
+is around for an application to make use of it as needed. It can be adjusted via a pragma in those cases.
+Since the documentation doesn't place any restrictions on the value this means we need to treat it as
+a signed integer. 
+
+
+```rust
+struct DatabaseHeader {
+    //...
+    user_version_number: i32,
+}
+```
+ 
+```rust
+// lib.rs
+
+fn try_parse_i32(bytes: &[u8]) -> Result<i32, Error> {
+    use std::convert::TryInto;
+    // Just like with our u32, we are going to need to convert
+    // a slice into an array of 4 bytes. Using the `try_into`
+    // method on a slice, we will fail if the slice isn't exactly
+    // 4 bytes.
+    let arr: [u8;4] = bytes.try_into()
+        .map_err(|_| {
+            format!(
+                "expected a 4 byte slice, found a {} byte slice",
+                bytes.len())
+        })?;
+    // Finally we use the `from_be_bytes` constructor for an i32
+    Ok(i32::from_be_bytes(arr))
+}
+    
+```
+
 <!-- 1.3.14. User version number
 
 The 4-byte big-endian integer at offset 60 is the user version which is set and queried by the user_version pragma. The user version is not used by SQLite. -->
+
 
 <!-- 1.3.15. Application ID
 
