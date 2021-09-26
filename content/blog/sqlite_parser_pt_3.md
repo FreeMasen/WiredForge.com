@@ -131,7 +131,6 @@ pub struct DatabaseHeader {
 
 ```
 
-With that out of the way, we have a much clearer path through the rest of our values.
 Let's update our `parse_header` to account for these changes and handle our new values.
 
 ```rust
@@ -218,6 +217,8 @@ DatabaseHeader {
 Notice that our database size is now 2 pages larger and the free_page_list_info's length
 is 2 which is exactly what we want!
 
+---
+
 Our next byte is the "schema cookie", this is a counter that gets increased every time
 a change is made to the database "schema". A database schema is the current set of tables
 _and_ their respective columns. This means we should see this number change when we execute
@@ -244,7 +245,7 @@ But now what happens if we wanted to add a new column our user table.
 
 
 ```sql
-ALTER TABLE user ADD COLUMN deleted BOOL DEFAULT 0;
+ALTER TABLE user ADD COLUMN deleted BOOL;
 ```
 
 This might cause a problem with our prepared statement since it wouldn't know what
@@ -303,10 +304,12 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
 }
 ```
 
+---
+
 Our next value is going to be the schema format number, this will indicate what version
 of sqlite was used to create the file and is used by sqlite to determine if the version
 running can understand the file. Currently, there are only 4 schema format numbers (1-4)
-and the default has been 4 since 2006. In is possible to set the default to 1 by either
+and the default has been 4 since 2006. It is possible to set this to 1 by either
 compiling sqlite directly or running a special statement but versions 2 and 3 would only
 be found if you were using an an older version of sqlite. Version 1 is going to be the
 baseline all versions of sqlite can handle this format. Version 2 adds the ability
@@ -484,6 +487,8 @@ DatabaseHeader {
 
 That is exactly what we were expecting!
 
+---
+
 Our next value is going to be the suggested cache size, which is a value that can be set
 by the user with something called a "pragma". A pragma is a a special sqlite statement for
 configuring a database. We have covered a few values that can be adjusted by pragmas
@@ -585,6 +590,8 @@ DatabaseHeader {
 
 Looking good!
 
+---
+
 Up next, we have the auto vacuum setting. Auto vacuum is a setting that will allow for 
 automatically deleting unused pages. Vacuuming is a term used here to mean that all of
 the free pages will be moved to the end of the file and the file will be shrunk (or
@@ -678,8 +685,76 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
 ```
 
 One of the keys to how auto vacuum works is that it has to be setup _before_ any tables
-are created and by default it is turned off. This means that if we were to run our
-program it would always be `None`, so we can skip that step this time.
+are created and by default it is turned off. The only other way to adjust this value
+is to use the `VACUUM` command, which will re-build our database file entirely.
+Let's take a look at how we would set this value, first lets run our program and see
+the current output.
+
+```sh
+cargo run
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 10,
+    database_size: Some(
+        6,
+    ),
+    free_page_list_info: Some(
+        FreePageListInfo {
+            start_page: 5,
+            length: 2,
+        },
+    ),
+    schema_cookie: 5,
+    schema_version: Four,
+    cache_size: 0,
+    vacuum_setting: None,
+}
+```
+
+Now lets use the following 2 sql statements to make the update.
+
+```sql
+--Update the configuration
+PRAGMA auto_vacuum=1;
+--Rebuild the database
+VACUUM;
+```
+
+```sh
+cargo run
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 11,
+    database_size: Some(
+        5,
+    ),
+    free_page_list_info: None,
+    schema_cookie: 5,
+    schema_version: Four,
+    cache_size: 0,
+    vacuum_setting: Some(
+        Full(
+            5,
+        ),
+    ),
+}
+```
+
+Notices there are a few changes, first is that our `database_size` is smaller,
+next is that we no longer have a `free_page_list_info` value and finally we have
+a `vacuum_setting` that is pointing to page 5.
+
+---
 
 Our next value, is going to tell us how the text is encoded in our database,
 it will have to be either 1, 2, or 3. If 1 then the text is encoded as [UTF-8](https://en.wikipedia.org/wiki/UTF-8). If it isn't 1 will be [UTF-16](https://en.wikipedia.org/wiki/UTF-16) with 2 being 
@@ -688,10 +763,10 @@ the UTF-16 is layed out as little endian while 3 is layed out as big endian.
 Once again we will use an enum to capture this value, 
 
 ```rust
-enum TextEncoding {
+pub enum TextEncoding {
     Utf8,
     Utf16Le,
-    Utg16Be,
+    Utf16Be,
     Unknown(u32),
 }
 
@@ -714,14 +789,73 @@ struct DatabaseHeader {
 }
 
 pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
-    // ...
-    let raw_text_enc = try_parse_u32(&bytes[56..60])?;
-    let text_encoding = TextEncodeing::try_from(raw_text_enc)?;
-    //...
+validate_header_string(&bytes[0..16])?;
+    let page_size = parse_page_size(&bytes[16..18])?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[22], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[23], 32, "Leaf fraction")?;
+    let change_counter =
+        crate::try_parse_u32(&bytes[24..28], "change counter")?;
+    let database_size = crate::try_parse_u32(&bytes[28..32], "")
+        .map(NonZeroU32::new)
+        .ok()
+        .flatten();
+    let first_free_page = crate::try_parse_u32(&bytes[32..36], "first free page")?;
+    let free_page_len = crate::try_parse_u32(&bytes[36..40], "free page list length")?;
+    let free_page_list_info = FreePageListInfo::new(first_free_page, free_page_len);
+    let schema_cookie = crate::try_parse_u32(&bytes[40..44], "schema cookie")?;
+    let raw_schema_version = crate::try_parse_u32(&bytes[44..48], "schema format version")?;
+    let schema_version = SchemaVersion::try_from(raw_schema_version)?;
+    let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
+    let raw_vacuum = crate::try_parse_u32(&bytes[52..56], "auto vacuum")?;
+    let vacuum_setting = VacuumSetting::full(raw_vacuum);
+    // new!
+    let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
+    let text_encoding = TextEncoding::try_from(raw_text_enc)?;
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+        reserved_bytes,
+        database_size,
+        free_page_list_info,
+        schema_cookie,
+        schema_version,
+        cache_size,
+        vacuum_setting,
+        text_encoding,
+    })
 }
 ```
 
-
+```sh
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 13,
+    database_size: Some(
+        5,
+    ),
+    free_page_list_info: None,
+    schema_cookie: 6,
+    schema_version: Four,
+    cache_size: 1,
+    vacuum_setting: Some(
+        Full(
+            5,
+        ),
+    ),
+    text_encoding: Utf8,
+}
+```
 
 <!-- 1.3.13. Text encoding
 
