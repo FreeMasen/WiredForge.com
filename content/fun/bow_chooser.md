@@ -1,9 +1,9 @@
 +++
 title = "Bow Chooser"
 draft = false
-date = 2018-12-17
+date = 2021-04-05
 [extra]
-snippet = "An animated representation of the JS Event Loop"
+snippet = ""
 +++
 
-{ladies_who_lift()}
+{{ladies_who_lift()}}
