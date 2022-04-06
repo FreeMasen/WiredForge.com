@@ -18,6 +18,7 @@ const entries = [
     'twosCounter',
     'puz',
     'looper',
+    'ladies_who_lift',
 ]
 
 function entry() {
