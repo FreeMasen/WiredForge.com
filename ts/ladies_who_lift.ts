@@ -1,10 +1,6 @@
 
 // const targets = Array.from(document.querySelectorAll(".color-targe")) as SVGPathElement[];
 const input  = document.getElementById("color-selection") as HTMLInputElement;
-const colors = {
-    "red": true,
-
-}
 
 let lwl;
 let targets;
@@ -28,6 +24,7 @@ input.addEventListener("input", event => {
 });
 
 function updateColor() {
+    let lwl, targets;
     if (!lwl) {
         lwl = (document.getElementById("ladies-who-lift") as HTMLObjectElement).contentDocument;
         if (!lwl) return;
