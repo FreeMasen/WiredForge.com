@@ -10,12 +10,12 @@ snippet = "The Header... keeps going"
 This is the third in a series of posts describing the process of building a SQLite file parser. 
 If you missed the last part you can find it [here](http://freemasen.com/blog/sqlite-parser-pt-2/index.html).
 
-In the last post we left off having just parsed the "in header database size" which started
-at byte 28. Our next value is the page number of the first free page. Back in part one we
-covered how our actual data is going to be stored equal sections called pages. If, for some
+In the last post, we left off having just parsed the "in header database size" which started
+at byte 28. Our next value is the page number of the first free page. Back in part one, we
+covered how our actual data is going to be stored in equal sections called pages. If, for some
 reason, we have any pages that are empty or "free" this value will help us find the first
-one. Free pages are connected like a linked list, that is to say each free page will have
-the page number of the next free page, if there is one. If there aren't any free pages
+one. Free pages are connected like a linked list, that is to say, each free page will have
+the page number of the next free page if there is one. If there aren't any free pages
 this value will be 0. 
 
 After the first free page number, we would find the length of this list, since these two values
@@ -53,9 +53,9 @@ impl FreePageListInfo {
 ```
 
 Remember, the rest of our values are going to be 4 bytes, and we put together a helper
-function to convert a 4 byte slice into a `u32` so let's use that. But first we need to
-add a new error to our `Error` enum. Initially we setup our helper to return a `Result<u32, String>` but in retrospect, this was probably a mistake. Instead let's add a new error for
-the one case that our conversion can fail. While we are at it we can actually remove one
+function to convert a 4-byte slice into a `u32` so let's use that. But first, we need to
+add a new error to our `Error` enum. Initially, we set up our helper to return a `Result<u32, String>` but in retrospect, this was probably a mistake. Instead, let's add a new error for
+the one case where our conversion can fail. While we are at it we can remove one
 of our error cases `InvalidChangeCounter` since that can only happen when `try_parse_u32`
 fails.
 
@@ -112,7 +112,9 @@ fn try_parse_u32(bytes: &[u8], name: &str) -> Result<u32, Error> {
     Ok(u32::from_be_bytes(arr))
 }
 ```
+
 Now we need to update our `DatabaseHeader` to include our next two values.
+
 
 ```rust
 // header.rs
@@ -132,6 +134,7 @@ pub struct DatabaseHeader {
 ```
 
 Let's update our `parse_header` to account for these changes and handle our new values.
+
 
 ```rust
 fn parse_header(bytes; &[u8]) -> Result<DatabaseHeader, Error> {
@@ -249,8 +252,9 @@ ALTER TABLE user ADD COLUMN deleted BOOL;
 ```
 
 This might cause a problem with our prepared statement since it wouldn't know what
-to do with this new column. To handle this sqlite will automatically recompile to
-prepared statement if this number has changed since it was last used.
+to do with this new column. To handle this sqlite will automatically recompile the
+prepared statement if this number has changed since it was last used and report an
+error to those processes.
 
 Alright, now we know what it does, let's parse it. This one is going to again use
 our helper since it is another `u32`, we first want to add that to our struct
@@ -311,7 +315,7 @@ of sqlite was used to create the file and is used by sqlite to determine if the 
 running can understand the file. Currently, there are only 4 schema format numbers (1-4)
 and the default has been 4 since 2006. It is possible to set this to 1 by either
 compiling sqlite directly or running a special statement but versions 2 and 3 would only
-be found if you were using an an older version of sqlite. Version 1 is going to be the
+be found if you were using an older version of sqlite. Version 1 is going to be the
 baseline all versions of sqlite can handle this format. Version 2 adds the ability
 for a table's rows to each have their own number of columns. The docs say that this
 is what enables `ALTER TABLE ... ADD COLUMN`, which would mean those statements
@@ -358,7 +362,7 @@ impl std::fmt::Display for Error {
 
 ```
 
-With that we can now define our enum and the `TryFrom` implementation we are going to use
+With that, we can now define our enum and the `TryFrom` implementation we are going to use
 to create this value.
 
 ```rust
@@ -372,11 +376,11 @@ use std::{convert::TryFrom, num::NonZeroU32};
 pub enum SchemaVersion {
     /// Baseline usable by all sqlite versions
     One,
-    /// Usable from version 3.1.3 and above
+    /// Usable from sqlite version 3.1.3 and above
     Two,
-    /// Usable from version 3.1.4 and above
+    /// Usable from sqlite version 3.1.4 and above
     Three,
-    /// Usable from version 3.3.0 and above
+    /// Usable from sqlite version 3.3.0 and above
     Four,
     /// Version > 4
     Unknown(NonZeroU32),
@@ -406,7 +410,7 @@ impl TryFrom<u32> for SchemaVersion {
 
 ```
 
-Now the last step, is to add it to our struct and parsing function.
+Now the last step is to add it to our struct and parsing function.
 
 ```rust
 // header.rs
@@ -490,9 +494,9 @@ That is exactly what we were expecting!
 ---
 
 Our next value is going to be the suggested cache size, which is a value that can be set
-by the user with something called a "pragma". A pragma is a a special sqlite statement for
+by the user with something called a "pragma". A pragma is a special sqlite statement for
 configuring a database. We have covered a few values that can be adjusted by pragmas
-so its high time we covered them. As of now there are a
+so it's high time we covered them. As of now, there are a
 [total of 73](https://sqlite.org/pragma.html) pragmas, 7 of these are deprecated,
 5 are only available with custom build options and 3 are only for testing. 
 An example of a pragma statement that adjusts our suggested cache size would look like this.
@@ -684,10 +688,10 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
 
 ```
 
-One of the keys to how auto vacuum works is that it has to be setup _before_ any tables
-are created and by default it is turned off. The only other way to adjust this value
+One of the keys to how auto vacuum works is that it has to be set up _before_ any tables
+are created and by default, it is turned off. The only other way to adjust this value
 is to use the `VACUUM` command, which will re-build our database file entirely.
-Let's take a look at how we would set this value, first lets run our program and see
+Let's take a look at how we would set this value but first let's run our program and see
 the current output.
 
 ```sh
@@ -716,7 +720,7 @@ DatabaseHeader {
 }
 ```
 
-Now lets use the following 2 sql statements to make the update.
+Now let's use the following 2 statements to make the update.
 
 ```sql
 --Update the configuration
@@ -750,13 +754,13 @@ DatabaseHeader {
 }
 ```
 
-Notices there are a few changes, first is that our `database_size` is smaller,
-next is that we no longer have a `free_page_list_info` value and finally we have
-a `vacuum_setting` that is pointing to page 5.
+Notice there are a few changes, first is that our `database_size` is smaller,
+next is that we no longer have a `free_page_list_info` value (free pages were all removed)
+and finally we have a `vacuum_setting` that is pointing to page 5.
 
 ---
 
-Our next value, is going to tell us how the text is encoded in our database,
+Our next value is going to tell us how the text is encoded in our database,
 it will have to be either 1, 2, or 3. If 1 then the text is encoded as [UTF-8](https://en.wikipedia.org/wiki/UTF-8). If it isn't 1 will be [UTF-16](https://en.wikipedia.org/wiki/UTF-16) with 2 being 
 the UTF-16 is layed out as little endian while 3 is layed out as big endian. 
 
@@ -789,7 +793,7 @@ struct DatabaseHeader {
 }
 
 pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
-validate_header_string(&bytes[0..16])?;
+    validate_header_string(&bytes[0..16])?;
     let page_size = parse_page_size(&bytes[16..18])?;
     let write_version = FormatVersion::from(bytes[18]);
     let read_version = FormatVersion::from(bytes[19]);
@@ -857,17 +861,7 @@ DatabaseHeader {
 }
 ```
 
-<!-- 1.3.13. Text encoding
-
-The 4-byte big-endian integer at offset 56 determines the encoding used for all text strings stored in the database. A value of 1 means UTF-8. A value of 2 means UTF-16le. A value of 3 means UTF-16be. No other values are allowed. The sqlite3.h header file defines C-preprocessor macros SQLITE_UTF8 as 1, SQLITE_UTF16LE as 2, and SQLITE_UTF16BE as 3, to use in place of the numeric codes for the text encoding. -->
-
-
-
-
-<!-- 1.3.12. Incremental vacuum settings
-
-The two 4-byte big-endian integers at offsets 52 and 64 are used to manage the auto_vacuum and incremental_vacuum modes. If the integer at offset 52 is zero then pointer-map (ptrmap) pages are omitted from the database file and neither auto_vacuum nor incremental_vacuum are supported. If the integer at offset 52 is non-zero then it is the page number of the largest root page in the database file, the database file will contain ptrmap pages, and the mode must be either auto_vacuum or incremental_vacuum. In this latter case, the integer at offset 64 is true for incremental_vacuum and false for auto_vacuum. If the integer at offset 52 is zero then the integer at offset 64 must also be zero. 
--->
+---
 
 Up next we have the User Version Number, this value is not actually used by SQLite at all but instead
 is around for an application to make use of it as needed. It can be adjusted via a pragma in those cases.
@@ -920,7 +914,7 @@ fn try_parse_i32(bytes: &[u8], name: &str) -> Result<i32, Error> {
     
 ```
 
-This is almost identical to our other helper, we could probably reduce the duplication but for the time being
+This is almost identical to our other helper, we could probably reduce the duplication but for the time being,
 we can just leave it. Now we'll update the struct.
 
 ```rust
@@ -942,7 +936,7 @@ pub struct DatabaseHeader {
 }
 ```
 
-And finally update `parse_header
+And finally, update `parse_header
 
 ```rust
 pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
@@ -994,7 +988,8 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
 ---
 
 The next value is called an "Application ID", this value is used when a sqlite database file is used for a specific
-application. Primarily, this is used to driver the behavior of the `file` command. Let's try that on our current database.
+application. Primarily, this is used to drive the behavior of the [`file` command](https://www.man7.org/linux/man-pages/man1/file.1.html).
+Let's try that on our current database.
 
 ```sh
 file ./data.sqlite
@@ -1119,7 +1114,7 @@ That looks about right.
 ---
 
 Finally, we are going to pick up the pace a bit. The next 20 bytes, are reserved for future header values
-and must be `0`. Let's add a new error variant for an unexpected non zero.
+and must be `0`. Let's add a new error variant for an unexpected non-zero.
 
 
 ```rs
@@ -1204,7 +1199,12 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
     let application_id = crate::try_parse_u32(&bytes[64..68], "application id")?;
     // new!
-    validate_reserved_zeros(&bytes[68..92])?;
+    validate_reserved_zeros(&bytes[68..92]).map_err(|e| {
+        // We probably don't want to error if a new header value gets added
+        // and we haven't had a chance to update our application so we print
+        // to standard error and move along
+        eprintln!("{}", e);
+    }).ok();
     Ok(DatabaseHeader {
         page_size,
         write_version,
@@ -1281,7 +1281,7 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
     let application_id = crate::try_parse_u32(&bytes[64..68], "application id")?;
-    validate_reserved_zeros(&bytes[68..92])?;
+    validate_reserved_zeros(&bytes[68..92]).map_err(|e| eprintln!("{}", e)).ok();
     // new!
     let version_valid_for = crate::try_parse_u32(&bytes[92..96], "version valid for")?;
     let library_write_version = crate::try_parse_u32(&bytes[96..100], "library write version")?;
@@ -1336,3 +1336,5 @@ DatabaseHeader {
     library_write_version: 3032003,
 }
 ```
+
+And with that, we have completed the parsing of a sqlite file's header. 
