@@ -15,7 +15,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "moment": "^2.29.4"
   }
 }
