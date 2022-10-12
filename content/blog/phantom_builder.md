@@ -197,7 +197,7 @@ fn main() {
 
 If we were to compile this the compiler would give us the following error message.
 
-```s
+```sh
 error[E0282]: type annotations needed
   --> src/main.rs:36:18
    |
