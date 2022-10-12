@@ -103,7 +103,7 @@ of `contents` is `Vec<u8>`. Since vectors are indexable on ranges, we then
 print bytes 0 through 15 (note the range is "exclusive" so the upper end of the range is 16).
 Let's see what happens when we run this.
 
-```sh$
+```sh
 cargo run
 [83, 81, 76, 105, 116, 101, 32, 102, 111, 114, 109, 97, 116, 32, 51, 0,]
 ```
@@ -121,7 +121,7 @@ fn main() {
 ```
 With that small update, let's run it again.
 
-```sh$
+```sh
 cargo run
 "SQLite format 3\u{0}"
 ```
@@ -149,7 +149,7 @@ fn main() {
 When we run that it should look something like this. Note, the actual values may be different
 for your database file and that is ok.
 
-```sh$
+```sh
 cargo run
 [16, 0]
 ```
@@ -180,7 +180,7 @@ fn main() {
 
 So let's run this.
 
-```sh$
+```sh
 cargo run
 4096
 ```
@@ -268,7 +268,7 @@ fn main() {
 ```
 When we run this we should see something like the following.
 
-```sh$
+```sh
 cargo run
 PageSize(4096)
 ```
@@ -489,7 +489,7 @@ to use the `?` operator to fail for us if we encounter an error.
 
 Let's run this and see what happens.
 
-```sh$
+```sh
 $ cargo run
 PageSize(4096)
 ```
