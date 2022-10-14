@@ -1,10 +1,11 @@
 +++
 title = "SQLite Parser Pt. 3"
-date = 2018-01-02
+date = 2022-10-12
 draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
 snippet = "The Header... keeps going"
+private = false
 +++
 
 This is the third in a series of posts describing the process of building a SQLite file parser. 
