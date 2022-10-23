@@ -13,7 +13,7 @@ you missed the last part you can find it [here](./sqlite_parser_pt_3.md).
 Now that we have the header parsing finished for a sqlite database, we are well on our way to
 getting through the whole file. In the next post we will start parsing the pages that a database is
 divided into, however before we get to to that, we should talk about one concern that will be more
-difficult to address if we continue down our current path. The first of which is memory usage.
+difficult to address if we continue down our current path: memory usage.
 
 Looking at our `DatabaseHeader` we can expect that the 100 bytes of our file will translate to about
 72 bytes in memory, when we add that together we get a total of 172 bytes and while that isn't a ton
@@ -21,8 +21,8 @@ of usage, imagine what will happen if we tried read the full file in before pars
 database? The header size wouldn't be too bad but the rest of the file would fill up our memory
 pretty quick. Rust provides a few options dealing with raw bytes that we may or may not want to read
 into memory all at once. The most basic option would be the `Read` trait, this allows us to call
-`Read::read(&mut buf)` which will attempt to fill up the provided `buf` which is typically an array
-it then returns the number of bytes actually read. For example.
+`Read::read(&mut self, &mut buf)` which will attempt to fill up the provided `buf` which is
+a slice of `u8`s, it then returns the number of bytes actually read. For example.
 
 
 ```rust
@@ -132,9 +132,9 @@ going to come in handy when we get our page parsing in line since we are probabl
 jump from one page start to another and `seek` would be a nice way to do that.
 
 Now that we have our reader setup, we should probably re-visit our header parsing to take advantage
-of this interface. Our first step is going to be to convert our `try_parse_*` helper functions to
-work with an `impl Read` instead of taking a byte slice. The first step to doing this is going
-to add a new variant of our `Error` enum. Let's start by updating that.
+of this interface. We are going to convert our `try_parse_*` helper functions to work with an
+`impl Read` instead of taking a byte slice but before doing this we need to add a new variant of our
+`Error` enum. Let's start by updating that.
 
 ```rust
 // error.rs
@@ -157,9 +157,13 @@ impl std::fmt::Display for Error {
 }
 ```
 
-Before we start in on the update to our `lib.rs` we should take care of one other thing,
-updating this project from the 2018 edition to use the 2021 edition. Thankfully this just
-means updating the value in our `Cargo.toml`.
+This is going to end up doing a lot of the same work that our `Invalid*32` variants did before so we
+will include not only the `Error` provided by the `io` library but also the name of where we failed
+as a string literal.
+
+Before we start in on the update to our `lib.rs` we should take care of one other thing, updating
+this project from the 2018 edition to use the 2021 edition. Thankfully this just means updating the
+value in our `Cargo.toml`.
 
 ```toml
 # ./Cargo.toml
@@ -171,9 +175,8 @@ authors = ["freemasen"]
 edition = "2021"
 ```
 
-With that we can now take advantage of the new "const generics" feature to help streamline
-our read operations for our integers, we are going to do this in a new function named
-`read_bytes`
+With that we can now take advantage of the new "const generics" feature to help streamline our read
+operations, we are going to do this in a new function named `read_bytes`
 
 ```rust
 // lib.rs
@@ -232,17 +235,17 @@ fn read<T, const N: usize>(reader: &mut impl Read) -> Result<T, IoError> {
 }
 ```
 
-This would take that extra boilerplate and centralize it, however as is the compiler will 
-complain because we don't have any value for N in this scenario _and_ that `T` doesn't have
-and associated function `from_be_bytes` so what if we unified all of the types that we want
-to use this function with? That would solve our problems, let's introduce a trait for this.
+This would take that extra boilerplate and centralize it, however the compiler will complain because
+we don't have any value for N in this scenario _and_ that `T` doesn't have and associated function
+`from_be_bytes` so what if we unified all of the types that we want to use this function with? That
+would solve our problems, let's introduce a trait for this.
 
 ```rust
 // lib.rs
 
 /// A trait to unify the behavior or the primitive number types
 /// which all provide a constructor named `from_be_bytes` which
-/// that an array of `u8`s of the appropriate size. 
+/// take an array of `u8`s of the appropriate size. 
 /// 
 /// This trait leverages the const generic N to define the size of the
 /// array needed to construct that type
@@ -282,9 +285,9 @@ macro_rules! impl_from_big_endian {
 
 Here we are using the "old" style of macros which comes with a bit of a learning curve since it has
 its own syntax. First, we are defining a new macro named `impl_from_big_endian_inner` which takes 2
-arguments, the first argument (`$t`) is designated as a `ty` or "type", teh second argument (`$n`)
-is designated as an `expr` or expression. After the fat arrow, in the curly braces, we define what
-code our macro should produce which is very similar to our original implementation of
+arguments, the first argument (`$t`) is designated as a `ty` or "type", the second argument (`$n`)
+is designated as an `expr` or expression. After the fat arrow, inside the curly braces, we define
+what code our macro should produce which is very similar to our original implementation of
 `FromBigEndian` for `u32` except we swap our `u32` for `$t` and `4` for `$n`. Now let's replace our
 `u32` implementation with our macro.
 
@@ -293,7 +296,7 @@ code our macro should produce which is very similar to our original implementati
 
 ```rust
 // lib.rs
-impl_from_big_endian(u32, {std::mem::size_of::<u32>()});
+impl_from_big_endian!(u32, {std::mem::size_of::<u32>()});
 ```
 
 This is a lot nicer but this could still be simpler. Instead of making the caller provide both
@@ -369,6 +372,8 @@ impl FromBigEndian<{ std::mem::size_of::<u8>() }> for u8 {
 }
 ```
 
+It is much nicer for us to not have written that all manually!
+
 Ok, now that we have our trait defined, let's update our `read` function to make `T`
 require an implementation of `FromBigEndian`.
 
@@ -384,8 +389,8 @@ where T: FromBigEndian<N> {
 }
 ```
 
-Now by simply adding a `where T: FromBigEndian<N>`, we take care of our 2 compiler errors
-from our last look at this function. Ok, now let's revisit `read_u32`.
+Now by simply adding a `where T: FromBigEndian<N>`, we take care of the 2 compiler errors from our
+last look at this function. With that in place we can now revisit `read_u32`.
 
 ```rust
 // lib.rs
@@ -397,8 +402,8 @@ fn read_u32(reader: &mut impl Read, name: &'static str) -> Result<u32, Error> {
 ```
 
 There is still some boiler plate but unfortunately there isn't a ton we can do, the error
-construction with the name of what failed to be read is going to either have to happen wherever
-`read` is called, let's update the rest of `lib.rs`.
+construction with the name of what failed to be read is going to happen wherever
+`read` is called and this will look a little nicer than having to use the generic arguments to `read` in our `parse_header` function along with the `map_err`. Now, let's update the rest of `lib.rs`.
 
 ```rust
 // lib.rs
@@ -553,7 +558,7 @@ pub fn parse_header(reader: &mut impl Read) -> Result<DatabaseHeader, Error> {
 }
 ```
 
-For the most part, we are just updating the argument from an array to a `reader` and each usage
+For the most part, we are just updating the argument from a byte slice to a `reader` and each usage
 of our helpers to use the new helpers we just defined. One if the really nice thing about this
 is that we no longer have to maintain the manual indexing of our header bytes instead we can just
 read the next set of bytes as we need it.
