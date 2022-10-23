@@ -559,3 +559,5 @@ is that we no longer have to maintain the manual indexing of our header bytes in
 read the next set of bytes as we need it.
 
 And with that we are in a much better place to start in on our page parsing.
+
+<!-- [part 5](./sqlite_parser_pt5.md) -->
