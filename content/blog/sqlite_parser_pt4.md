@@ -39,7 +39,7 @@ fn main() {
             // Reached the end of the file
             return;
         }
-        println!("Read {} bytes as:\n{:?}", bytes_read, buf[..bytes_read]);
+        println!("Read {} bytes as:\n{:?}", bytes_read, &buf[..bytes_read]);
     }
 
 }
@@ -87,7 +87,7 @@ still need to make sure that it gets filled appropriately. The key difference he
 far more likely to fill `buf` if the underlying file is large enough to do so. It doesn't _look_
 like much of a win but it really does help. Another interesting thing about `BufReader` is that in
 implements the trait `BufRead` which gives you access to things like `read_line` or `read_until`
-which ends up being incredibly helpful in the long run.
+which ends up being incredibly helpful in a lot of common file reading tasks.
 
 The one big issue we haven't yet addressed about these two interfaces is that if we ever needed to
 re-parse something we would have to essentially just start from the beginning again. Since our
