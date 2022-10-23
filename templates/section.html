@@ -1,7 +1,6 @@
 {% extends "index.html" %}
 
 {% block content %}
-
 <div class="page-list">
     {% set pages = section.pages %}
     {% for sub in section.subsections %}
@@ -9,7 +8,22 @@
         {% set_global pages = pages | concat(with=sub.pages) %}
     {% endfor %}
     {% set render_drafts = config.extra.env == "dev" %}
-    {% for page in pages %}
+    {% if config.extra.env == "dev" %}
+    <div style="border:1px dashed red">
+        <span>DRAFTS!!!</span>
+        {% for page in pages | filter(attribute="draft", value=true) %}
+            <a class="post-summary draft-summary" href="{{config.base_url}}/{{page.path}}index.html" >
+                <h2>{{page.title}}</h2>
+            </a>
+            {% if page.extra.snippet %}
+            <span class="summary">
+                {{page.extra.snippet}}
+            </span>
+            {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% for page in pages | filter(attribute="draft", value=false) %}
         {% if render_drafts or not page.draft %}
             <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{config.base_url}}/{{page.path}}index.html"{% endif %}>
                 <h2>{{ page.title }}</h2>
