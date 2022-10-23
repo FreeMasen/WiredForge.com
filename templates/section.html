@@ -8,9 +8,9 @@
         {% set sub = get_section(path=sub) %}
         {% set_global pages = pages | concat(with=sub.pages) %}
     {% endfor %}
+    {% set render_drafts = config.extra.env == "dev" %}
     {% for page in pages %}
-        {% set render = config.extra.env == "dev" or not page.draft and not page.extra.private %}
-        {% if render %}
+        {% if render_drafts or not page.draft %}
             <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{config.base_url}}/{{page.path}}index.html"{% endif %}>
                 <h2>{{ page.title }}</h2>
             </a>
