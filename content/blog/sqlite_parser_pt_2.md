@@ -545,6 +545,6 @@ DatabaseHeader {
 
 We are getting very close to having this whole header knocked out! However,
 since we are going to dig into the meaning of each of these values, we should
-take a break here and pick this up in the next post. 
+take a break here and pick this up in the next post.
 
-<!-- [part 3](blog/sqlite3/index.html) -->
+[part 3](./sqlite_parser_pt_3.md)
