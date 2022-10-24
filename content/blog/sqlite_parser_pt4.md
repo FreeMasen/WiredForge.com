@@ -45,7 +45,7 @@ fn main() {
 }
 ```
 
-This is pretty nice, we could say try an read in the first 100 bytes of our file and then our
+This is pretty nice, we could say try and read in the first 100 bytes of our file and then our
 `parse_header` would just work, since it takes a slice of bytes as well. However this could be a bit
 problematic since the `buf` we are providing is a fixed size but `read` doesn't always fill `buf`
 even if there are enough bytes in the file to do so, we would need to _maybe_ make multiple calls to
@@ -85,7 +85,7 @@ fn main() {
 Notice, things don't change very much, we still need to provide a buffer when calling `read` and we
 still need to make sure that it gets filled appropriately. The key difference here is that we are
 far more likely to fill `buf` if the underlying file is large enough to do so. It doesn't _look_
-like much of a win but it really does help. Another interesting thing about `BufReader` is that in
+like much of a win but it really does help. Another interesting thing about `BufReader` is that it
 implements the trait `BufRead` which gives you access to things like `read_line` or `read_until`
 which ends up being incredibly helpful in a lot of common file reading tasks.
 
@@ -127,7 +127,7 @@ fn main() {
 ```
 
 Notice how the method `seek` takes an enum `SeekFrom`, the variants here are `Start`, `End` and
-`Current`, so our code above is moving byte 0 when counting from the start of the file. This is
+`Current`, so our code above is moving to byte 0 when counting from the start of the file. This is
 going to come in handy when we get our page parsing in line since we are probably going to want to
 jump from one page start to another and `seek` would be a nice way to do that.
 
