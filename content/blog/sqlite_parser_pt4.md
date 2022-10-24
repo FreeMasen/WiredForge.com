@@ -1,6 +1,6 @@
 +++
 title = "SQLite Parser Pt. 4"
-date = 2020-10-12
+date = 2020-10-24
 draft = true
 tags = ["sqlite", "parsing", "decoding", "streaming"]
 [extra]
@@ -267,8 +267,8 @@ impl FromBigEndian<4> for u32 {
 ```
 
 Notice, `impl` we needs to provide a value for `N` which means we would have to provide this value
-manually for any type we wanted to provide. This isn't probably too painful but if we can
-make this happen automatically, why don't we? To start we can use a macro to ease our pain.
+manually for any type we wanted to implement. This isn't probably too painful but if we can make
+this happen automatically, why don't we? To start we can use a macro to ease our pain.
 
 ```rust
 // lib.rs
@@ -284,15 +284,16 @@ macro_rules! impl_from_big_endian {
 ```
 
 Here we are using the "old" style of macros which comes with a bit of a learning curve since it has
-its own syntax. First, we are defining a new macro named `impl_from_big_endian_inner` which takes 2
+its own syntax. First, we are defining a new macro named `impl_from_big_endian` which takes 2
 arguments, the first argument (`$t`) is designated as a `ty` or "type", the second argument (`$n`)
-is designated as an `expr` or expression. After the fat arrow, inside the curly braces, we define
+is designated as an `expr` or "expression". After the fat arrow, inside the curly braces, we define
 what code our macro should produce which is very similar to our original implementation of
 `FromBigEndian` for `u32` except we swap our `u32` for `$t` and `4` for `$n`. Now let's replace our
 `u32` implementation with our macro.
 
-> For more on "old" style macros, 
-> [Rust By Example](https://doc.rust-lang.org/rust-by-example/macros.html) chapter on macros is great.
+> For more on "old" style macros,
+> [Rust By Example](https://doc.rust-lang.org/rust-by-example/macros.html) chapter on macros is
+> great.
 
 ```rust
 // lib.rs
@@ -340,8 +341,8 @@ impl_from_big_endian!(i16);
 impl_from_big_endian!(u8);
 ```
 
-If we were to use the wonderul [`cargo expand` utility](https://github.com/dtolnay/cargo-expand)
-we would see this expand into the following
+If we were to use the wonderful [`cargo expand` utility](https://github.com/dtolnay/cargo-expand) we
+would see this expand into the following
 
 ```rust
 // lib.rs
@@ -559,7 +560,7 @@ pub fn parse_header(reader: &mut impl Read) -> Result<DatabaseHeader, Error> {
 ```
 
 For the most part, we are just updating the argument from a byte slice to a `reader` and each usage
-of our helpers to use the new helpers we just defined. One if the really nice thing about this
+of our helpers to use the new helpers we just defined. One of the really nice thing about this
 is that we no longer have to maintain the manual indexing of our header bytes instead we can just
 read the next set of bytes as we need it.
 
