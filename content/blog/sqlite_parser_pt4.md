@@ -1,6 +1,6 @@
 +++
 title = "SQLite Parser Pt. 4"
-date = 2020-10-25
+date = 2022-10-25
 draft = false
 tags = ["sqlite", "parsing", "decoding", "streaming"]
 [extra]
