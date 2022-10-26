@@ -1,19 +1,18 @@
 +++
 title = "SQLite Parser Pt. 5"
-date = 2020-10-12
+date = 2022-11-01
 draft = true
 tags = ["sqlite", "parsing", "decoding", "streaming"]
 [extra]
 snippet = "Pages, Pages, Pages"
 +++
 
-This is the third in a series of posts describing the process of building a SQLite file parser. If
+This is the fifth in a series of posts describing the process of building a SQLite file parser. If
 you missed the last part you can find it [here](./sqlite_parser_pt4.md).
 
 Now that we've gotten the header fully parsed, we can now start parsing the rest of the file. As
-covered in previous posts, we covered that the files is broken into pages and each page being a
-fixed size. Looking at the output of our last run back in [part 3](./sqlite_parser_pt_3.md), we see
-the following.
+covered in previous posts, the file is broken into pages and each page being a fixed size. Looking
+at the output of our last run back in [part 3](./sqlite_parser_pt_3.md), we see the following.
 
 ```sh
 DatabaseHeader {
@@ -51,7 +50,7 @@ kb. You may be asking, "what about the database header, shouldn't we add that to
 answer is no, the first page includes the database header. For us that means we just need to keep in
 mind what page number we are parsing to avoid misreading the header as page information.
 
-There are officially 53 types of pages, free list pages, b-tree pages, cell payload overflow pages,
+There are officially 5 types of pages, free list pages, b-tree pages, cell payload overflow pages,
 pointer map pages, and the lock page. Since the first page is always a b-tree page, we are going to
 start with those but we will eventually cover each.
 
@@ -60,13 +59,13 @@ start with those but we will eventually cover each.
 If you are not familiar with b-trees, that's ok, we don't need to be experts in how they work to
 parse them. Just know that a b-tree is a type of collection that maintains its order, so if you
 insert an item into it doesn't just tack it on the end but instead finds the spot between values
-lower and higher than the new value. B-trees typically do this by having each entry in the collection
-point to the next higher entry and next lower entry if they exist. Typically, the higher entry is
-called the "right" entry and the lower entry is called the "left" entry.
+lower and higher than the new value. B-trees typically do this by having each entry in the
+collection point to the next higher entry and next lower entry if they exist. Typically, the higher
+entry is called the "right" entry and the lower entry is called the "left" entry.
 
-A lot of what we have covered is pretty abstract, so let's start parsing! Each b-tree page starts
-with a page header, which will tell us some important information about the page. Since we know
-where each page starts in our file, let's set our program up to parse the header of each page.
+Ok, that is pretty abstract so let's start parsing! Each b-tree page starts with a page header,
+which will tell us some important information about the page. Since we know where each page starts
+in our file, let's set our program up to parse the header of each page.
 
 To begin, we are going to add a new module to our library, we do this by creating a new file
 named `page.rs` in our `src` directory and then update `lib.rs` to declare that module.

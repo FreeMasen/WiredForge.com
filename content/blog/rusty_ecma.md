@@ -7,5 +7,5 @@ tags = ["rust", "ecma", "javascript"]
 snippet = "Building JavaScript development tools with Rust"
 image = "rust-ecma.svg"
 image_desc = "Rusty ECMA"
-extern_link = "https://freemasen.github.io/rusty-ecma-book"
+extern_link = "https://rusty-ecma.github.io/rusty-ecma-book"
 +++

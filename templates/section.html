@@ -12,7 +12,7 @@
     <div style="border:1px dashed red">
         <span>DRAFTS!!!</span>
         {% for page in pages | filter(attribute="draft", value=true) %}
-            <a class="post-summary draft-summary" href="{{config.base_url}}/{{page.path}}index.html" >
+            <a class="post-summary draft-summary" href="{{page.path}}" >
                 <h2>{{page.title}}</h2>
             </a>
             {% if page.extra.snippet %}
@@ -25,7 +25,7 @@
     </div>
     {% for page in pages | filter(attribute="draft", value=false) %}
         {% if render_drafts or not page.draft %}
-            <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{config.base_url}}/{{page.path}}index.html"{% endif %}>
+            <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{page.path}}"{% endif %}>
                 <h2>{{ page.title }}</h2>
             </a>
             {% if page.extra.snippet %}
