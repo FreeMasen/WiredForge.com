@@ -1058,7 +1058,7 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
-    let application_id = crate::try_parse_u32(&bytes[64..68], "application id")?;
+    let application_id = crate::try_parse_u32(&bytes[68..72], "application id")?;
     Ok(DatabaseHeader {
         page_size,
         write_version,
@@ -1193,7 +1193,7 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
-    let application_id = crate::try_parse_u32(&bytes[64..68], "application id")?;
+    let application_id = crate::try_parse_u32(&bytes[68..72], "application id")?;
     // new!
     validate_reserved_zeros(&bytes[68..92]).map_err(|e| {
         // We probably don't want to error if a new header value gets added
@@ -1275,7 +1275,7 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
-    let application_id = crate::try_parse_u32(&bytes[64..68], "application id")?;
+    let application_id = crate::try_parse_u32(&bytes[68..72], "application id")?;
     validate_reserved_zeros(&bytes[68..92]).map_err(|e| eprintln!("{}", e)).ok();
     // new!
     let version_valid_for = crate::try_parse_u32(&bytes[92..96], "version valid for")?;
