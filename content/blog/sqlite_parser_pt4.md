@@ -484,7 +484,7 @@ use our new helper to read this value. The last helper in `header.rs` is `valida
 ```rust
 // header.rs
 fn validate_reserved_zeros(reader: &mut impl Read) -> Result<(), Error> {
-    let bytes = crate::read_bytes::<24>(reader).map_err(|e| {
+    let bytes = crate::read_bytes::<20>(reader).map_err(|e| {
         Error::IoError(e, "reserved zeros")
     })?;
     for (i, &byte) in bytes.iter().enumerate() {
@@ -499,7 +499,7 @@ fn validate_reserved_zeros(reader: &mut impl Read) -> Result<(), Error> {
 }
 ```
 
-Once again, we are just updating the argument and then using `read_bytes` to read our `24`
+Once again, we are just updating the argument and then using `read_bytes` to read our `20`
 reserved zero bytes in the header. Now for the big lift here, we are going to update
 `parse_header`.
 
@@ -528,10 +528,11 @@ pub fn parse_header(reader: &mut impl Read) -> Result<DatabaseHeader, Error> {
     let schema_version = SchemaVersion::try_from(raw_schema_version)?;
     let cache_size = crate::read_u32(reader, "cache size")?;
     let raw_vacuum = crate::read_u32(reader, "auto vacuum")?;
-    let vacuum_setting = VacuumSetting::full(raw_vacuum);
     let raw_text_enc = crate::read_u32(reader, "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::read_i32(reader, "user version")?;
+    let is_incremental = crate::read_u32(reader, "incremental vacuum")?;
+    let vacuum_setting = VacuumSetting::new(raw_vacuum, is_incremental);
     let application_id = crate::read_u32(reader, "application id")?;
     validate_reserved_zeros(reader)
         .map_err(|e| eprintln!("{}", e))
