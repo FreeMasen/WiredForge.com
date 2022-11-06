@@ -594,20 +594,18 @@ Looking good!
 
 ---
 
-Up next, we have the auto vacuum setting. Auto vacuum is a setting that will allow for
-automatically deleting unused pages. Vacuuming is a term used here to mean that all of
-the free pages will be moved to the end of the file and the file will be shrunk (or
-"truncated") to remove them.
+Up next, we have the auto vacuum setting. Auto vacuum is a setting that will allow for automatically
+deleting unused pages. Vacuuming is a term used here to mean that all of the free pages will be
+moved to the end of the file and the file will be shrunk (or "truncated") to remove them.
 
-When a page becomes empty (aka "free"), there are a few options for what might happen, if auto vacuum is
-set to 0, the free list will be updated to include this new free page and nothing is deleted;
-if auto vacuum is not zero then the page is moved to the end and the file is truncated.
-Moving things around can get kind of messy so this value is used to keep track of the "largest
-root page" allowing SQLite to know where to look after things got moved around.
+When a page becomes empty (aka "free"), there are a few options for what might happen, if auto
+vacuum is set to 0, the free list will be updated to include this new free page and nothing is
+deleted; if auto vacuum is not zero then the page is moved to the end and the file is truncated.
+Moving things around can get kind of messy so this value is used to keep track of the "largest root
+page" allowing SQLite to know where to look after things got moved around.
 
-To parse this, we are going to wrap the value in our own enum which will have 1 variant for
-right now. This is going to come up again very soon, so don't put it entirely out of
-your mind.
+To parse this, we are going to wrap the value in our own enum which will have 1 variant for right
+now. This is going to come up again very soon, so don't put it entirely out of your mind.
 
 We will also add that to our `DatabaseHeader` struct while we are at it.
 
@@ -985,6 +983,200 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
 
 ---
 
+<div id="incremental-vacuum-correction"></div>
+
+Now we are going to re-visit the `VacuumSetting` from bytes 52-56, if you remember we used that
+value to determine if auto vacuum was turned on, if it was, that value would be the page number for
+the "largest root page" otherwise it would be 0. Sqlite provides 2 versions of vacuum settings,
+the first being "auto vacuum" where every time something is removed, the now empty pages are moved
+to the end of the file and removed, the second is "incremental vacuum" which requires manually
+running a pragma `incremental_vacuum(N)` which takes an optional argument of the maximum number of
+pages to allow to be vacuumed, if no argument is provided then all free pages will be removed. The
+reason we are re-visiting this is because the next value we are going to parse is a 4 byte "boolean"
+that when 0 means the vacuum mode is "Full" otherwise it is this new incremental mode. If you
+remember when we setup our `VacuumSetting` enum, we only had 1 case, `Full`, now we are going to
+need add a new variant here and update our constructor to be a little smarter.
+
+```rust
+// header.rs
+
+#[derive(Debug, Clone, Copy)]
+pub enum VacuumSetting {
+    /// Vacuum Mode is set to full
+    Full(NonZeroU32),
+    /// Vacuum Mode is set to incremental
+    Incremental(NonZeroU32),
+}
+
+impl VacuumSetting {
+    /// A constructor that returns an optional VacuumSetting, if the first
+    /// argument is not 0. The variant is decided from the second argument
+    /// if 0, Full otherwise Incremental
+    pub fn new(largest_root_page: u32, is_incremental: u32) -> Option<Self> {
+        let non_zero = NonZeroU32::new(v)?;
+        let ret = if is_incremental > 0 {
+            Self::Incremental(non_zero)
+        } else {
+            Self::Full(non_zero)
+        };
+        Some(ret)
+    }
+}
+```
+
+Ok, so now we've added the new variant and change how the constructor works, instead of just taking
+1 value, it now takes 2 and decides which variant to return based on the values we've parsed. Now we
+are going to have to update `parse_header` to use the new constructor after we have parsed the
+second value.
+
+```rust
+pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
+    validate_header_string(&bytes[0..16])?;
+    let page_size = parse_page_size(&bytes[16..18])?;
+    let write_version = FormatVersion::from(bytes[18]);
+    let read_version = FormatVersion::from(bytes[19]);
+    let reserved_bytes = bytes[20];
+    validate_fraction(bytes[21], 64, "Maximum payload fraction")?;
+    validate_fraction(bytes[22], 32, "Minimum payload fraction")?;
+    validate_fraction(bytes[23], 32, "Leaf fraction")?;
+    let change_counter =
+        crate::try_parse_u32(&bytes[24..28], "change counter")?;
+    let database_size = crate::try_parse_u32(&bytes[28..32], "")
+        .map(NonZeroU32::new)
+        .ok()
+        .flatten();
+    let first_free_page = crate::try_parse_u32(&bytes[32..36], "first free page")?;
+    let free_page_len = crate::try_parse_u32(&bytes[36..40], "free page list length")?;
+    let free_page_list_info = FreePageListInfo::new(first_free_page, free_page_len);
+    let schema_cookie = crate::try_parse_u32(&bytes[40..44], "schema cookie")?;
+    let raw_schema_version = crate::try_parse_u32(&bytes[44..48], "schema format version")?;
+    let schema_version = SchemaVersion::try_from(raw_schema_version)?;
+    let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
+    let raw_vacuum = crate::try_parse_u32(&bytes[52..56], "auto vacuum")?;
+    // removed the `full` constructor here
+    let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
+    let text_encoding = TextEncoding::try_from(raw_text_enc)?;
+    let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
+    // new!
+    let incremental_vacuum = crate::try_parse_u32(&bytes[64..68], "incremental vacuum")?;
+    let vacuum_setting = VacuumSetting::new(raw_vacuum, incremental_vacuum);
+
+    Ok(DatabaseHeader {
+        page_size,
+        write_version,
+        read_version,
+        change_counter,
+        reserved_bytes,
+        database_size,
+        free_page_list_info,
+        schema_cookie,
+        schema_version,
+        cache_size,
+        vacuum_setting,
+        text_encoding,
+        user_version,
+    })
+}
+```
+
+To see this all in action, we need to make some database changes again to see this all in action.
+First we will set our vacuum mode to incremental (2).
+
+```sql
+--Update the configuration
+PRAGMA auto_vacuum=2;
+--Rebuild the database
+VACUUM;
+```
+
+Notice, we again have to rebuild the database to cleanup any existing free pages before this setting
+will be respected. That means we are going to have to re-insert and delete a bunch of pages to see
+how our settings change.
+[Using the same script as last time](https://gist.github.com/FreeMasen/d7242d7dc82b51d1b5952ea220df21ba)
+which will add and then delete a bunch of rows from our users table we can see some changes
+immediately when we run our program.
+
+```sh
+cargo run
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 11,
+    database_size: Some(
+        7,
+    ),
+    free_page_list_info: Some(
+        FreePageListInfo {
+            start_page: 6,
+            length: 2,
+        },
+    ),
+    schema_cookie: 3,
+    schema_version: Four,
+    cache_size: 0,
+    vacuum_setting: Some(
+        Incremental(
+            5,
+        ),
+    ),
+    text_encoding: Utf8,
+    user_version: 0,
+    application_id: 0,
+    version_valid_for: 11,
+    library_write_version: 3037002,
+}
+```
+
+There are two interesting things here, first is that our new variant is reflected here. Secondly,
+`free_page_list_info.start_page` value went from 5 to 6, which means that the vacuum setting is
+still moving all of our free pages to the end of the file but since we have 2 free pages it isn't
+performing the truncate step. Now, let's try and run our `incremental_vacuum` pragma to remove 1
+of our 2 free pages and re-run our program.
+
+```sh
+sqlite3 ./database.sqlite "PRAGMA incremental_vacuum(1);"
+cargo run
+DatabaseHeader {
+    page_size: PageSize(
+        4096,
+    ),
+    write_version: Legacy,
+    read_version: Legacy,
+    reserved_bytes: 0,
+    change_counter: 12,
+    database_size: Some(
+        6,
+    ),
+    free_page_list_info: Some(
+        FreePageListInfo {
+            start_page: 6,
+            length: 1,
+        },
+    ),
+    schema_cookie: 3,
+    schema_version: Four,
+    cache_size: 0,
+    vacuum_setting: Some(
+        Incremental(
+            5,
+        ),
+    ),
+    text_encoding: Utf8,
+    user_version: 0,
+    application_id: 0,
+    version_valid_for: 12,
+    library_write_version: 3037002,
+}
+```
+
+Notice that our `database_size` and the `free_page_list_info.length` both went down by `1`!
+
+---
+
 The next value is called an "Application ID", this value is used when a sqlite database file is used for a specific
 application. Primarily, this is used to drive the behavior of the [`file` command](https://www.man7.org/linux/man-pages/man1/file.1.html).
 Let's try that on our current database.
@@ -1053,11 +1245,11 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let schema_version = SchemaVersion::try_from(raw_schema_version)?;
     let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
     let raw_vacuum = crate::try_parse_u32(&bytes[52..56], "auto vacuum")?;
-    let vacuum_setting = VacuumSetting::full(raw_vacuum);
-    // new!
     let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
+    let incremental_vacuum = crate::try_parse_u32(&bytes[64..68], "incremental vacuum")?;
+    let vacuum_setting = VacuumSetting::new(raw_vacuum, incremental_vacuum);
     let application_id = crate::try_parse_u32(&bytes[68..72], "application id")?;
     Ok(DatabaseHeader {
         page_size,
@@ -1189,13 +1381,14 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let schema_version = SchemaVersion::try_from(raw_schema_version)?;
     let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
     let raw_vacuum = crate::try_parse_u32(&bytes[52..56], "auto vacuum")?;
-    let vacuum_setting = VacuumSetting::full(raw_vacuum);
     let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
+    let incremental_vacuum = crate::try_parse_u32(&bytes[64..68], "incremental vacuum")?;
+    let vacuum_setting = VacuumSetting::new(raw_vacuum, incremental_vacuum);
     let application_id = crate::try_parse_u32(&bytes[68..72], "application id")?;
     // new!
-    validate_reserved_zeros(&bytes[68..92]).map_err(|e| {
+    validate_reserved_zeros(&bytes[72..92]).map_err(|e| {
         // We probably don't want to error if a new header value gets added
         // and we haven't had a chance to update our application so we print
         // to standard error and move along
@@ -1220,11 +1413,11 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
 }
 ```
 
-These last two values don't have a ton of information provided for how sqlite uses them but first is the
-"version valid for" number. Any time the `change_counter` is incremented, we should also see these values
-get updated, the "version valid for" will be updated to the same value as the `change_counter` and the
-"library write version" will be set to the `SQLITE_VERSION_NUMBER` a u32 value defined in the sqlite source
-code that maps to the version of the library.
+These last two values don't have a ton of information provided for how sqlite uses them but first is
+the "version valid for" number. Any time the `change_counter` is incremented, we should also see
+these values get updated, the "version valid for" will be updated to the same value as the
+`change_counter` and the "library write version" will be set to the `SQLITE_VERSION_NUMBER` a u32
+value defined in the sqlite source code that maps to the version of the library.
 
 ```rs
 // header.rs
@@ -1271,12 +1464,13 @@ pub fn parse_header(bytes: &[u8]) -> Result<DatabaseHeader, Error> {
     let schema_version = SchemaVersion::try_from(raw_schema_version)?;
     let cache_size = crate::try_parse_u32(&bytes[48..52], "cache size")?;
     let raw_vacuum = crate::try_parse_u32(&bytes[52..56], "auto vacuum")?;
-    let vacuum_setting = VacuumSetting::full(raw_vacuum);
     let raw_text_enc = crate::try_parse_u32(&bytes[56..60], "text encoding")?;
     let text_encoding = TextEncoding::try_from(raw_text_enc)?;
     let user_version = crate::try_parse_i32(&bytes[60..64], "user version")?;
+    let incremental_vacuum = crate::try_parse_u32(&bytes[64..68], "incremental vacuum")?;
+    let vacuum_setting = VacuumSetting::new(raw_vacuum, incremental_vacuum);
     let application_id = crate::try_parse_u32(&bytes[68..72], "application id")?;
-    validate_reserved_zeros(&bytes[68..92]).map_err(|e| eprintln!("{}", e)).ok();
+    validate_reserved_zeros(&bytes[72..92]).map_err(|e| eprintln!("{}", e)).ok();
     // new!
     let version_valid_for = crate::try_parse_u32(&bytes[92..96], "version valid for")?;
     let library_write_version = crate::try_parse_u32(&bytes[96..100], "library write version")?;
