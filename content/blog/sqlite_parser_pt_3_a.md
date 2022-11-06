@@ -1,6 +1,6 @@
 +++
 title = "SQLite Parser Pt. 3 Correction!"
-date = 2022-10-12
+date = 2022-11-06
 draft = false
 tags = ["sqlite", "integer-storage", "decoding"]
 [extra]
@@ -9,7 +9,7 @@ snippet = "We all miss stuff sometimes"
 
 This is a correction to the third part in a series of posts describing the process of building a
 SQLite file parser. If you haven't read part 3, the correction has already been made on [that page](./sqlite_parser_pt_3.md) feel free to just hop over there. If you have been following along, you will
-want to re-visit [this new section](./sqlite_parser_pt_3.md#incremental-vacuum-correction) because
+want to re-visit [this new section](/blog/sqlite-parser-pt-3/#incremental-vacuum-correction) because
 we missed a value in our database file header.
 
 The issue is that I missed one of the fields in the file header, instead of the application id being
