@@ -1,73 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+  <!-- Enable responsiveness on mobile devices-->
+  <!-- viewport-fit=cover is to support iPhone X rounded corners and notch in landscape-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  
+  <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ get_url(path="font.css", trailing_slash=false) }}">
+  <link rel="stylesheet" href="{{ get_url(path="print.css", trailing_slash=false) }}" media="print">
+  <link rel="stylesheet" href="{{ get_url(path="poole.css", trailing_slash=false) }}">
+  <link rel="stylesheet" href="{{ get_url(path="hyde.css", trailing_slash=false) }}">
+  <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
+  
+  {% if config.generate_feed %}
+  <link rel="alternate" type={% if config.feed_filename == "atom.xml" %}"application/atom+xml"{% else %}"application/rss+xml"{% endif %} title="RSS" href="{{ get_url(path=config.feed_filename) | safe }}">
+  {% endif %}
+  
+  {% block extra_head %}
+  {% endblock extra_head %}
+</head>
 
-      <!-- Enable responsiveness on mobile devices-->
-      <!-- viewport-fit=cover is to support iPhone X rounded corners and notch in landscape-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<body class="{{ config.extra.hyde_theme }} {% if config.extra.hyde_reverse %}layout-reverse{% endif %}">
+  {% block sidebar %}
+  <div class="sidebar">
+    <div class="container {% if config.extra.hyde_sticky %}sidebar-sticky{% endif %}">
+      <header class="sidebar-about">
+        {% block sidebar_about %}
+        <a href="{{ config.base_url }}"><h1>{{ config.title }}</h1></a>
+        {% if config.description %}
+        <p class="lead">{{config.description}}</p>
+        {% endif %}
+        {% endblock sidebar_about %}
+      </header>
+      <nav>
+        <ul class="sidebar-nav">
+          {% block sidebar_nav %}
+          {% for link in config.extra.hyde_links %}
+          <li class="sidebar-nav-item"><a href="{{link.url}}">{{link.name}}</a></li>
+          {% endfor %}
+          {% endblock sidebar_nav %}
+          <li class="sidebar-nav-item">
+            <div id="me-icons">
+              <a rel="me" href="https://hachyderm.io/@Freemasen">
+                <?xml version="1.0" encoding="UTF-8"?>
+                <svg width="800px" height="800px" viewBox="-9 0 274 274" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
+                <g>
+                  <path
+                  d="M249.874103,164.084793 C246.121107,183.392442 216.260831,204.522765 181.966269,208.61788 C164.083135,210.751705 146.475762,212.712995 127.700462,211.851797 C96.9952088,210.444977 72.7666374,204.522765 72.7666374,204.522765 C72.7666374,207.511889 72.9509692,210.357972 73.3196328,213.019724 C77.3115222,243.322396 103.36719,245.137696 128.048481,245.984147 C152.959817,246.836498 175.141568,239.842212 175.141568,239.842212 L176.164978,262.363134 C176.164978,262.363134 158.740462,271.719816 127.700462,273.440737 C110.584149,274.381567 89.33143,273.010138 64.5778816,266.458249 C10.8916144,252.248479 1.65880329,195.021567 0.246084399,136.955576 C-0.184514679,119.715392 0.080923109,103.458802 0.080923109,89.8624885 C0.080923109,30.4870046 38.9837803,13.0831336 38.9837803,13.0831336 C58.5996328,4.07447005 92.258619,0.286082949 127.250693,0 L128.110416,0 C163.10249,0.286082949 196.783596,4.07447005 216.397974,13.0831336 C216.397974,13.0831336 255.299356,30.4870046 255.299356,89.8624885 C255.299356,89.8624885 255.787467,133.670046 249.874103,164.084793"
+                  stroke="#fff" stroke-width="5" fill="#FFFFFF" />
+                  <path
+                  d="M209.412536,94.4687189 L209.412536,166.362544 L180.929587,166.362544 L180.929587,96.5818986 C180.929587,81.8722212 174.740462,74.4060461 162.360739,74.4060461 C148.672997,74.4060461 141.812905,83.2628203 141.812905,100.775816 L141.812905,138.970839 L113.498066,138.970839 L113.498066,100.775816 C113.498066,83.2628203 106.636499,74.4060461 92.9487572,74.4060461 C80.5690337,74.4060461 74.3799093,81.8722212 74.3799093,96.5818986 L74.3799093,166.362544 L45.89696,166.362544 L45.89696,94.4687189 C45.89696,79.7752627 49.6381581,68.0989493 57.1529968,59.460424 C64.9023056,50.8218986 75.050877,46.3935115 87.6488494,46.3935115 C102.224333,46.3935115 113.262121,51.9957235 120.560186,63.2016221 L127.654748,75.0947097 L134.750785,63.2016221 C142.047375,51.9957235 153.085163,46.3935115 167.662121,46.3935115 C180.258619,46.3935115 190.40719,50.8218986 198.157974,59.460424 C205.671338,68.0989493 209.412536,79.7752627 209.412536,94.4687189"
+                  stroke="#FFFFFF" stroke-width="5" fill="#46816F" />
+                </g>
+              </svg>
+            </a>
+            <a href="https://github.com/FreeMasen">
+              <?xml version="1.0" encoding="utf-8"?>
+              <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+              <svg
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              y="0px"
+              viewBox="0 0 1000 1000"
+              enable-background="new 0 0 1000 1000"
+              xml:space="preserve"
+              >
+              <g>
+                <path
+                d="M500,10C236.3,10,22.6,229.4,22.6,500c0,270.6,213.8,490,477.4,490c263.7,0,477.4-219.4,477.4-490C977.4,229.4,763.7,10,500,10z M643.3,940.1c-23,4.6-31.1-9.9-31.1-22.3c0-15.2,0.5-65.2,0.5-127.2c0-43.3-14.5-71.6-30.7-86c100.8-11.4,206.5-50.7,206.5-228.8c0-50.6-17.5-92.1-46.5-124.5c4.6-11.7,20.2-58.8-4.5-122.7c0,0-37.9-12.5-124.3,47.6c-36.1-10.3-74.8-15.5-113.2-15.7c-38.5,0.2-77.2,5.3-113.2,15.7c-86.4-60-124.4-47.6-124.4-47.6c-24.6,63.9-9.1,111-4.4,122.7c-28.9,32.4-46.5,73.8-46.5,124.5c0,177.7,105.6,217.5,206,229.2c-12.9,11.6-24.6,32-28.7,62c-25.8,11.8-91.3,32.3-131.6-38.6c0,0-23.9-44.5-69.3-47.8c0,0-44.2-0.6-3.1,28.2c0,0,29.7,14.2,50.2,67.8c0,0,26.6,90.2,152.4,62.2c0.2,38.7,0.6,67.9,0.6,78.9c0,12.3-8.2,26.6-30.9,22.3c-179.8-61.3-309.3-235.1-309.3-440C47.7,244,250.2,36.4,500,36.4c249.8,0,452.3,207.6,452.3,463.8C952.3,705,822.8,878.7,643.3,940.1z"
+                fill="#FFFFFF"
+                />
+              </g>
+            </svg>
+          </a>
+          <a href="https://shop.freemasen.com/">
+            <?xml version="1.0" encoding="utf-8"?>
+            <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+              viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
+              <g>
+                <g transform="translate(0.000000,511.000000) scale(0.100000,-0.100000)">
+                  <path
+                    d="M4612.6,4948.3c-757.2-134.2-1402.9-658.4-1684-1367.4c-151.9-379.8-151.9-390-162.1-1696.6l-10.1-1205.4l60.8-70.9c83.6-96.2,205.1-98.8,288.7-2.5l58.2,68.4v1139.5c0,1296.5,5.1,1349.7,189.9,1734.6c202.6,422.9,612.8,785,1053.4,934.4c255.8,83.6,660.9,114,916.7,63.3c549.5-106.4,1045.8-486.2,1294-990.1c184.9-377.3,192.5-427.9,192.5-1737.1V673.8l58.2-68.4c83.6-96.2,205.1-93.7,288.7,2.5l60.8,70.9l-10.1,1218c-10.1,1167.4-12.7,1225.6-65.8,1418.1c-222.8,787.6-792.6,1362.4-1577.6,1585.2C5352,4963.5,4830.3,4988.8,4612.6,4948.3z" 
+                    fill="#FFFFFF"
+                  />
+                  <path
+                    d="M910.3,2008.3c2.5-60.8,45.6-605.2,98.8-1210.4l96.2-1101.5L603.9-2494.1C325.4-3697,100-4697.2,100-4715c0-27.8,916.7-32.9,4900-32.9h4900l-12.7,58.2c-7.6,30.4-235.5,1025.6-509,2208.2L8882-329l91.2,1088.9c50.7,600.2,98.8,1149.6,106.3,1223.1l15.2,131.7h-838.2h-838.2v-734.4c0-823-5.1-855.9-167.1-977.5c-78.5-60.8-119-73.4-238-73.4c-119,2.5-162.1,15.2-240.6,73.4C6613.1,524.4,6608,557.3,6608,1380.3v734.4H4987.3H3369.2l-7.6-769.8c-7.6-736.9-10.1-774.9-60.8-843.2c-68.4-93.7-230.4-184.9-326.7-184.9c-114,0-276,86.1-344.4,179.8c-60.8,86.1-60.8,88.6-68.4,853.4l-7.6,764.8h-820.5h-823V2008.3z" 
+                    fill="#FFFFFF"
+                  />
+                </g>
+              </g>
+            </svg>
+          </a>
+        </div>
+      </li>
+    </div>
+  </ul>
+</nav>
+</div>
+{% endblock sidebar %}
 
-      <title>{% block title %}{{ config.title }}{% endblock title %}</title>
-
-      <!-- CSS -->
-      <link rel="stylesheet" href="{{ get_url(path="font.css", trailing_slash=false) }}">
-      <link rel="stylesheet" href="{{ get_url(path="print.css", trailing_slash=false) }}" media="print">
-      <link rel="stylesheet" href="{{ get_url(path="poole.css", trailing_slash=false) }}">
-      <link rel="stylesheet" href="{{ get_url(path="hyde.css", trailing_slash=false) }}">
-      <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
-
-      {% if config.generate_feed %}
-        <link rel="alternate" type={% if config.feed_filename == "atom.xml" %}"application/atom+xml"{% else %}"application/rss+xml"{% endif %} title="RSS" href="{{ get_url(path=config.feed_filename) | safe }}">
-      {% endif %}
-
-      {% block extra_head %}
-      {% endblock extra_head %}
-    </head>
-
-    <body class="{{ config.extra.hyde_theme }} {% if config.extra.hyde_reverse %}layout-reverse{% endif %}">
-        {% block sidebar %}
-            <div class="sidebar">
-                <div class="container {% if config.extra.hyde_sticky %}sidebar-sticky{% endif %}">
-                    <header class="sidebar-about">
-                        {% block sidebar_about %}
-                            <a href="{{ config.base_url }}"><h1>{{ config.title }}</h1></a>
-                            {% if config.description %}
-                            <p class="lead">{{config.description}}</p>
-                            {% endif %}
-                        {% endblock sidebar_about %}
-                    </header>
-                    <nav>
-                      <ul class="sidebar-nav">
-                          {% block sidebar_nav %}
-                          {% for link in config.extra.hyde_links %}
-                          <li class="sidebar-nav-item"><a href="{{link.url}}">{{link.name}}</a></li>
-                          {% endfor %}
-                          {% endblock sidebar_nav %}
-                      </ul>
-                    </nav>
-                </div>
-                <a rel="me" href="https://hachyderm.io/@Freemasen">Mastodon</a>
-            </div>
-        {% endblock sidebar %}
-
-        <div class="content container">
-            {% block content %}
-                <div class="posts">
-                    {% for page in section.pages | reverse %}
-                      <div class="post">
-                        <h1 class="post-title">
-                          <a href="{{ page.permalink }}">
-                            {{ page.title }}
-                          </a>
-                        </h1>
-
-                        <span class="post-date">{{ page.date | date(format="%Y-%m-%d") }}</span>
-                      </div>
-                    {% endfor %}
-                </div>
-                {% endblock content %}
-              </div>
-            </body>
+<div class="content container">
+  {% block content %}
+  <div class="posts">
+    {% for page in section.pages | reverse %}
+    <div class="post">
+      <h1 class="post-title">
+        <a href="{{ page.permalink }}">
+          {{ page.title }}
+        </a>
+      </h1>
+      
+      <span class="post-date">{{ page.date | date(format="%Y-%m-%d") }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endblock content %}
+</div>
+</body>
 
 </html>

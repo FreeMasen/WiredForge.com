@@ -52,3 +52,21 @@ pre {
 .draft-summary > h2 {
     color: red;
 }
+
+#me-icons {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-evenly;
+    align-items: center;
+    align-content: center;
+    width: fit-content;
+    a {
+        display: block;
+        margin-right: 10px;
+        svg {
+            display: block;
+            height: 25px;
+            width: 25px;
+        }
+    }
+}
