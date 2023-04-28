@@ -205,7 +205,7 @@ error[E0282]: type annotations needed
    |                  ^^^^^^^^^^^^^^ cannot infer type for `T`
 ```
 
-That seems crazy, right? The builder doesn't have a type for `T`, why can't `rustc` infer that `T` is an `f32`?
+That seems crazy, right? The builder doesn't have a type for `T`, why can't `rustc` infer that `T` is an `f64`?
 The reason we run into this problem is due to the `impl<T> Thing<T>` scope needs to know what `T` is even though we are not using it in that scope at all. 
 
 The way [hyper](https://docs.rs/http/0.1.16/src/http/response.rs.html#213-233) chose to solve this problem is to put the `builder` associated function in it's own impl block where `T` is defined.
