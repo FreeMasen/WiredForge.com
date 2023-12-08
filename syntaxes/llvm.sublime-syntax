@@ -1,0 +1,126 @@
+%YAML 1.2
+---
+# http: //www.sublimetext.com/docs/3/syntax.html
+name: llvm
+scope: source.ll
+contexts:
+  main:
+    - include: function-headers
+    - include: keywords
+    - include: strings
+    - include: decorators
+    - include: numbers
+    - include: comments
+    - include: literals
+    - include: punctuation
+    - include: block-labels
+    - include: types
+  block-labels:
+    - match: (([a-zA-Z0-9.-]*:)(\n| ))
+      captures:
+        "2": constant.language.symbol.llvm
+        "3": punctuation.separator.colon.llvm
+  comments:
+    - match: ;.*$
+      scope: comment.llvm
+  decorators:
+    - match: '((#|!)[a-zA-Z0-9.]+)\b'
+      scope: entity.other.attribute-name
+  function-headers:
+    - match: (@\w*)(\()
+      captures:
+        "1": entity.name.function
+        "2": punctuation.separator.parameters.begin.llvm
+      push:
+        - match: \)
+          pop: true
+        - include: punctuation
+        - include: numbers
+        - include: types
+        - include: decorators
+  keywords:
+    - match: '\b(?<![%\.])(ret|call)\b'
+      scope: keyword.control.flow.llvm
+    - match: '\b(?<![%\.])(add|alloca|and|ashr|atomicrmw|attributes|bitcast|call|cmpxchg|declare|exact|extractelement|extractvalue|fadd|fcmp|fdiv|fence|fmul|fpext|fptosi|fptoui|fptrunc|frem|fsub|getelementptr|global|icmp|indirectbr|insertelement|insertvalue|inttoptr|invoke|landingpad|load|lshr|mul|one|or|ord|ptrtoint|resume|ret|sdiv|select|sext|shl|shufflevector|sitofp|srem|store|sub|switch|target|trunc|type|udiv|uitofp|unreachable|unwind|urem|va_arg|xor|zext)\b'
+      scope: keyword.other.llvm
+    - match: \b(define)\b
+      scope: storage.type.function.llvm
+    - match: "="
+      scope: keyword.operator.assignment
+    - match: \b(to)\b
+      scope: keyword.operator
+    - match: \b(br)\b
+      push:
+        - match: \n
+          pop: true
+        - include: punctuation
+        - include: types
+        - include: decorators
+        - match: '\b(label +(%[a-zA-Z0-9.-]*))\b'
+          captures: 
+            "2": constant.language.symbol.llvm
+    - match: \b(phi)\b
+      push:
+        - match: \n
+          pop: true
+        - include: punctuation
+        - include: types
+        - include: numbers
+        - match: '\['
+          scope: punctuation.definition.block.begin.llvm
+        - match: '( *(%[a-zA-Z0-9.-]*) *(\]))'
+          captures:
+            "2": constant.language.symbol.llvm
+            "3": punctuation.section.block.end.llvm
+  literals:
+    - match: \b(true|false|null|none)\b
+      scope: constant.language.llvm
+    - include: numbers
+  numbers:
+    - match: '\b(?<![%!.#+])(\d+)(?!\.)\b'
+      scope: constant.numeric.integer.llvm
+    - match: \b((\d+)\.(\d+))\b
+      scope: constant.numeric.float.llvm
+    - match: '\b(?<![%!#])(0(x|X)[0-9a-fA-F]+)\b'
+      scope: constant.numeric.hex.llvm
+    - match: \b((\d+)\.(\d+)e\+(\d+))\b
+      scope: constant.numeric.hex.llvm
+  punctuation:
+    - match: ":"
+      scope: punctuation.separator.colon.llvm
+    - match: ","
+      scope: punctuation.separator.element.llvm
+    - match: \(
+      scope: punctuation.separator.parameters.begin.llvm
+    - match: \)
+      scope: punctuation.separator.parameters.end.llvm
+    - match: "{"
+      scope: punctuation.section.block.begin.bracket.curly.llvm
+    - match: "}"
+      scope: punctuation.section.block.end.bracket.curly.llvm
+    - match: (\*)
+      scope: punctuation.definition.decorator.llvm
+    - match: '!(?=")'
+      scope: string.interpolated.llvm
+    - match: "!(?={)"
+      scope: punctuation.section.block.begin.llvm
+    - match: \.\.\.
+      scope: punctuation.definition.destructure.llvm
+  strings:
+    - match: '"'
+      push:
+        - meta_scope: string.quoted.double.llvm
+        - match: '"'
+          pop: true
+  types:
+    - match: ( *)((%)struct(\.)\w*)\b
+      scope: entity.name.type.llvm
+    - match: '\b(?<![%\.])(i\d+|void|half|bfloat|float|double|fp128|x86_fp80|ppc_fp128)\b'
+      scope: storage.type.primitive.llvm
+    - match: <
+      push:
+        - meta_scope: storage.type.vector.llvm
+        - match: ">"
+          pop: true
+    - match: '(\[[0-9]+ +x +.+?\]+)'
+      scope: storage.type.array.llvm
