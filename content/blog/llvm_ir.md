@@ -9,8 +9,8 @@ date_sort = 20240101
 image_desc = ""
 +++
 
-Over the past few months in my free time I have been trying to learn how to build a compiler
-and as it stands today one of the easiest places to start is with [LLVM](https://llvm.org/).
+Over the past few months in my free time I have been trying to learn how to build a compiler and as
+it stands today one of the easiest places to start is with [LLVM](https://llvm.org/).
 
 A brief overview of LLVM is that it is a compiler framework that is designed very explicitly to be
 modular. This means that the
@@ -28,26 +28,26 @@ great job making the process of interacting with the LLVM C-API from Rust, I fou
 often generating the LLVM IR text format to try and figure out why the code I was generating wasn't
 working the way I expected. Along the way I became a little bit fascinated with the language itself
 and I started a "playground" project to experiment with the semantics of the language and see how
-much I could end up building with it and really ended up enjoying it way more that I had expected
-so I thought I'd share what I've learned.
+much I could end up building with it and really ended up enjoying it way more that I had expected so
+I thought I'd share what I've learned.
 
 To start let's go over the tools we are going to be using to work with the LLVM IR. The two primary
-CLI tools we are going to need are the interpreter `lli` and a linker `llvm-link`, a compiler `llc`
-and lastly `clang` to do the work to get us a runnable executable. These unfortunately don't come
-with the default llvm installs from package managers like `apt`, `brew` or `choco`, which means we
-would need to build LLVM from source to get them included and that is a _huge chore_ since most
-computers will take multiple hours to generate an LLVM build. Up until version 14 or so a noble
-volunteer was doing that work for us and uploading them to the LLVM repository but unfortunately
-that doesn't seem to be happening any more. If you want to avoid building LLVM, I have a
+CLI tools we are going to need are the interpreter `lli`, a linker `llvm-link`, a compiler `llc` and
+lastly `clang` to do the work to get us a runnable executable. Most of these unfortunately don't
+come with the default llvm installs from package managers like `apt`, `brew` or `choco`, which means
+we would need to build LLVM from source to use them and that is a _huge chore_ since most computers
+will take multiple hours to generate an LLVM build. Up until version 14 or so a noble volunteer was
+doing that work for us and uploading them to the LLVM repository but unfortunately that doesn't seem
+to be happening any more. If you want to avoid building LLVM, I have a
 [github repo](https://github.com/FreeMasen/llvm-builds/releases) with a few versions available to
 download. Once you have your llvm build in place, you'll probably want to add the `bin` directory to
 your path which will allow us to use the above commands to build or execute our programs.
 
-Now that we have our system setup to execute some code, let's go over the some basics of the
-language. To start, llvm uses a special starting character to differentiate between variable
-names and keywords, the two prefixes are `@` for global variables and `%` for local variables.
-All functions are considered to be global variables so if we wanted to create a main function
-it would look something like this.
+Now that we have our system setup to execute some code, let's go over some basics of the language.
+To start, llvm uses a special starting character to differentiate between variable names and
+keywords, the two prefixes are `@` for global variables and `%` for local variables. All functions
+are considered to be global variables so if we wanted to create a main function it would look
+something like this.
 
 ```llvm
 define i32 @main() {
@@ -59,8 +59,8 @@ There is actually quite a bit going on here even though this program does absolu
 we have the keyword `define`, this will be used to define all the functions we will write, next we
 have `i32` which is the return type for our function, the language is strongly typed but the type
 system is both very small and very flexible. To start all integers are written `i<size>`, from
-booleans as `i1`, to odd sizes like `i4` or `i256`. It is also worth noting that integers
-aren't signed or unsigned.
+booleans as `i1`, to odd sizes like `i4` or `i256`. It is also worth noting that integers aren't
+signed or unsigned.
 
 So to overview, that first line above is declaring a c-style main function that returns a 32 bit
 integer. Now the body of that function we encounter our first "instruction" `ret` which is
@@ -92,9 +92,9 @@ echo $?
 1
 ```
 
-Now, let's take a shot at the perennial favorite hello world program. First, we are going to need
-a way to print something to the terminal, thankfully all of libc is available when we are using
-`lli` so we can actually use `printf` from C's `<stdio.h>` but first we need to use a new keyword
+Now, let's take a shot at the perennial favorite hello world program. First, we are going to need a
+way to print something to the terminal, thankfully all of libc is available when we are using `lli`
+so we can actually use `printf` from C's `<stdio.h>` but first we need to use a new keyword
 `declare` to declare a function w/o providing the full definition. To add this declaration we'll
 update our example to have a new line at the top.
 
@@ -105,8 +105,8 @@ declare i32 @printf(ptr, ...)
 This essentially imports this function into our module. There is one oddity about `printf` is that
 it can take any number of arguments and we can use the `...` placeholder to indicate this.
 
-Now that `printf` is imported, we want to declare our second global variable to hold our
-hello world string.
+Now that `printf` is imported, we want to declare our second global variable to hold our hello world
+string.
 
 ```llvm
 declare i32 @printf(ptr, ...)
@@ -119,9 +119,9 @@ array, which uses the format `[ <size> x <type> ]` where `<size>` is the number 
 `<type>` is any previously defined type, in this case we are declaring a 14 element array of 8 bit
 integers. While llvm-ir doesn't have a string type, it does have a nice way to create an array of
 bytes using the `c"..."` syntax, in our example we are defining a 14 byte array because
-`Hello World!` is 12 bytes and then we need to add the `\0A` (`\n`) and `\00` (`NUL`) bytes
-to the end, which is what `printf` will expect. With that out of the way, let's update our
-`@main` function to use these two new additions.
+`Hello World!` is 12 bytes and then we need to add the `\0A` (`\n`) and `\00` (`NUL`) bytes to the
+end, which is what `printf` will expect. With that out of the way, let's update our `@main` function
+to use these two new additions.
 
 ```llvm
 declare i32 @printf(ptr, ...)
@@ -133,26 +133,26 @@ define i32 @main() {
 }
 ```
 
-Now we have our second instruction the `call` instruction which is used to call a function which
+Now we have our second instruction the `call` instruction which is used to call a function and
 requires the type that function will return first and then the function name and any arguments that
-might be required. For us the function is `@printf` which returns an `i32`, which we are ignoring.
+might be required. For us the function is `@printf` which returns an `i32` which we are ignoring.
 The arguments to `@printf` is at least 1 pointer, here we are using the global we declared `@hw`,
 notice we use the same type prefix we use for function declarations and definitions, `ptr @hw` but
 why does `@hw` have the type `ptr`, we declared it with the type `[14 x i8]`, this is because all
 global variables must be accessed as pointers. This may seem strange but the reason for this is that
 typically compilers emit all global/static/constant values as part of the binary's `.data` section
-so when we refer to the variable we are actually referring to the byte offset of the binary file.
-To make this clear, let's compile our `a.ll` file into an object file using the following.
+so when we refer to the variable we are actually referring to the byte offset of the binary file. To
+make this clear, let's compile our `a.ll` file into an object file using the following.
 
 ```sh
 llc --filetype=obj ./a.ll
 ```
 
-This is telling the llvm ir compiler to read in `a.ll` and output an object file, which should result
-in a new file named `a.o` in the working directory. We can now use a tool like `objdump` to inspect the
-contents of this binary. In our case we want to just read the `.data` section so we will pass
-the argument `-j .data` to only show the section we care about and the `-s` flag to make sure it
-outputs the entire contents of that section.
+This is telling the llvm ir compiler to read in `a.ll` and output an object file, which should
+result in a new file named `a.o` in the working directory. We can now use a tool like `objdump` to
+inspect the contents of this binary. In our case we want to just read the `.data` section so we will
+pass the argument `-j .data` to only show the section we care about and the `-s` flag to make sure
+it outputs the entire contents of that section.
 
 ```sh
 objdump -s -j .data ./a.o 
@@ -161,10 +161,13 @@ objdump -s -j .data ./a.o
 
 Contents of section .data:
  0000 48656c6c 6f20576f 726c6421 0a00      Hello World!..
- ```
+```
 
-Here we can see that that the data section contains 1 entry at the address `0000` with the
-value `Hello World!` followed by 2 unrenderable characters (`\n\0`).
+Here we can see that that the data section contains 1 entry at the address `0000` with the value
+`Hello World!` followed by 2 unrenderable characters (`\n\0`). Hopefully that helps make sense of
+why all global variables are pointers.
+
+---
 
 Now, our application is always exiting with the code `0` but what if we wanted to return the same
 value that is provided by our call to `@printf`, this would mean we need to assign that value to a
@@ -173,14 +176,15 @@ in our `ret` instruction. That would look something like this
 
 ```llvm
 define i32 @main() {
-entry:
     %ret = call i32 @printf(ptr @hw)
     ret i32 %ret
 }
 ```
 
-With those changes we are now returning the same value that `printf` would return, let's see what
-that looks like when we run it!
+Here we are delcaring a new variable named `%ret` and assigning the result of calling `@printf`, we
+can then update return instruction to use our new variable instead of the value `0`. With those
+changes we are now returning the same value that `printf` would return, let's see what that looks
+like when we run it!
 
 ```sh
 lli ./a.ll
@@ -190,8 +194,8 @@ echo $?
 ```
 
 So, it looks like our `printf` call is returning the number of characters written to stdout but by
-returning that number our exit code is an error. What if we wanted to ensure that we return `0` unless
-`printf` didn't print our whole string?
+returning that value our exit code is an error. What if we wanted to ensure that we return `0`
+unless `printf` didn't print our whole string? For that we will need some control flow.
 
 So far, the language looks a lot like C, however instead of the control flow syntax we might be used
 to, like `if`, `for`, and `while` it uses something called basic blocks and an instruction for
@@ -206,15 +210,15 @@ entry:
 }
 ```
 
-In this, it becomes clear that the `@main` function has a single basic block named `entry`, this was
-essentially true before, except the single basic block didn't have a name. So then, how can we use
-this to operate like an `if` statement would? Well, we are going to need to use two new instructions
-the `icmp` instruction which compares integers and the `br` function which is how we jump from one
-basic block to another.
+In the above, it becomes clear that the `@main` function has a single basic block named `entry`,
+this was essentially true before, except the single basic block didn't have a name. But how can we
+use this to operate like an `if` statement would? Well, we are going to need to use two new
+instructions the `icmp` instruction which compares integers and the `br` function which is how we
+jump from one basic block to another.
 
 `icmp` is an instruction used for all integer comparisons, it will always return an `i1` so we can
 assign that to a variable. It takes a first argument indicating what comparison we want to perform
-for example `eq` for equality which in our case the `eq` should be enough.
+for example `eq` for equality which in our case should be enough.
 
 ```llvm
 define i32 @main() {
@@ -229,7 +233,7 @@ In this update, we've added a new assignment for the result of our `icmp eq`, wh
 arguments; the first requires a type, in this case `i32`, the second needs to have the same type but
 we don't write that one out. Breaking down our addition here is we are assigning to the variable
 `%success` the result of comparing `%ret` with `13`, if `%ret` is `13` then `%success` will be `1`
-otherwise it will be `0`. So now let's update our code return `0` when `%success` is `1` and `%ret`
+otherwise it will be `0`. Now let's update our code to return `0` when `%success` is `1` and `%ret`
 when it is `0`. To do that we are going to add 2 new basic blocks and a `br` instruction to perform
 the jump to the appropriate block.
 
@@ -248,18 +252,18 @@ fail:
 
 Alright, quite a bit has changed here which is a pretty typical experience when working with llvm-ir
 it takes a lot more code to do what most programming languages can achieve with a single expression
-or statement. To start, we've added a new instruction after our `icmp`, the `br` instruction which is
-taking the first argument of our comparison's result as `i1 %success` this is telling the `br` to
-choose the second argument if `1` or the third argument if `0`, next we provide our two options
-for jumping by using the `label` keyword (or type name?) followed by the local variable name
-of the basic block we've declared. Notice that we need to use the `%` prefix when we refer to
-a block's name but we don't when we declare the basic block. 
+or statement. To start, we've added a new instruction after our `icmp`, the `br` instruction which
+is taking the first argument of our comparison's result as `i1 %success` this is telling the `br` to
+choose the second argument if `1` or the third argument if `0`. Next we provide our two options for
+jumping by using the `label` keyword (or type name?) followed by the local variable name of the
+basic block we've declared. Notice that we need to use the `%` prefix when we refer to a block's
+name but we don't when we declare the basic block.
 
-Next we can see that there are 2 new basic blocks declared, one named `succ` or our success case
-and one named `fail` for our failure case. There are a few interesting things about basic blocks
-to note, first si that we can refer to `%ret` from `fail` which means that the scope of a variable
-in a basic block can be accessed from outside of that block, this is actually even more interesting
-than it seems because basic blocks are internally converted into a directional graph ours is pretty
+Next we can see that there are 2 new basic blocks declared, one named `succ` or our success case and
+one named `fail` for our failure case. There are a few interesting things about basic blocks to
+note, first is that we can refer to `%ret` from `fail` which means that the scope of a variable in a
+basic block can be accessed from outside of that block, this is actually even more interesting than
+it seems because basic blocks are internally converted into a directional graph ours is pretty
 simple and might look like the following.
 
 ```plaintext
@@ -269,9 +273,9 @@ entry ─┬─> success
 
 Where the entry block can jump to either of the `success` or `fail` block and then the graph is
 complete. So long as the value is assigned _before_ our block in the graph then it is accessible.
-This doesn't seem all that interesting now because the lexical scope of our code matches the
-order of the graph but when we get into the process of creating loops this is going to become
-far more interesting.
+This doesn't seem all that interesting now because the lexical scope of our code matches the order
+of the graph but when we get into the process of creating loops this is going to become far more
+interesting.
 
 At this point though, let's go ahead and run our program to make sure it works like we expected.
 
@@ -286,8 +290,8 @@ update our program to print 5 times. To do this we are going to need to use a fe
 first is an alternative version of the `br` instruction which just takes 1 argument that is a label
 which will unconditionally jump to the provided basic block. The second is the `add` instruction
 which adds two integers together. The third is a `phi` (pronounced fee) instruction which is super
-weird but allows us to assign a variable based on which basic block we've just jump _from_. Before
-we dig into the why, let's see what the code looks like.
+weird but allows us to assign a variable based on which basic block we've just jumped _from_. Before
+we dig into the why, let's see what the code looks like
 
 ```llvm
 define i32 @main() {
