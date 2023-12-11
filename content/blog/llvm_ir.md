@@ -271,7 +271,7 @@ entry ─┬─> success
        └─> fail
 ```
 
-Where the entry block can jump to either of the `success` or `fail` block and then the graph is
+Where the `entry` block can jump to either of the `success` or `fail` block and then the graph is
 complete. So long as the value is assigned _before_ our block in the graph then it is accessible.
 This doesn't seem all that interesting now because the lexical scope of our code matches the order
 of the graph but when we get into the process of creating loops this is going to become far more
@@ -336,3 +336,29 @@ This doesn't mean that each variable name needs to always have the same value bu
 expression that defines that variable needs to never change. SSA is something that helps out with
 some compiler optimizations that I don't really understand but are apparently important enough to
 require the need for a `phi` node over re-assigning to the same variables.
+
+The reason that we can refer to `%next` in `looptop` is because in at least 1 path through the
+graph, `%next` has been defined. Here is the graph for our program now.
+
+```plaintext
+               ┌───────────────┐
+               │               │
+               ▼  ┌─►loopbody──┴──┐
+entry────►looptop─┤               ▼
+                  └─►succ       fail
+```
+
+Notice how there is an arrow from `loopbody` to `looptop`, that means that `loopbody` _can_ come
+before `looptop` meaning that `%next` will be populated. Now, let's try and run our program.
+
+```sh
+lli ./a.ll
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+```
+
+Hey! That is exactly what we expected! Now we have an idea of how to write functions, global
+variables, and loops in llvm-ir which feels like a good place to break.
