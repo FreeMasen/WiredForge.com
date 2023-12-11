@@ -69,7 +69,7 @@ argument, the value to return (note that the type of that value must be provided
 does nothing but let's just get in the habit of using `lli`, we are going to assume the file above
 is called `a.ll`
 
-```shell
+```sh
 lli ./a.ll
 echo $?
 0
@@ -85,8 +85,7 @@ define i32 @main() {
 
 this should produce the following
 
-```shell
-shell
+```sh
 lli ./a.ll
 echo $?
 1
