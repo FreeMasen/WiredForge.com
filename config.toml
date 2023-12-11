@@ -3,11 +3,6 @@ base_url = "https://freemasen.com"
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
 
-# Whether to do syntax highlighting
-# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
-highlight_code = true
-highlight_theme = "zenburn"
-extra_syntaxes_and_themes = ["syntaxes"]
 
 title = "Free Masen"
 description = "A blog about software development"
@@ -15,6 +10,12 @@ language_code = "en"
 build_search_index = true
 generate_feed = true
 
+[markdown]
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
+highlight_code = true
+highlight_theme = "zenburn"
+extra_syntaxes_and_themes = ["syntaxes"]
 
 [extra]
 # Put all your custom variables here
