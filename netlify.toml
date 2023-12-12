@@ -8,3 +8,7 @@ command = "npm run build && zola build"
 
 [context.deploy-preview]
 command = "npm run build && zola -c ./config.dev.toml build -u $DEPLOY_PRIME_URL --drafts"
+
+[environment]
+# Set the version name that you want to use and Netlify will automatically use it.
+ZOLA_VERSION = "0.17.2"
