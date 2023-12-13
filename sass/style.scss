@@ -1,3 +1,4 @@
+@import 'colors';
 .draft-message {
     color: red;
     text-align: center;
@@ -42,6 +43,9 @@
     .post-subtitle {
         color: #515151;
         margin: 0;
+    }
+    a {
+        color: $purple !important;
     }
 }
 
