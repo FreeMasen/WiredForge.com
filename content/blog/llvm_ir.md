@@ -24,8 +24,8 @@ support that LLVM's eco-system can provide.
 [Lua programming language](https://www.lua.org/manual/5.3/) as the input format. After a few weeks
 of learning I was able to get a very small sub-set of Lua compiling using the wonderful Rust library
 [Inkwell](https://thedan64.github.io/inkwell/inkwell/debug_info/index.html). While Inkwell does a
-great job making the process of interacting with the LLVM C-API from Rust, I found myself quite
-often generating the LLVM IR text format to try and figure out why the code I was generating wasn't
+great job making the process of interacting with the LLVM C-API from Rust, I quite often found
+myself generating the LLVM IR text format to try and figure out why the code I was generating wasn't
 working the way I expected. Along the way I became a little bit fascinated with the language itself
 and I started a "playground" project to experiment with the semantics of the language and see how
 much I could end up building with it and really ended up enjoying it way more that I had expected so
@@ -44,10 +44,8 @@ the `bin` directory to your path which will allow us to use the above commands t
 our programs.
 
 Now that we have our system setup to execute some code, let's go over some basics of the language.
-To start, llvm uses a special starting character to differentiate between variable names and
-keywords, the two prefixes are `@` for global variables and `%` for local variables. All functions
-are considered to be global variables so if we wanted to create a main function it would look
-something like this.
+To start, we are going to create a program with a main function that when run, exits with the status
+code of 0.
 
 ```llvm
 define i32 @main() {
@@ -60,7 +58,9 @@ we have the keyword `define`, this will be used to define all the functions we w
 have `i32` which is the return type for our function, the language is strongly typed but the type
 system is both very small and very flexible. To start all integers are written `i<size>`, from
 booleans as `i1`, to odd sizes like `i4` or `i256`. It is also worth noting that integers aren't
-signed or unsigned.
+signed or unsigned. You may have noticed that the name of our function starts with the `@` character,
+llvm-ir uses this starting character for all global variables and all local variables are denoted
+with the `%` starting character.
 
 So to overview, that first line above is declaring a c-style main function that returns a 32 bit
 integer. Now the body of that function we encounter our first "instruction" `ret` which is
@@ -75,7 +75,7 @@ echo $?
 0
 ```
 
-Now, if we update that to return a number other than 0, we should see that change.
+Now, if we update that to return a number other than 0, we should see the output change.
 
 ```llvm
 define i32 @main() {
@@ -102,7 +102,7 @@ To add this declaration we'll update our example to have a new line at the top.
 declare i32 @printf(ptr, ...)
 ```
 
-This essentially imports this function into our module. To start we can see the famaliar syntax
+This essentially imports a function into our module. To start we can see the familiar syntax
 after our `declare` keyword, `i32` is the return type, then we use the `@` prefix to name our
 function and then we define the parameters. The first parameter in this case is a `ptr` which is a
 type that represents any pointers. In the case of `printf` it expects a C-style string (or `char *`)
@@ -138,21 +138,21 @@ define i32 @main() {
 ```
 
 Now we have our second instruction the `call` instruction which is used to call a function and
-requires the type that function will return first and then the function name and any arguments that
-might be required. For us the function is `@printf` which returns an `i32` that we are ignoring.
-The arguments to `@printf` is at least 1 pointer, here we are using the global we declared `@hw`,
-notice we use the same type prefix we use for function declarations and definitions, `ptr @hw` but
-why does `@hw` have the type `ptr`, we declared it with the type `[14 x i8]`, this is because all
-global variables must be accessed as pointers. This may seem strange but the reason for this is that
+requires the return type and then the function name followed by any arguments that might be
+required. For us the function is `@printf` which returns an `i32` that we are ignoring. The
+arguments to `@printf` is at least 1 pointer, here we are using the global we declared `@hw`, notice
+we use the same type prefix we use for function declarations and definitions, `ptr @hw` but why does
+`@hw` have the type `ptr`, we declared it with the type `[14 x i8]`? This is because all global
+variables must be accessed as pointers. This may seem strange but the reason for this is that
 typically compilers emit all global/static/constant values as part of the binary's `.data` section
 so when we refer to the variable we are actually referring to the byte offset of the binary file. To
-make this clear, let's compile our `a.ll` file into an object file using the following.
+make this clear, let's compile our `a.ll` into an object file using the following.
 
 ```sh
 llc --filetype=obj ./a.ll
 ```
 
-This is telling the llvm ir compiler to read in `a.ll` and output an object file, which should
+This is telling the llvm-ir compiler to read in `a.ll` and output an object file, which should
 result in a new file named `a.o` in the working directory. We can now use a tool like `objdump` to
 inspect the contents of this binary. In our case we want to just read the `.data` section so we will
 pass the argument `-j .data` to only show the section we care about and the `-s` flag to make sure
@@ -175,8 +175,8 @@ why all global variables are pointers.
 
 Now, our application is always exiting with the code `0` but what if we wanted to return the same
 value that is provided by our call to `@printf`, this would mean we need to assign that value to a
-variable. To do that we can use the `%` prefix used to name local variables and then refer to that
-in our `ret` instruction. That would look something like this
+variable and then update our `ret` instruction to return our variable instead of `0`. That would look
+something like this
 
 ```llvm
 define i32 @main() {
@@ -185,10 +185,11 @@ define i32 @main() {
 }
 ```
 
-Here we are delcaring a new variable named `%ret` and assigning the result of calling `@printf`, we
-can then update return instruction to use our new variable instead of the value `0`. With those
-changes we are now returning the same value that `printf` would return, let's see what that looks
-like when we run it!
+Here we are declaring a new variable named `%ret` and assigning the result of calling `@printf`.
+Notice how we've used the `%` starting character for our variable name, this is similar to the `@`
+starting character for global variables but `%` is used for local variables. We can now update
+return instruction to use our new variable instead of the value `0`. With those changes we are now
+returning the same value that `printf` would return, let's see what that looks like when we run it!
 
 ```sh
 lli ./a.ll
@@ -235,7 +236,7 @@ entry:
 
 In this update, we've added a new assignment for the result of our `icmp eq`, which takes 2
 arguments; the first requires a type, in this case `i32`, the second needs to have the same type but
-we don't write that one out. Breaking down our addition here is, we are assigning to the variable
+we don't write that one out. Breaking down our addition here, we are assigning to the variable
 `%success` the result of comparing `%ret` with `13`, if `%ret` is `13` then `%success` will be `1`
 otherwise it will be `0`. Now let's update our code to return `0` when `%success` is `1` and `%ret`
 when it is `0`. To do that we are going to add 2 new basic blocks and a `br` instruction to perform
@@ -291,11 +292,11 @@ success
 
 Nice! That works as expected. Now let's explore the statement above about creating a loop. We can
 update our program to print 5 times. To do this we are going to need to use a few new instructions,
-first is an alternative version of the `br` instruction which just takes 1 argument that is a label
-and will unconditionally jump to that basic block. The second is the `add` instruction which adds
-two integers together. The third is a `phi` (pronounced fee) instruction which is super weird but
-allows us to assign a variable based on which basic block we've just jumped _from_. Before we dig
-into the why, let's see what the code looks like
+first is an alternative version of the `br` instruction which just takes 1 argument a label and will
+unconditionally jump to that block. The second is the `add` instruction which adds two integers
+together. The third is a `phi` (pronounced fee) instruction which is super weird but allows us to
+assign a variable based on which basic block we've just jumped _from_. Before we dig into the why,
+let's see what the code looks like
 
 ```llvm
 define i32 @main() {
@@ -319,7 +320,9 @@ fail:
 
 Ok, we have quite a bit to unpack here. To start, our entry block now only has this new version
 of `br` that will always jump to the `looptop` block, this is needed to allow the `phi` instruction
-to work for us. Let's break down the `phi` instruction, this takes a type and then a series of
+to work for us.
+
+Let's break down the `phi` instruction, this takes a type and then a series of
 value/label pairs indicating what value to use based on where we just came from. In our case
 if we've come from the `entry` block then we want `%iter` to be `0` however if we've come from
 the `loopbody` block, we want to use whatever value might be assigned to `%next`. Next we
@@ -330,6 +333,16 @@ that returns `13`, if it doesn't then we exit with that number as the exit code 
 time, instead of jumping to `succ` when `%success` is `1`, we jump back to `looptop` but before
 we do, we need to define `%next` which is always set to be 1 more than `%iter` by using the `add`
 instruction to add `1` to whatever value comes out of our `phi` instruction.
+
+Let's look at what our graph looks like now with these changes.
+
+```plaintext
+               ┌───────────────┐
+               │               │
+               ▼  ┌─►loopbody──┴──┐
+entry────►looptop─┤               ▼
+                  └─►succ       fail
+```
 
 This can be a little difficult to follow, especially because `%next` is absolutely undefined when we
 are writing `looptop` but we are able to use `%next` in the first instruction in that block. This
@@ -342,18 +355,9 @@ some compiler optimizations that I don't really understand but are apparently im
 require the need for a `phi` node over re-assigning to the same variables.
 
 The reason that we can refer to `%next` in `looptop` is because in at least 1 path through the
-graph, `%next` has been defined. Here is the graph for our program now.
-
-```plaintext
-               ┌───────────────┐
-               │               │
-               ▼  ┌─►loopbody──┴──┐
-entry────►looptop─┤               ▼
-                  └─►succ       fail
-```
-
-Notice how there is an arrow from `loopbody` to `looptop`, that means that `loopbody` _can_ come
-before `looptop` meaning that `%next` will be populated. Now, let's try and run our program.
+graph, `%next` has been defined. Specifically we know that if we will only try and evaluate the
+value of `%next` when we've jumped from the `loopbody` block because the `phi` instruction only has
+a reference to `%next` in the pair `[%next, %loopbody]`. Now, let's try and run our program.
 
 ```sh
 lli ./a.ll
@@ -365,4 +369,5 @@ Hello World!
 ```
 
 Hey! That is exactly what we expected! Now we have an idea of how to write functions, global
-variables, and loops in llvm-ir which feels like a good place to break.
+variables, and loops in llvm-ir which feels like a good place to break. In the next post wee will
+dig a little further into pointers and hopefully declaring our own types!
