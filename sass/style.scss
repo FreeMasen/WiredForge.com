@@ -1,9 +1,5 @@
 @import 'colors';
 
-a {
-    text-decoration: underline !important;
-}
-
 .draft-message {
     color: red;
     text-align: center;
@@ -34,6 +30,12 @@ a {
                 }
             }
         }
+    }
+}
+
+.content {
+    a {
+        text-decoration: underline !important;
     }
 }
 
