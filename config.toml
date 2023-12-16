@@ -26,4 +26,3 @@ hyde_links = [
 ]
 hyde_theme = "theme-base-0c"
 hyde_sticky = false
-env = "prod"
