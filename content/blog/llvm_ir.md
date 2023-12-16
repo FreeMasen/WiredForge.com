@@ -1,7 +1,7 @@
 +++
 title = "LLVM IR"
-date = 2024-01-01
-draft = true
+date = 2023-12-16
+draft = false
 [extra]
 snippet = "Playing around with LLVM IR"
 image = "bin.png"
