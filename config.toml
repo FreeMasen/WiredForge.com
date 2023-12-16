@@ -10,11 +10,11 @@ language_code = "en"
 build_search_index = true
 generate_feed = true
 
-[markdown]
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
+[markdown]
 highlight_code = true
-highlight_theme = "zenburn"
+highlight_theme = "night-owl"
 extra_syntaxes_and_themes = ["syntaxes"]
 
 [extra]
