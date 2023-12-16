@@ -7,8 +7,8 @@
         {% set sub = get_section(path=sub) %}
         {% set_global pages = pages | concat(with=sub.pages) %}
     {% endfor %}
-    {% set render_drafts = config.extra.env == "dev" %}
-    {% if config.extra.env == "dev" %}
+    {% set render_drafts = config.base_url == "dev" %}
+    {% if config.base_url is not containing("freemasen") %}
     <div style="border:1px dashed red">
         <span>DRAFTS!!!</span>
         {% for page in pages | filter(attribute="draft", value=true) %}
