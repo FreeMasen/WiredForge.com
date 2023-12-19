@@ -369,5 +369,5 @@ Hello World!
 ```
 
 Hey! That is exactly what we expected! Now we have an idea of how to write functions, global
-variables, and loops in llvm-ir which feels like a good place to break. In the next post wee will
+variables, and loops in llvm-ir which feels like a good place to break. In the next post we will
 dig a little further into pointers and hopefully declaring our own types.
