@@ -9,6 +9,7 @@ description = "A blog about software development"
 language_code = "en"
 build_search_index = true
 generate_feed = true
+author = "Robert Masen <rfm@freemasen.com>"
 
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
