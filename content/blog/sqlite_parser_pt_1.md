@@ -500,4 +500,4 @@ At this stage, we have all the plumbing in the right place to tackle the rest of
 the our first 100 bytes. In the next post, we'll do just that finish parsing the
 database header.
 
-[Part 2](./sqlite_parser_pt_2.md)
+[Part 2](@/blog/sqlite_parser_pt_2.md)

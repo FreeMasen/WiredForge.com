@@ -8,7 +8,7 @@ snippet = "Let's start streaming"
 +++
 
 This is the fourth in a series of posts describing the process of building a SQLite file parser. If
-you missed the last part you can find it [here](./sqlite_parser_pt_3.md).
+you missed the last part you can find it [here](@/blog/sqlite_parser_pt_3.md).
 
 Now that we have the header parsing finished for a sqlite database, we are well on our way to
 getting through the whole file. In the next post we will start parsing the pages that a database is
@@ -567,4 +567,4 @@ read the next set of bytes as we need it.
 
 And with that we are in a much better place to start in on our page parsing.
 
-<!-- [part 5](./sqlite_parser_pt5.md) -->
+<!-- [part 5](@/blog/sqlite_parser_pt5.md) -->

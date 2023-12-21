@@ -9,9 +9,9 @@ snippet = "We all miss stuff sometimes"
 
 This is a correction to the third part in a series of posts describing the process of building a
 SQLite file parser. If you haven't read part 3, the correction has already been made on
-[that page](/blog/sqlite-parser-pt-3) feel free to just hop over there. If you have been following
+[that page](@/blog/sqlite_parser_pt_3.md) feel free to just hop over there. If you have been following
 along, you will want to re-visit
-[this new section](/blog/sqlite-parser-pt-3/#incremental-vacuum-correction) because I missed a value
+[this new section](@/blog/sqlite_parser_pt_3.md#incremental-vacuum-correction) because I missed a value
 in our database file header. The issue is that instead of the application id being at bytes 64
 through 68, it is actually at bytes 68 through 72. This means that call to `validate_reserved_zeros`
 was validating too many bytes.

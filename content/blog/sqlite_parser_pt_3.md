@@ -8,7 +8,7 @@ snippet = "The Header... keeps going"
 +++
 
 This is the third in a series of posts describing the process of building a SQLite file parser.
-If you missed the last part you can find it [here](./sqlite_parser_pt_2.md).
+If you missed the last part you can find it [here](@/blog/sqlite_parser_pt_2.md).
 
 In the last post, we left off having just parsed the "in header database size" which started
 at byte 28. Our next value is the page number of the first free page. Back in part one, we
@@ -1527,4 +1527,4 @@ DatabaseHeader {
 
 And with that, we have completed the parsing of a sqlite file's header.
 
-<!-- [part 4](./sqlite_parser_pt4.md) -->
+[part 4](@/blog/sqlite_parser_pt4.md)

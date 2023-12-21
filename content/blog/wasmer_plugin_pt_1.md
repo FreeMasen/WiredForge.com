@@ -9,11 +9,12 @@ date_sort = 20190530
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
-A few months ago, the [Wasmer](https://wasmer.io) team announced a Web Assembly (aka wasm) interpreter that could be embedded into rust programs. This is particularly exciting for anyone looking to add plugins to their project and since Rust provides a way to directly compile programs to wasm, it seems like a perfect option. In this series of blog posts we are going to investigate what building a plugin system using wasmer and rust would take. 
+A few months ago, the [Wasmer](https://wasmer.io) team announced a Web Assembly (aka wasm) interpreter that could be embedded into rust programs. This is particularly exciting for anyone looking to add plugins to their project and since Rust provides a way to directly compile programs to wasm, it seems like a perfect option. In this series of blog posts we are going to investigate what building a plugin system using wasmer and rust would take.
 
 ## The Setup
 
 Before we really dig into the specifics, we should have a layout in mind for our project. That way if you want to follow along on your own computer, you can and if your not, nothing will seem like _magic_. To do this we are going to take advantage of cargo's workspace feature which allows us to collect a bunch of related projects in one parent project. You can also find a github repo with all of the code [here](https://github.com/FreeMasen/wiredforge-wasmer-plugin-code), each branch will represent a different state of this series. The basic structure we are going to shoot for would look something like this.
+
 ```
 wasmer-plugin-example
 ├── Cargo.toml
@@ -33,6 +34,7 @@ wasmer-plugin-example
 └── src
     └── lib.rs
 ```
+
 - `wasmer-plugin-example` - A rust library, the details of which we will cover in detail in one of the next parts
   - `crates` - The folder that will house all of our other projects
     - `example-plugin` - The plugin we will use to test that everything is working as expected
@@ -126,6 +128,7 @@ cargo build --target wasm32-unknown-unknown
 At this point we should have a file in `./target/wasm32-unknown-unknown/debug/example_plugin.wasm`. Now that we have that, let's build a program that will run this, first we will get our dependencies all setup.
 
 ## Our First Runner
+
 ```toml
 # ./crates/example-runner/Cargo.toml
 [package]
@@ -137,6 +140,7 @@ edition = "2018"
 [dependencies]
 wasmer_runtime = "0.3.0"
 ```
+
 Here we are adding the `wamer_runtime` crate which we will use to interact with our web assembly module.
 
 ```rust
@@ -157,13 +161,16 @@ fn main() {
     let three = add.call(1, 2).expect("failed to execute add");
     println!("three: {}", three); // "three: 3"
 }
-``` 
+```
+
 First, we have our `use` statement, there was are just grabbing 2 things; the `imports` macro for easily defining our import object and the `instantiate` function for converting bytes into a web assembly module instance. We are going to use the `include_bytes!` macro for now to read our bytes but eventually we will want to make this a little more flexible.  Inside of our `main` we are going to call `instantiate` with the wasm bytes as the first argument and an empty imports object as the second. Next we are going to use the `func` method on `instance` to bind the function `add` giving it the arguments types of two `i32`s and a return value of an `i32`. At this point we can use the `call` method on the function `add`, and then print the result to the terminal. When we `cargo run` it should successfully print `three: 3` in the terminal.
 
 Huzzah, success! but that isn't super useful. Let's investigate what we would need to make it more useful.
 
 ## Digging Deeper
+
 ### Our requirements
+
 1. Access to the WASM Memory before our function runs
 2. A way to insert a more complicated data structure into that memory
 3. A method to communicate where and what the data is to the wasm module
@@ -174,6 +181,7 @@ First we need a way to initialize some value into the wasm module's memory befor
 ![Bill Murray everyone...](https://media0.giphy.com/media/NAe117ka9jAdi/giphy.gif?cid=790b76115cb8b4c2565a54784d25a2f4)
 
 ### Our Second Plugin
+
 ```rust
 // ./crates/example-plugin/src/lib.rs
 
@@ -262,5 +270,4 @@ original: 34, wasm: 34
 
 Huzzah! Success again! But alas, still pretty useless. It does however give us a good foundation to build upon for working with more complicated data. We saw how to interact with the wasm memory on both sides of the equation which we will exploit in part 2.
 
-
-[part two](/blog/wasmer-plugin-pt-2/index.html)
+[part two](@/blog/wasmer_plugin_pt_2.md)

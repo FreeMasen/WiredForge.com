@@ -9,11 +9,11 @@ date_sort = 20190420
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
-If you haven't seen it yet, you may want to checkout [part one](/blog/wasmer-plugin-pt-1/index.html) where we went over the basics of using wasmer. In this post we are going to cover how we could pass more complicated data from the wasm module back to the runner.
+If you haven't seen it yet, you may want to checkout [part one](@/blog/wasmer_plugin_pt_1.md) where we went over the basics of using wasmer. In this post we are going to cover how we could pass more complicated data from the wasm module back to the runner.
 
 ### Yet Another Plugin
-To start we are going to create another plugin, this one will take a string as an argument and return that string doubled. Here is what that plugin would look like.
 
+To start we are going to create another plugin, this one will take a string as an argument and return that string doubled. Here is what that plugin would look like.
 
 ```rust
 // ./crates/example-plugin/src/lib.rs
@@ -214,13 +214,13 @@ fn main() {
     println!("doubled: {}", wasm_string);
 }
 ```
+
 Ok, a few more things are going on in this one. First we immediately update the memory's bytes 1 through 4 to be set to 0, this is where we are going to put the new length. We continue normally until after we call `_double`. This time through we are going to pull those first 4 bytes out of the wasm memory into a 4 byte array and convert that to a u32. We need to cast this u32 to a usize because we are going to be using it in as an index later. We can now update our `end` to use this new value instead of the old one. From that point on we keep going the same way. If we were to run this we should see the following.
 
 ```
 cargo run
 doubled: supercalifragilisticexpialidocioussupercalifragilisticexpialidocious
 ```
-
 
 Huzzah! Success... and it is far more robust that before. If we executed a wasm module that exported `_double` that actually tripled a string or cut the string in half, we would still know the correct length. Now that we can pass arbitrary sets of bytes from rust to wasm and back again that means we have to tools to pass more complicated data. All we need now is a way to turn any struct into bytes and then back again, for that we can use something like [`bincode`](https://github.com/TyOverby/bincode) which is a binary serialization format used by [WebRender](https://github.com/servo/webrender) and [Servo's ipc-channel](https://github.com/servo/ipc-channel). It implements the traits defined by the [`serde`](https://serde.rs/) crate which greatly opens our options.
 
@@ -229,6 +229,7 @@ Since there are a bunch of `serde` trait implementations for a bunch of standard
 ### Slightly More Interesting™
 
 First we want to update the dependencies for both our runner and plugin projects. Update the 2 Cargo.toml files to look like this.
+
 ```
 # ./crates/example-runner/Cargo.toml
 [package]
@@ -241,6 +242,7 @@ edition = "2018"
 wasmer-runtime = "0.3.0"
 bincode = "1"
 ```
+
 ```
 # ./crates/example-plugin/Cargo.toml
 [package]
@@ -390,6 +392,7 @@ fn main() {
     println!("multiply {}: ({}, {:?})", pair.0, updated.0, updated.1);
 }
 ```
+
 First, we have updated our `use` statements to include some `std::time` items and the bincode functions for serializing and deserializing. We are going to use the same string as we did last time and calculate a pseudo random number between 1 and 10 that will serve as the parts of our tuple. Once we have constructed our tuple, we pass that off to `bincode::serialize` which gets us back to a `Vec<u8>`. We continue on just like our string example until after we get the new length back from the wasm module. At this point we are going to build the updated_bytes the same as before and pass those along to `bincode::deserialize` which should get us back to a tuple.
 
 ```
@@ -400,5 +403,4 @@ multiply 2: (136, "supercalifragilisticexpialidocioussupercalifragilisticexpiali
 Huzzah! Another success! At this point it might be a good idea to address the ergonomics all of this, if we asked another developer to understand all of this, do you think anyone would build a plugin for our system? Probably not. In the next post we are going to cover how to ease that process by leveraging `proc_macros`.
 
 
-[part three](/blog/wasmer-plugin-pt-3/index.html)
-
+[part three](@/blog/wasmer_plugin_pt_3.md)

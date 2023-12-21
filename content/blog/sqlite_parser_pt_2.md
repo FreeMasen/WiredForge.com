@@ -8,7 +8,7 @@ snippet = "The Header... continues"
 +++
 
 This is the second in a series of posts describing the process of building a SQLite file parser. 
-If you missed the first part you can find it [here](./sqlite_parser_pt_1.md).
+If you missed the first part you can find it [here](@/blog/sqlite_parser_pt_1.md).
 
 Continuing from where we left off, we need to figure out what the
 next few bytes of the headers are supposed to look like.
@@ -547,4 +547,4 @@ We are getting very close to having this whole header knocked out! However,
 since we are going to dig into the meaning of each of these values, we should
 take a break here and pick this up in the next post.
 
-[part 3](./sqlite_parser_pt_3.md)
+[part 3](@/blog/sqlite_parser_pt_3.md)
