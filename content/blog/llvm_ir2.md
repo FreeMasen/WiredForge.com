@@ -6,4 +6,4 @@ draft = true
 snippet = "Playing around with LLVM IR a little more"
 +++
 
-In the [last post](@/blog/llvm_ir.md)
+In the [last post](@/blog/llvm_ir.md) we covered some basics of the LLVM IR language
