@@ -185,8 +185,11 @@ pre code {
 blockquote {
   padding: .5rem 1rem;
   margin: .8rem 0;
-  color: #7a7a7a;
-  border-left: .25rem solid #e5e5e5;
+  // color: #575757;
+  // border-left: .25rem solid #575757;
+  background-color: #575757;
+  color: #fff;
+  border-left: .25rem solid #46816f;
 }
 blockquote p:last-child {
   margin-bottom: 0;
