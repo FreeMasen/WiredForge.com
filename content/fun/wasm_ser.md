@@ -9,7 +9,8 @@ image = "rust-wasm-logo-purple.png"
 
 <link type="text/css" rel="stylesheet" href="ser_test.css"/>
 
-# Results
+### Results
+
 <div id="tests">
     <div id="native" class="result-list">
     </div>
@@ -18,9 +19,10 @@ image = "rust-wasm-logo-purple.png"
 </div>
 <script src="/js/wasm_ser.js" type="text/javascript"></script>
 
-# Tests
+#### Tests
 
-## Shared Code
+#### Shared Code
+
 ```rust
 ///The primary rust serialization/deserialization library
 extern crate serde;
@@ -144,7 +146,7 @@ fn msgs() -> Vec<Message> {
 }
 ```
 
-## Native Code
+#### Native Code
 
 ```rust
 ///This is a Hyper.rs endpoint for getting the results running on a native 
@@ -173,7 +175,7 @@ fn now() -> u32 {
 }
 ```
 
-## WASM Code
+#### WASM Code
 
 ```rust
 ///enable the wasm-bindgen macros

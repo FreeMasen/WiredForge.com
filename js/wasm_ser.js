@@ -4,9 +4,9 @@ init.booted.then(() => {
     getWasmResults();
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-    getNativeResults();
-});
+// window.addEventListener('DOMContentLoaded', () => {
+//     getNativeResults();
+// });
 
 /**
  * Execute the tests using the downloaded wasm module
@@ -38,6 +38,7 @@ function updateResults(id, result) {
     let container = ensureListState(id);
     let refresh = document.createElement('button');
     refresh.setAttribute('class', 'refresh-button');
+    refresh.innerHTML = "Refresh";
     let title = document.createElement('h1');
     title.setAttribute('class', 'test-title');
     if (id == 'native') {
