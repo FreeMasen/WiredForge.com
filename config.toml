@@ -21,9 +21,9 @@ extra_syntaxes_and_themes = ["syntaxes"]
 [extra]
 # Put all your custom variables here
 hyde_links = [
-    {url = "/utils/index.html", name = "Utils"},
-    {url = "/fun/index.html", name = "Fun"},
-    {url = "/about/index.html", name = "About"},
+    {url = "/utils", name = "Utils"},
+    {url = "/fun", name = "Fun"},
+    {url = "/about", name = "About"},
 ]
 hyde_theme = "theme-base-0c"
 hyde_sticky = false
