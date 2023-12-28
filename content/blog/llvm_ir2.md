@@ -118,24 +118,24 @@ These instructions are going to be valuable when working with structs since stru
 behind a pointer in LLVM-IR. So, how do we declare a struct?
 
 ```llvm
-; Data type representing a location in 3 dimensions
-%Vec3 = type { i32, i32, i32 }
+; Data type representing a grid coordinate
+%Coord = type { i32, i32 }
 ```
 
 Interestingly, we use the same syntax for local variables as we do for named structs, this is
 because named structs are _technically_ just an alias for the literal struct syntax. We can use the
 `type` keyword followed by each of the property types surrounded by curly braces. The above code
-then defines a struct named `Vec3` that has 3 properties, each of which are an `i32`.
+then defines a struct named `Coord` that has 2 properties, each of which are an `i32`.
 
 There isn't any syntax to allow for creating a struct, instead we have to use `alloca`, a typical
 pattern is to provide a function that will initialize a pointer to a struct with some defaults.
 
 ```llvm
-; Data type representing a location in 3 dimensions
-%Vec3 = type { i32, i32, i32 }
+; Data type representing a grid coordinate
+%Coord = type { i32, i32 }
 
-; Initialize a Vec3 with 0 for each property
-define void @init_vec3(ptr %vec3) {
+; Initialize a Coord with 0 for each property
+define void @init_coord(ptr %coord) {
 entry:
     ; TODO: fill this in
     ret void
@@ -143,35 +143,35 @@ entry:
 
 define i32 @main() {
 entry:
-    ; Allocate a chunk of memory the size of %Vec3 on the stack
-    %vec3 = alloca %Vec3
-    call void @init_vec3(ptr %vec3)
+    ; Allocate a chunk of memory the size of %Coord on the stack
+    %coord = alloca %Coord
+    call void @init_coord(ptr %coord)
     ret i32 0
 }
 ```
 
-With that, we now have a valid llvm-ir program that allocates a chunk of stack memory for our `Vec3`
-and passes the pointer off to be initialized. Before we can dig in on `init_vec3` we need to go over
+With that, we now have a valid llvm-ir program that allocates a chunk of stack memory for our `Coord`
+and passes the pointer off to be initialized. Before we can dig in on `init_coord` we need to go over
 a new instruction `getelementptr`. This instruction is the primary way to interact with th members
 of a struct, array or vector. Let's start by actually writing one out and then we can go over each
 of the arguments.
 
 ```llvm
 ; Data type representing a location in 3 dimensions
-%Vec3 = type { i32, i32, i32 }
+%Coord = type { i32, i32 }
 
-; Initialize a Vec3 with 0 for each property
-define void @init_vec3(ptr %vec3) {
+; Initialize a Coord with 0 for each property
+define void @init_coord(ptr %coord) {
 entry:
-    ; Get a pointer to the first field of the provided %Vec3
-    %x_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 0
+    ; Get a pointer to the `x` property
+    %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
     ret void
 }
 
 define i32 @main() {
 entry:
-    %vec3 = alloca %Vec3
-    call void @init_vec3(ptr %vec3)
+    %coord = alloca %Coord
+    call void @init_coord(ptr %coord)
     ret i32 0
 }
 ```
@@ -184,81 +184,72 @@ pointer _can_ be the first element in an array. The 3rd argument is actually whi
 potential array do we want to access but for non-array pointers this will always be `i32 0`. Finally
 the 4th argument is the 0-based index for the property we want to access.
 
-Ok, so now we have a pointer to the `x` property of our `Vec3`, that means we can use the `store`
-instruction to set that value. While we're at it we can add the other 2 properties as well.
+Ok, so now we have a pointer to the `x` property of our `Coord`, that means we can use the `store`
+instruction to set that value. While we're at it we can add the other property as well.
 
 ```llvm
-; Data type representing a location in 3 dimensions
-%Vec3 = type { i32, i32, i32 }
+; Data type representing a grid coordinate
+%Coord = type { i32, i32 }
 
-; Initialize a Vec3 with 0 for each property
-define void @init_vec3(ptr %vec3) {
+; Initialize a Coord with 0 for each property
+define void @init_coord(ptr %coord) {
 entry:
     ; Get a pointer to the `x` property
-    %x_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 0
+    %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
     ; Store the default value to `x`
     store i32 0, ptr %x_ptr
     ; Get a pointer to the `y` property
-    %y_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 1
+    %y_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 1
     ; Store the default value to `y`
     store i32 0, ptr %y_ptr
-    ; Get a pointer to the `z` property
-    %z_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 2
-    ; Store the default value to `z`
-    store i32 0, ptr %z_ptr
     ret void
 }
 
 define i32 @main() {
 entry:
-    %vec3 = alloca %Vec3
-    call void @init_vec3(ptr %vec3)
+    %coord = alloca %Coord
+    call void @init_coord(ptr %coord)
     ret i32 0
 }
+
 ```
 
 But, right now we don't have a way to inspect our code to confirm it is working the way we want
-so we should add a helper to print a `%Vec3`.
+so we should add a helper to print a `%Coord`.
 
 ```llvm
 declare i32 @printf(ptr, ...)
 
-; Define the format string for `printf`
-@fmt = global [ 14 x i8 ] c"[%i, %i, %i]\0A\00"
+@fmt = global [ 10 x i8 ] c"[%i, %i]\0A\00"
 
-; Data type representing a location in 3 dimensions
-%Vec3 = type { i32, i32, i32 }
+; Data type representing a grid coordinate
+%Coord = type { i32, i32 }
 
-; Initialize a Vec3 with 0 for each property
-define void @init_vec3(ptr %vec3) {
+; Initialize a Coord with 0 for each property
+define void @init_coord(ptr %coord) {
 entry:
-    %x_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 0
+    %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
     store i32 0, ptr %x_ptr
-    %y_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 1
+    %y_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 1
     store i32 0, ptr %y_ptr
-    %z_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 2
-    store i32 0, ptr %z_ptr
     ret void
 }
 
-; Print a `%Vec3` to stdout as `[x, y, z]`
-define void @print_vec3(ptr %vec3) {
+define void @print_coord(ptr %coord) {
 entry:
-    %x_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 0
+    %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
     %x = load i32, ptr %x_ptr
-    %y_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 1
+    %y_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 1
     %y = load i32, ptr %y_ptr
-    %z_ptr = getelementptr %Vec3, ptr %vec3, i32 0, i32 2
-    %z = load i32, ptr %z_ptr
-    call i32 @printf(ptr @fmt, i32 %x, i32 %y, i32 %z)
+    call i32 @printf(ptr @fmt, i32 %x, i32 %y)
     ret void
 }
 
 define i32 @main() {
 entry:
-    %vec3 = alloca %Vec3
-    call void @init_vec3(ptr %vec3)
-    call void @print_vec3(ptr %vec3)
+    %coord = alloca %Coord
+    call void @init_coord(ptr %coord)
+    call void @print_coord(ptr %coord)
     ret i32 0
 }
 
