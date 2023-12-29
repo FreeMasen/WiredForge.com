@@ -16,6 +16,6 @@ in our database file header. The issue is that instead of the application id bei
 through 68, it is actually at bytes 68 through 72. This means that call to `validate_reserved_zeros`
 was validating too many bytes.
 
-A small code change to include this new value has also been made in [part 4](./sqlite_parser_pt4.md)
+A small code change to include this new value has also been made in [part 4](@/blog/sqlite_parser_pt4.md)
 
 A huge thank you to github user [Neopallium](https://github.com/Neopallium) for opening an [issue](https://github.com/FreeMasen/WiredForge.com/issues/49) to point this out.

@@ -8,11 +8,11 @@ snippet = "Pages, Pages, Pages"
 +++
 
 This is the fifth in a series of posts describing the process of building a SQLite file parser. If
-you missed the last part you can find it [here](./sqlite_parser_pt4.md).
+you missed the last part you can find it [here](@/blog/sqlite_parser_pt4.md).
 
 Now that we've gotten the header fully parsed, we can now start parsing the rest of the file. As
 covered in previous posts, the file is broken into pages and each page being a fixed size. Looking
-at the output of our last run back in [part 3](./sqlite_parser_pt_3.md), we see the following.
+at the output of our last run back in [part 3](@/blog/sqlite_parser_pt_3.md), we see the following.
 
 ```sh
 DatabaseHeader {

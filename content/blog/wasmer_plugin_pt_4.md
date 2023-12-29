@@ -9,7 +9,7 @@ date_sort = 20190501
 image_desc = "Made by Freepik from www.flaticon.com, licensed by CC-3.0-BY"
 +++
 
-In the last three posts of this series we covered all of the things we would need to use [`Wasmer`](http://wasmer.io) as the base for a plugin system. In [part one](@/blog/wasmer_plugin_pt_1.md) we went over the basics of passing simple data in and out of a web assembly module, in [part two](@/blog/wasmer_plugin_pt_2.md) we dug deeper into how you might do the same with more complicated data. In the [last part](/blog/wasmer_plugin_pt_3.md) we eased the experience of plugin developers by encapsulating all of our work into a library that exports a procedural macro. In this post we are going to explore what it would take to extend an existing plugin system to allow for wasm plugins.
+In the last three posts of this series we covered all of the things we would need to use [`Wasmer`](http://wasmer.io) as the base for a plugin system. In [part one](@/blog/wasmer_plugin_pt_1.md) we went over the basics of passing simple data in and out of a web assembly module, in [part two](@/blog/wasmer_plugin_pt_2.md) we dug deeper into how you might do the same with more complicated data. In the [last part](@/blog/wasmer_plugin_pt_3.md) we eased the experience of plugin developers by encapsulating all of our work into a library that exports a procedural macro. In this post we are going to explore what it would take to extend an existing plugin system to allow for wasm plugins.
 
 ## Enter MDBook
 
