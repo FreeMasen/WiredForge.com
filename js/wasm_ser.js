@@ -4,9 +4,9 @@ init.booted.then(() => {
     getWasmResults();
 });
 
-// window.addEventListener('DOMContentLoaded', () => {
-//     getNativeResults();
-// });
+window.addEventListener('DOMContentLoaded', () => {
+    getNativeResults();
+});
 
 /**
  * Execute the tests using the downloaded wasm module
@@ -22,12 +22,8 @@ function getWasmResults() {
  * Request the natively compiled results and update the dom
  */
 function getNativeResults() {
-    fetch('sertest/native')
-        .then(res => {
-            res.json().then(res => {
-                updateResults('native', TestResult.fromJson(res));
-            });
-        })
+    updateResults('native', null);
+    
 }
 /**
  * Update the dom with a set of test results
@@ -38,13 +34,14 @@ function updateResults(id, result) {
     let container = ensureListState(id);
     let refresh = document.createElement('button');
     refresh.setAttribute('class', 'refresh-button');
+    if (!result) {
+        refresh.setAttribute("disabled", true)
+    }
     refresh.innerHTML = "Refresh";
     let title = document.createElement('h1');
     title.setAttribute('class', 'test-title');
     if (id == 'native') {
-        title.appendChild(document.createTextNode(id.replace('n', 'N')));
-        refresh.addEventListener('click', () => getNativeResults());
-        
+        title.appendChild(document.createTextNode(id.replace('n', 'N')));        
     } else if (id == 'wasm') {
         refresh.addEventListener('click', () => getWasmResults());
         title.appendChild(document.createTextNode(id.toUpperCase()));
@@ -63,6 +60,9 @@ function updateResults(id, result) {
 function generateList(name, test) {
     let list = document.createElement('ul');
     list.setAttribute('id', name.toLowerCase());
+    if (!test) {
+        test = {largest: "disabled", total: "disabled", end: onabort, start: 0, unit: "disabled"}
+    }
     list.appendChild(generateItem(name, ''));
     list.appendChild(generateItem(`Largest serialized:`, `${test.largest}`));
     list.appendChild(generateItem(`Total serialized:`, `${test.total}`));
