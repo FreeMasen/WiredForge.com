@@ -22,8 +22,7 @@ function getWasmResults() {
  * Request the natively compiled results and update the dom
  */
 function getNativeResults() {
-    updateResults('native', null);
-    
+    updateResults('native', TestResult.fromJson());
 }
 /**
  * Update the dom with a set of test results
@@ -34,9 +33,6 @@ function updateResults(id, result) {
     let container = ensureListState(id);
     let refresh = document.createElement('button');
     refresh.setAttribute('class', 'refresh-button');
-    if (!result) {
-        refresh.setAttribute("disabled", true)
-    }
     refresh.innerHTML = "Refresh";
     let title = document.createElement('h1');
     title.setAttribute('class', 'test-title');
@@ -125,8 +121,8 @@ function TestResult(rmp, bin) {
  */
 TestResult.fromJson = function(json) {
     return new TestResult(
-        Test.fromJson(json.rmp),
-        Test.fromJson(json.bin),
+        Test.fromJson(json && json.rmp || {}),
+        Test.fromJson(json && json.bin || {}),
     )
 }
 
@@ -153,10 +149,10 @@ function Test(start, end, unit, largest, total) {
  */
 Test.fromJson = function(json) {
     return new Test(
-        json.start_timestamp,
-        json.end_timestamp,
-        json.time_unit,
-        json.largest,
-        json.total_size
+        json && json.start_timestamp || 0,
+        json && json.end_timestamp || 0,
+        json && json.time_unit || "",
+        json && json.largest || "disabled",
+        json && json.total_size || "disabled"
     )
 }
