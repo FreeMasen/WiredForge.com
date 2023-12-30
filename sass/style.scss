@@ -8,8 +8,8 @@
     
 }
 
-.post:has(> .draft-message) {
-    border: 1px dashed red;
+main:has( .draft-message) {
+    border: 5px dashed red;
 }
 
 .draft-message::before,

@@ -252,5 +252,82 @@ entry:
     call void @print_coord(ptr %coord)
     ret i32 0
 }
+```
+
+Now we can run this using `lli` if the file is named `c.ll`.
+
+```sh
+lli ./c.ll
+[0, 0]
+```
+
+Nice, that works exactly as we had expected. But managing the use of the `getelementptr` indexes
+seems pretty difficult to maintain, maybe we should create some getters/setters for those
+properties.
+
+```llvm
+declare i32 @printf(ptr, ...)
+
+@fmt = global [ 10 x i8 ] c"[%i, %i]\0A\00"
+
+; Data type representing a grid coordinate
+%Coord = type { i32, i32 }
+
+; Get the `x` property from the provided `coord`
+define i32 @Coord_get_x(ptr %coord) {
+entry:
+    %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
+    %x = load i32, ptr %x_ptr
+    ret i32 %x
+}
+
+; Update the provided coord's `x` property wth the value provided
+define void @Coord_set_x(ptr %coord, i32 %x) {
+entry:
+    %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
+    store i32 %x, ptr %x_ptr
+    ret void
+}
+
+; Get the `y` property from the provided `coord`
+define i32 @Coord_get_y(ptr %coord) {
+entry:
+    %y_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 1
+    %y = load i32, ptr %y_ptr
+    ret i32 %y
+}
+
+; Update the provided coord's `y` property wth the value provided
+define void @Coord_set_y(ptr %coord, i32 %y) {
+entry:
+    %y_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 1
+    store i32 %y, ptr %y_ptr
+    ret void
+}
+
+; Initialize a Coord with 0 for each property
+define void @init_coord(ptr %coord) {
+entry:
+    call void @Coord_set_x(ptr %coord, i32 0)
+    call void @Coord_set_y(ptr %coord, i32 0)
+    ret void
+}
+
+; Print a Coord as [x, y]
+define void @print_coord(ptr %coord) {
+entry:
+    %x = call i32 @Coord_get_x(ptr %coord)
+    %y = call i32 @Coord_get_y(ptr %coord)
+    call i32 @printf(ptr @fmt, i32 %x, i32 %y)
+    ret void
+}
+
+define i32 @main() {
+entry:
+    %coord = alloca %Coord
+    call void @init_coord(ptr %coord)
+    call void @print_coord(ptr %coord)
+    ret i32 0
+}
 
 ```
