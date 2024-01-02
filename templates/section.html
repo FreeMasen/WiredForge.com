@@ -12,7 +12,7 @@
     <div style="border:1px dashed red">
         <span>DRAFTS!!!</span>
         {% for page in pages | filter(attribute="draft", value=true) %}
-            <a class="post-summary draft-summary" href="{{page.path}}" >
+            <a class="post-title draft-title" href="{{page.path}}" >
                 <h2>{{page.title}}</h2>
             </a>
             {% if page.extra.snippet %}
@@ -23,18 +23,22 @@
             {% endfor %}
         {% endif %}
     </div>
+    <ul>
     {% for page in pages | filter(attribute="draft", value=false) %}
-        <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{page.path}}"{% endif %}>
-            <h2>{{ page.title }}</h2>
-            {%- if page.extra.extern_link -%}
-            <img alt="external link" width="24" height="24" src="/images/external_link.svg" />
-            {%endif%}
-        </a>
-        {% if page.extra.snippet %}
-            <span class="summary">
-                {{page.extra.snippet}}
-            </span>
-        {% endif %}    
+        <li class="post-entry">
+            <a class="post-title" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{page.path}}"{% endif %}>
+                <span>{{ page.title }}</span>
+                {%- if page.extra.extern_link -%}
+                <img alt="external link" width="24" height="24" src="/images/external_link.svg" />
+                {%endif%}
+            </a>
+            {% if page.extra.snippet %}
+                <span class="summary">
+                    {{page.extra.snippet}}
+                </span>
+            {% endif %}
+        </li>
     {% endfor %}
+    </ul>
 </div>
 {% endblock content %}
