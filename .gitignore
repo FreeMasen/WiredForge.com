@@ -4,7 +4,6 @@ node_modules/*
 **/*.log
 public/*
 **/*.sqlite
-static/js/*
 wiredforge
 **/.DS_Store
 rf

@@ -6,13 +6,17 @@
     </div>
     <div class="bottom-group">
         <div class="input-group">
+            <label for="lang-selection">Language</label>
+            <select id="lang-selection"></select>
+        </div>
+        <div class="input-group">
             <label for="voice-selection">Voice</label>
             <select id="voice-selection"></select>
         </div>
         <div class="button-group">
             <button type="reset" id="clear">Clear</button>
-            <button type="submit" id="submit" onclick="speak(event)">Say</button>
+            <button type="submit" id="submit">Say</button>
         </div>
     </div>
 </div>
-<script type="text/javascript" src="/js/voice.js"></script>
+<script type="module" src="/js/voice.js"></script>

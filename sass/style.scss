@@ -53,6 +53,17 @@
     }
 }
 
+.page-list .post-summary {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-start;
+    align-items: first baseline;
+    img {
+        margin-left: 5px;
+
+    }
+}
+
 pre {
     overflow-x: auto !important;
 }

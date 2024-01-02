@@ -24,16 +24,17 @@
         {% endif %}
     </div>
     {% for page in pages | filter(attribute="draft", value=false) %}
-        {% if render_drafts or not page.draft %}
-            <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{page.path}}"{% endif %}>
-                <h2>{{ page.title }}</h2>
-            </a>
-            {% if page.extra.snippet %}
-                <span class="summary">
-                    {{page.extra.snippet}}
-                </span>
-            {% endif %}
-        {% endif %}     
+        <a class="post-summary" href={% if page.extra.extern_link %}"{{page.extra.extern_link}}"{% else %}"{{page.path}}"{% endif %}>
+            <h2>{{ page.title }}</h2>
+            {%- if page.extra.extern_link -%}
+            <img alt="external link" width="24" height="24" src="/images/external_link.svg" />
+            {%endif%}
+        </a>
+        {% if page.extra.snippet %}
+            <span class="summary">
+                {{page.extra.snippet}}
+            </span>
+        {% endif %}    
     {% endfor %}
 </div>
 {% endblock content %}

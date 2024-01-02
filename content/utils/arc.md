@@ -9,4 +9,4 @@ image = "arc.png"
 
 <link type="text/css" rel="stylesheet" href="/arc.css" />
 <div class="arc"></div>
-<script type="text/javascript" src="/js/arc.js" ></script>
+<script type="module" src="/js/arc.js" ></script>

@@ -17,7 +17,7 @@ image = "rust-wasm-logo-purple.png"
     <div id="wasm"class="result-list">
     </div>
 </div>
-<script src="/js/wasm_ser.js" type="text/javascript"></script>
+<script src="/js/wasm_ser.js" type="module"></script>
 
 #### Tests
 
