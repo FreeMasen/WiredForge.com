@@ -12,8 +12,6 @@ generate_feeds = true
 feed_filenames = ["atom.xml"]
 author = "Robert Masen <r.f.masen@gmail.com>"
 
-# Whether to do syntax highlighting
-# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Gutenberg
 [markdown]
 highlight_code = true
 highlight_theme = "night-owl"
