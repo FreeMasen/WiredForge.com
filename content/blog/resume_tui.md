@@ -2,6 +2,8 @@
 title = "Resume TUI"
 date = 2025-01-19
 draft = false
+[extra]
+snippet = "Re-imagining my resume"
 +++
 
 In the last couple of years I stumbled upon a
