@@ -13,10 +13,6 @@ Text User Interface (TUI) application might be a fun way to show off my expertis
 As I started to develop this application I reached for the [`ratatui`](https://ratatui.rs/)
 crate to provide the TUI facilities and started to think about how I wanted to organize this information.
 
-> TLDR
-> [Install or Preview](http://gh.freemasen.com/resume-tui/)
-
-
 I opted for a tab based layout with a side-bar on the left for the tabs and the following sections
 
 - Home: Name, tagline and links to Github, LinkedIn
@@ -31,33 +27,33 @@ I opted for a tab based layout with a side-bar on the left for the tabs and the 
 
 So, that would look something like this:
 
-```plaintext
-┌───Menu────┬─────────────────────────Home──────────────────────────┐
-│Home       │                                                       │
-│Work       │                                                       │
-│Open Source│                                                       │
-│Education  │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-│           │                                                       │
-└───────────┴───────────────────────────────────────────────────────┘
-```
+![asciicast preview as an animated gif](/images/tui.gif)
+
+> [Install](http://gh.freemasen.com/resume-tui/) or [Preview](http://gh.freemasen.com/resume-tui/live-preview/)
 
 That already looks pretty good! So now how to populate these tabs?
 
 To start I created some structures to represent the data.
 
 ```Rust
+/// All of the data needed to run
+pub struct Database {
+    /// My Name
+    pub name: &'static str,
+    /// A short statement about myself
+    pub tag_line: &'static str,
+    /// A github URL
+    pub github: Option<&'static str>,
+    /// A linkedin URL
+    pub linkedin: Option<&'static str>,
+    /// List of jobs in order
+    pub jobs: &'static [Workplace],
+    /// List of open source projects
+    pub open_source: &'static [Project],
+    /// List of school
+    pub education: &'static [School],
+}
+
 /// A single job
 pub struct Workplace {
     /// Where did I work?
@@ -129,10 +125,51 @@ static WORK: &[Workplace] = &[
 ]
 ```
 
-That _would_ work but it just feels clunky to have to write all the contents in-line like that.
-Once a `detail` reaches a certain size things start to get really ugly.
+That _would_ work but it just feels clunky to have to write all the contents in-line like that. Once
+a `detail` reaches a certain size things start to get really ugly. For example, what exactly would
+be rendered in the `detail` in the above example? Would that padding on lines 2 and 3 of the field
+be removed or included? What about line breaks, should those three lines be combined into a single
+line? Last but not least, writing the recursive `Project` would end up either shifting left a bunch
+or would require a lot of `const`s.
 
-So then, we probably want to pick a serialization format to author the contents. I chose `toml` for
+```rust
+const PROJECTS = &[Project {
+        name: "Some Organization",
+        short_desc: "Open source can be powerful",
+        long_desc: "A collection of open source projects that are related in some way",
+        sub_projects: &[Project {
+          name: "Some Project",
+          short_desc: "Some small part of the organization",
+          long_desc: "Fulling the missions in some way ends up \
+    being and important part of the organization.
+
+    For some folks, the task isn't easy but with our project it
+    becomes not only easy but fun!"
+          sub_projects: &[],
+        }, Project {
+          name: "Some Project 2"
+          short_desc: "Some other part of the organization",
+          long_desc: "Fulling the missions in some other way ends up
+    being and important part of the organizational existence.
+
+    For some folks, the task isn't possible but with our second project it
+    becomes fully possible!"
+          sub_projects: &[],
+        }],
+    }, Project {
+      name: "Some Stand Alone Project",
+      short_desc: "This one is not in an organization",
+      long_desc: "Can you tell that?
+
+      I struggle to parse this all out quickly.",
+      sub_projects: &[],
+    }]
+```
+
+The above consists of just 1 organization with 2 projects and 1 stand alone project and I'm already
+having a hard time telling where the organization ends and the stand alone project starts.
+
+So then, I want to pick a serialization format to author the contents. I chose `toml` for
 that since it can be mostly flat and handles multi-line strings well.
 
 ```toml
