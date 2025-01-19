@@ -1,7 +1,7 @@
 +++
 title = "Resume TUI"
-date = 2025-01-31
-draft = true
+date = 2025-01-19
+draft = false
 +++
 
 In the last couple of years I stumbled upon a
