@@ -104,7 +104,7 @@
 				<key>fontStyle</key>
 				<string>italic</string>
 				<key>foreground</key>
-				<string>#637777</string>
+				<string>#B5C0C0</string>
 			</dict>
 		</dict>
 		<dict>
@@ -217,6 +217,17 @@
 			<dict>
 				<key>foreground</key>
 				<string>#addb67</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>LLVM Block Labels</string>
+			<key>scope</key>
+			<string>variable.other.block-label.llvm</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>#ecc48d</string>
 			</dict>
 		</dict>
 		<dict>
@@ -1353,6 +1364,17 @@
 			<dict>
 				<key>foreground</key>
 				<string>#78ccf0</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>LLVM-IR block labels</string>
+			<key>scope</key>
+			<string>block-label.llvm</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>red</string>
 			</dict>
 		</dict>
 		<dict>
