@@ -1,6 +1,6 @@
 +++
 title = "LLVM IR Pt. 2"
-date = 2024-01-01
+date = 2025-01-22
 draft = true
 [extra]
 snippet = "Playing around with LLVM IR a little more"
@@ -39,7 +39,7 @@ looptop:
     br i1 %done, label %succ, label %loopbody
 loopbody:
     ; Call `printf` assigning the return value to `ret`
-    %ret = call i32 @printf(ptr @hw)
+    %ret = call i32  (ptr, ...) @printf(ptr @hw)
     ; Check if `ret` was 13
     %success = icmp eq i32 %ret, 13
     ; Compute the next index by adding 1 to `iter`
@@ -80,7 +80,7 @@ looptop:
     %done = icmp eq i32 %iter, 5
     br i1 %done, label %succ, label %loopbody
 loopbody:
-    %ret = call i32 @printf(ptr @hw)
+    %ret = call i32 (ptr, ...) @printf(ptr @hw)
     %success = icmp eq i32 %ret, 13
     %next = add i32 %iter, 1
     ; Overwrite our last `iter` with our next `iter` value
@@ -157,7 +157,7 @@ of a struct, array or vector. Let's start by actually writing one out and then w
 of the arguments.
 
 ```llvm
-; Data type representing a location in 3 dimensions
+; Data type representing a grid coordinate
 %Coord = type { i32, i32 }
 
 ; Initialize a Coord with 0 for each property
@@ -176,7 +176,7 @@ entry:
 }
 ```
 
-The new line we've added to `@init_vec3` is using `getelementptr` to get a pointer to the first
+The new line we've added to `@init_coord` is using `getelementptr` to get a pointer to the first
 property of our struct. The first two arguments are pretty straight forward, the first is the type
 our pointer represents and the second is the pointer. The third argument is where things start to
 get a little confusing because LLVM-IR views pointers in the same way the C views pointers, any
@@ -218,8 +218,10 @@ But, right now we don't have a way to inspect our code to confirm it is working 
 so we should add a helper to print a `%Coord`.
 
 ```llvm
+; Declare the stdio `printf` function
 declare i32 @printf(ptr, ...)
 
+; Define a global format string
 @fmt = global [ 10 x i8 ] c"[%i, %i]\0A\00"
 
 ; Data type representing a grid coordinate
@@ -237,11 +239,16 @@ entry:
 
 define void @print_coord(ptr %coord) {
 entry:
+    ; get a pointer to x
     %x_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 0
+    ; load the current value of x
     %x = load i32, ptr %x_ptr
+    ; get a pointer to y
     %y_ptr = getelementptr %Coord, ptr %coord, i32 0, i32 1
+    ; load the current value of y
     %y = load i32, ptr %y_ptr
-    call i32 @printf(ptr @fmt, i32 %x, i32 %y)
+    ; call printf with our fmt string and the loaded values
+    call i32 (ptr, ...) @printf(ptr @fmt, i32 %x, i32 %y)
     ret void
 }
 
@@ -253,6 +260,12 @@ entry:
     ret i32 0
 }
 ```
+
+> Note: you may have noticed the change to our call expression to `printf` from the last post.
+> Instead of providing only the return type it is also the argument types in this case
+> `i32 (ptr, ...)` because I was seeing the `printf` output would have random integers for the 2
+> `%d` formatting arguments instead of the `0, 0`, for some reason this only happens on MacOs but by
+> adding the argument types makes it behave as expected.
 
 Now we can run this using `lli` if the file is named `c.ll`.
 
@@ -318,7 +331,7 @@ define void @print_coord(ptr %coord) {
 entry:
     %x = call i32 @Coord_get_x(ptr %coord)
     %y = call i32 @Coord_get_y(ptr %coord)
-    call i32 @printf(ptr @fmt, i32 %x, i32 %y)
+    call i32  (ptr, ...) @printf(ptr @fmt, i32 %x, i32 %y)
     ret void
 }
 
@@ -331,3 +344,80 @@ entry:
 }
 
 ```
+
+Running this version should output the same as last time.
+
+```console
+lli ./c.ll
+[0, 0]
+```
+
+Ok, so now we can initialize our `Coord` struct and view its current state, what if we made some
+helper functions to move a `Coord` in a direction?
+
+
+```llvm
+; previous functions omitted...
+
+; Move up 1 on the Y access
+define void @Coord_move_up(ptr %coord) {
+entry:
+    i32 current_y = call i32 @Coord_get_y(ptr %coord)
+    i32 new_y = add i32 %current_y, 1
+    call void @Coord_set_y(ptr %coord, i32 %new_y)
+    ret void
+}
+
+; Move down 1 on the Y access
+define void @Coord_move_down(ptr %coord) {
+entry:
+    i32 current_y = call i32 @Coord_get_y(ptr %coord)
+    i32 new_y = sub i32 %current_y, 1
+    call void @Coord_set_y(ptr %coord, i32 %new_y)
+    ret void
+}
+
+; Move left 1 on the X access
+define void @Coord_move_left(ptr %coord) {
+entry:
+    i32 current_x = call i32 @Coord_get_y(ptr %coord)
+    i32 new_x = add i32 %current_x, 1
+    call void @Coord_set_x(ptr %coord, i32 %new_x)
+    ret void
+}
+
+; Move right 1 on the X access
+define void @Coord_move_right(ptr %coord) {
+entry:
+    i32 current_x = call i32 @Coord_get_y(ptr %coord)
+    i32 new_x = sub i32 %current_x, 1
+    call void @Coord_set_x(ptr %coord, i32 %new_x)
+    ret void
+}
+
+define i32 @main() {
+entry:
+    %coord = alloca %Coord
+    call void @init_coord(ptr %coord)
+    call void @print_coord(ptr %coord)
+    call void @Coord_move_left(ptr %coord)
+    call void @print_coord(ptr %coord)
+    call void @Coord_move_up(ptr %coord)
+    call void @print_coord(ptr %coord)
+    ret i32 0
+}
+
+```
+
+In this new code, we are going to add 4 new helper functions to bump the x and y axis by 1 either
+left, right, up or down. The `@main` now moves left 1 and up 1, printing the intermediate steps.
+
+```console
+lli ./c.ll
+[0, 0]
+[-1, 0]
+[-1, 1]
+```
+
+Alright! Now we've explored how to work with structs via `getelementptr` and use `printf` to
+inspect the state of our application.
