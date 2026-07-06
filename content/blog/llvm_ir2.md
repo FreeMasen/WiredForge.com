@@ -76,7 +76,7 @@ entry:
     br label %looptop
 looptop:
     ; Load the current value of `i` into the variable `iter`
-    %iter = load i32, ptr %i
+    %iter = load i32, ptr %i\
     %done = icmp eq i32 %iter, 5
     br i1 %done, label %succ, label %loopbody
 loopbody:
