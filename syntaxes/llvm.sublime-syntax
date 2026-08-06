@@ -13,13 +13,15 @@ contexts:
     - include: comments
     - include: literals
     - include: punctuation
-    - include: block-labels
     - include: types
-  block-labels:
-    - match: (([a-zA-Z0-9.-]*:)(\n| ))
-      captures:
-        "2": constant.language.symbol.llvm
-        "3": punctuation.separator.colon.llvm
+    - include: variables
+  variables:
+    - match: '@[-a-zA-Z$._][-a-zA-Z$._0-9]*'
+      scope: constant.other
+    - match: '%[-a-zA-Z$._][-a-zA-Z$._0-9]*'
+      scope: variable.other
+    - match: '[-a-zA-Z$._][-a-zA-Z$._0-9]*:(\n| )'
+      scope: variable.other.block-label.llvm
   comments:
     - match: ;.*$
       scope: comment.llvm
@@ -27,7 +29,7 @@ contexts:
     - match: '((#|!)[a-zA-Z0-9.]+)\b'
       scope: entity.other.attribute-name
   function-headers:
-    - match: (@\w*)(\()
+    - match: '(@[a-zA-Z0-9.-]+)(\()'
       captures:
         "1": entity.name.function
         "2": punctuation.separator.parameters.begin.llvm
@@ -38,40 +40,18 @@ contexts:
         - include: numbers
         - include: types
         - include: decorators
+        - include: variables
   keywords:
-    - match: '\b(?<![%\.])(ret|call)\b'
+    - match: '\b(?<![%\.])(ret|call|br)\b'
       scope: keyword.control.flow.llvm
-    - match: '\b(?<![%\.])(add|alloca|and|ashr|atomicrmw|attributes|bitcast|call|cmpxchg|declare|exact|extractelement|extractvalue|fadd|fcmp|fdiv|fence|fmul|fpext|fptosi|fptoui|fptrunc|frem|fsub|getelementptr|global|icmp|indirectbr|insertelement|insertvalue|inttoptr|invoke|landingpad|load|lshr|mul|one|or|ord|ptrtoint|resume|ret|sdiv|select|sext|shl|shufflevector|sitofp|srem|store|sub|switch|target|trunc|type|udiv|uitofp|unreachable|unwind|urem|va_arg|xor|zext)\b'
-      scope: keyword.other.llvm
-    - match: \b(define)\b
-      scope: storage.type.function.llvm
+    - match: '\b(?<![%\.])(add|alloca|and|ashr|atomicrmw|attributes|bitcast|call|cmpxchg|declare|define|exact|extractelement|extractvalue|fadd|fcmp|fdiv|fence|fmul|fpext|fptosi|fptoui|fptrunc|frem|fsub|getelementptr|global|indirectbr|insertelement|insertvalue|inttoptr|invoke|landingpad|load|lshr|mul|one|or|ord|phi|ptrtoint|resume|ret|sdiv|select|sext|shl|shufflevector|sitofp|srem|store|sub|switch|target|trunc|type|udiv|uitofp|unreachable|unwind|urem|va_arg|xor|zext)\b'
+      scope: keyword.other.llvm 
+    - match: '\bicmp +[a-z]+\b'
+      scope: keyword.other.llvm 
     - match: "="
       scope: keyword.operator.assignment
     - match: \b(to)\b
       scope: keyword.operator
-    - match: \b(br)\b
-      push:
-        - match: \n
-          pop: true
-        - include: punctuation
-        - include: types
-        - include: decorators
-        - match: '\b(label +(%[a-zA-Z0-9.-]*))\b'
-          captures: 
-            "2": constant.language.symbol.llvm
-    - match: \b(phi)\b
-      push:
-        - match: \n
-          pop: true
-        - include: punctuation
-        - include: types
-        - include: numbers
-        - match: '\['
-          scope: punctuation.definition.block.begin.llvm
-        - match: '( *(%[a-zA-Z0-9.-]*) *(\]))'
-          captures:
-            "2": constant.language.symbol.llvm
-            "3": punctuation.section.block.end.llvm
   literals:
     - match: \b(true|false|null|none)\b
       scope: constant.language.llvm
@@ -115,7 +95,7 @@ contexts:
   types:
     - match: ( *)((%)struct(\.)\w*)\b
       scope: entity.name.type.llvm
-    - match: '\b(?<![%\.])(i\d+|void|half|bfloat|float|double|fp128|x86_fp80|ppc_fp128)\b'
+    - match: '\b(?<![%\.])(i\d+|void|half|bfloat|float|double|fp128|x86_fp80|ppc_fp128|label|ptr)\b'
       scope: storage.type.primitive.llvm
     - match: <
       push:
